@@ -20,6 +20,21 @@ const userSchema = new mongoose.Schema(
       required: [true, "La contraseña es requerida"],
       minlength: 6,
     },
+    tenantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tenant",
+      required: [true, "El tenant es requerido"],
+      index: true,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "user", "kiosk-manager"],
+      default: "user",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,
@@ -39,5 +54,9 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
+
+// Índices compuestos para búsquedas eficientes
+userSchema.index({ email: 1, tenantId: 1 });
+userSchema.index({ tenantId: 1, isActive: 1 });
 
 export default mongoose.model("User", userSchema);

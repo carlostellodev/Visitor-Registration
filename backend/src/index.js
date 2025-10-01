@@ -4,7 +4,8 @@ import cors from "cors";
 import connectDB from "./config/database.js";
 
 // Importación de rutas
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./routes/authRoute.js";
+import tenantRoutes from "./routes/tenantRoute.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 
 // Rutas
 app.use("/api/auth", authRoutes);
+app.use("/api/tenants", tenantRoutes);
 
 // Ruta de prueba
 app.get("/", (req, res) => {

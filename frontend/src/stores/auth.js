@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
-import api from '@/utils/api'
+import api from '../utils/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: JSON.parse(localStorage.getItem('user')) || null,
+    user: null,
+    tenant: null,
     token: localStorage.getItem('token') || null,
     loading: false,
     error: null,
@@ -11,22 +12,28 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isAuthenticated: (state) => !!state.token,
-    currentUser: (state) => state.user,
+    tenantSlug: (state) => state.tenant?.slug || null,
+    tenantTheme: (state) => state.tenant?.theme || null,
   },
 
   actions: {
-    // Registro
-    async register(userData) {
+    async register({ name, email, password, tenantId }) {
       this.loading = true
       this.error = null
+
       try {
-        const response = await api.post('/auth/register', userData)
+        const response = await api.post('/auth/register', {
+          name,
+          email,
+          password,
+          tenantId,
+        })
+
         this.token = response.data.token
         this.user = response.data.user
+        this.tenant = response.data.user.tenant || null
 
-        // Guardar en localStorage
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
+        localStorage.setItem('token', this.token)
 
         return response.data
       } catch (error) {
@@ -37,18 +44,21 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // Login
-    async login(credentials) {
+    async login({ email, password }) {
       this.loading = true
       this.error = null
+
       try {
-        const response = await api.post('/auth/login', credentials)
+        const response = await api.post('/auth/login', {
+          email,
+          password,
+        })
+
         this.token = response.data.token
         this.user = response.data.user
+        this.tenant = response.data.user.tenant
 
-        // Guardar en localStorage
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
+        localStorage.setItem('token', this.token)
 
         return response.data
       } catch (error) {
@@ -59,26 +69,42 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // Logout
-    logout() {
-      this.user = null
-      this.token = null
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
+    async fetchUser() {
+      this.loading = true
+      this.error = null
+
+      try {
+        const response = await api.get('/auth/getUser')
+
+        this.user = {
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+          role: response.data.role,
+          isActive: response.data.isActive,
+          createdAt: response.data.createdAt,
+        }
+        this.tenant = response.data.tenant
+
+        return response.data
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Error al obtener perfil'
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
 
-    // Obtener perfil del usuario
-    async fetchProfile() {
-      const user_id = this.user?.id
-      try {
-        const response = await api.get('/auth/getUser', user_id)
-        this.user = response.data.user
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        return response.data.user
-      } catch (error) {
-        this.logout()
-        throw error
-      }
+    logout() {
+      this.user = null
+      this.tenant = null
+      this.token = null
+      this.error = null
+      localStorage.removeItem('token')
+    },
+
+    clearError() {
+      this.error = null
     },
   },
 })
