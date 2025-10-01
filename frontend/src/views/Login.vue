@@ -46,10 +46,18 @@ const form = ref({
 
 const handleLogin = async () => {
     try {
-        await authStore.login(form.value)
-        router.push('/')
+        authStore.clearError();
+        const result = await authStore.login(form.value);
+
+        // Redirigir a home con el slug del tenant
+        const tenantSlug = result.user?.tenant?.slug;
+        if (tenantSlug) {
+            router.push(`/home/${tenantSlug}`);
+        } else {
+            router.push('/home');
+        }
     } catch (error) {
-        console.error('Error en login:', error)
+        console.error('Error en login:', error);
     }
 }
 </script>
