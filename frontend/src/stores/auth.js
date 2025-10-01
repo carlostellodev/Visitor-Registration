@@ -10,6 +10,8 @@ export const useAuthStore = defineStore('auth', {
     error: null,
   }),
 
+  persist: true, // Por el plugin pinia-plugin-persistedstate
+
   getters: {
     isAuthenticated: (state) => !!state.token,
     tenantSlug: (state) => state.tenant?.slug || null,
@@ -76,15 +78,17 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await api.get('/auth/getUser')
 
+        console.log(response.data)
+
         this.user = {
-          id: response.data.id,
-          name: response.data.name,
-          email: response.data.email,
-          role: response.data.role,
-          isActive: response.data.isActive,
-          createdAt: response.data.createdAt,
+          _id: response.data.user._id,
+          name: response.data.user.name,
+          email: response.data.user.email,
+          role: response.data.user.role,
+          isActive: response.data.user.isActive,
+          createdAt: response.data.user.createdAt,
         }
-        this.tenant = response.data.tenant
+        this.tenant = response.data.user.tenant
 
         return response.data
       } catch (error) {
