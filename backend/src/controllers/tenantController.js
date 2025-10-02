@@ -3,27 +3,11 @@ import tenantService from "../services/tenantService.js";
 // Crear tenant
 export const createTenant = async (req, res) => {
   try {
-    const { name, slug, theme, email, phone, address } = req.body;
-
-    // Validar campos requeridos
-    if (!name || !slug || !email) {
-      return res.status(400).json({
-        message: "Todos los campos requeridos deben ser proporcionados",
-      });
-    }
-
-    const result = await tenantService.createTenant({
-      name,
-      slug,
-      theme,
-      email,
-      phone,
-      address,
-    });
+    const tenant = await tenantService.createTenant(req.body);
 
     res.status(201).json({
       message: "Tenant creado exitosamente",
-      ...result,
+      ...tenant,
     });
   } catch (error) {
     // Error de validación o duplicado

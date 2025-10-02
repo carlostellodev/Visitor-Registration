@@ -16,12 +16,7 @@ export const register = async (req, res) => {
       });
     }
 
-    const result = await authService.register({
-      name,
-      email,
-      password,
-      tenantId,
-    });
+    const result = await authService.register(req.body);
 
     res.status(201).json({
       message: "Usuario registrado exitosamente",

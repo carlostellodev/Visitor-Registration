@@ -61,6 +61,24 @@ const tenantSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    config: {
+      sessionTimeout: {
+        type: Number,
+        default: 60, // Segundos de inactividad antes de resetear
+        min: [30, "El timeout mínimo es 30 segundos"],
+        max: [300, "El timeout máximo es 300 segundos (5 minutos)"],
+      },
+      autoLogout: {
+        type: Boolean,
+        default: true, // Auto-logout después del timeout
+      },
+      allowedAccessZones: {
+        type: [String],
+      },
+      allowedPurposes: {
+        type: [String],
+      },
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -74,6 +92,6 @@ const tenantSchema = new mongoose.Schema(
 // Índices para mejorar el rendimiento
 tenantSchema.index({ isActive: 1 });
 
-const Tenant = mongoose.model("Tenant", tenantSchema);
+const Tenant = mongoose.models.Tenant || mongoose.model("Tenant", tenantSchema);
 
 export default Tenant;

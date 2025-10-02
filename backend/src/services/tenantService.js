@@ -2,41 +2,24 @@ import Tenant from "../models/Tenant.js";
 
 class TenantService {
   // Crear nuevo tenant
-  async createTenant({ name, slug, theme, email, phone, address }) {
+  async createTenant(tenantData) {
     const existingTenant = await Tenant.findOne({
-      $or: [{ email }, { slug }],
+      $or: [{ email: tenantData.email }, { slug: tenantData.slug }],
     });
 
     if (existingTenant) {
-      if (existingTenant.email === email) {
+      if (existingTenant.email === tenantData.email) {
         throw new Error("El email ya está registrado");
       }
-      if (existingTenant.slug === slug) {
+      if (existingTenant.slug === tenantData.slug) {
         throw new Error("El slug ya está en uso");
       }
     }
 
-    const tenant = new Tenant({
-      name,
-      slug,
-      theme,
-      email,
-      phone,
-      address,
-    });
-
+    const tenant = new Tenant(tenantData);
     await tenant.save();
 
-    return {
-      id: tenant._id,
-      name: tenant.name,
-      slug: tenant.slug,
-      theme: tenant.theme,
-      email: tenant.email,
-      phone: tenant.phone,
-      address: tenant.address,
-      isActive: tenant.isActive,
-    };
+    return tenant.toObject();
   }
 
   // Obtener todos los tenants

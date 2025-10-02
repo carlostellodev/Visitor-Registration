@@ -9,15 +9,14 @@ class AuthService {
   }
 
   // Registrar nuevo usuario
-  async register({ name, email, password, tenantId }) {
-    // Verificar si el usuario ya existe
-    const existingUser = await User.findOne({ email });
+  async register(userData) {
+    const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) {
       throw new Error("El email ya está registrado");
     }
 
     // Verificar que el tenant existe y está activo
-    const tenant = await Tenant.findById(tenantId);
+    const tenant = await Tenant.findById(userData.tenantId);
     if (!tenant) {
       throw new Error("Tenant no encontrado");
     }
@@ -26,7 +25,7 @@ class AuthService {
     }
 
     // Crear nuevo usuario
-    const user = new User({ name, email, password, tenantId });
+    const user = new User(userData);
     await user.save();
 
     // Generar token
@@ -46,29 +45,29 @@ class AuthService {
 
   // Login de usuario
   async login({ email, password }) {
-    // Buscar usuario y popular tenant
-    const user = await User.findOne({ email }).populate(
-      "tenantId",
-      "name slug theme isActive"
-    );
+    const userForAuth = await User.findOne({ email });
 
-    if (!user) {
+    if (!userForAuth) {
       throw new Error("Credenciales inválidas");
     }
 
     // Verificar contraseña
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await userForAuth.comparePassword(password);
     if (!isPasswordValid) {
       throw new Error("Credenciales inválidas");
     }
 
     // Verificar que el usuario esté activo
-    if (!user.isActive) {
+    if (!userForAuth.isActive) {
       throw new Error("Usuario inactivo");
     }
 
+    const user = await User.findById(userForAuth._id)
+      .populate("tenantId")
+      .lean();
+
     // Verificar que el tenant esté activo
-    if (!user.tenantId || !user.tenantId.isActive) {
+    if (!user.tenantId || !user.isActive) {
       throw new Error("Tenant inactivo");
     }
 
@@ -78,7 +77,7 @@ class AuthService {
     return {
       token,
       user: {
-        _id: user._id,
+        id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -87,6 +86,7 @@ class AuthService {
           name: user.tenantId.name,
           slug: user.tenantId.slug,
           theme: user.tenantId.theme,
+          config: user.tenantId.config,
         },
       },
     };
@@ -96,7 +96,8 @@ class AuthService {
   async getUserById(userId) {
     const user = await User.findById(userId)
       .select("-password")
-      .populate("tenantId", "name slug theme isActive");
+      .populate("tenantId")
+      .lean();
 
     if (!user) {
       throw new Error("Usuario no encontrado");
@@ -114,6 +115,7 @@ class AuthService {
         slug: user.tenantId.slug,
         theme: user.tenantId.theme,
         isActive: user.tenantId.isActive,
+        config: user.tenantId.config,
       },
       createdAt: user.createdAt,
     };
