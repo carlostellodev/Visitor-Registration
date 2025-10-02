@@ -10,8 +10,6 @@ export const useAuthStore = defineStore('auth', {
     error: null,
   }),
 
-  persist: true, // Por el plugin pinia-plugin-persistedstate
-
   getters: {
     isAuthenticated: (state) => !!state.token,
     tenantSlug: (state) => state.tenant?.slug || null,
@@ -72,6 +70,7 @@ export const useAuthStore = defineStore('auth', {
           createdAt: data.user.createdAt,
         }
         this.tenant = data.user.tenant
+
         return data
       } catch (error) {
         this.error = error.response?.data?.message || 'Error al obtener perfil'
@@ -92,4 +91,5 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
     },
   },
+  persist: true, // Por el plugin pinia-plugin-persistedstate
 })

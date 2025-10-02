@@ -34,7 +34,7 @@ class AuthService {
     return {
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         tenantId: user.tenantId,
@@ -77,7 +77,7 @@ class AuthService {
     return {
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -110,7 +110,7 @@ class AuthService {
       role: user.role,
       isActive: user.isActive,
       tenant: {
-        id: user.tenantId._id,
+        _id: user.tenantId._id,
         name: user.tenantId.name,
         slug: user.tenantId.slug,
         theme: user.tenantId.theme,

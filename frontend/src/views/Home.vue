@@ -13,8 +13,8 @@
 
                 <v-row class="d-flex justify-space-between">
                     <v-col cols="auto">
-                        <v-btn @click="refreshUser" color="primary" variant="flat" prepend-icon="mdi-refresh">
-                            Recargar Perfil
+                        <v-btn @click="refreshStores" color="primary" variant="flat" prepend-icon="mdi-refresh">
+                            Recargar página
                         </v-btn>
                     </v-col>
                     <v-col cols="auto">
@@ -37,17 +37,17 @@
 
                 </v-row>
                 <div class="d-flex justify-space-evenly ga-4 mt-4 mb-2">
-                    <!-- Motivo (dinámico desde config del tenant) -->
+                    <!-- Motivos -->
                     <v-card flat>
                         <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
                         <v-checkbox v-for="purpose in purposeOptions" :key="purpose" v-model="form.purpose"
                             :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable" />
                     </v-card>
 
-                    <!-- Zona de acceso (dinámico desde config del tenant) -->
+                    <!-- Zonas de acceso-->
                     <v-card flat>
                         <p class="font-weight-medium mb-2 text-h6">Zona de acceso:</p>
-                        <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.area"
+                        <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.accessZone"
                             :label="capitalize(area)" :value="area" hide-details density="comfortable" />
                     </v-card>
                 </div>
@@ -75,6 +75,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
+import { useWorkerStore } from '../stores/workerStore';
 import { useTheme } from 'vuetify';
 import { useToastComposable } from '@/composables/useToast';
 
@@ -87,6 +88,7 @@ const user = computed(() => authStore.user);
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const workerStore = useWorkerStore();
 const theme = useTheme();
 
 const form = ref({
@@ -95,9 +97,8 @@ const form = ref({
     plate: '',
     worker: null,
     purpose: [],
-    area: []
+    accessZone: []
 })
-const workers = ref([])
 
 onMounted(async () => {
     // Si no hay datos del usuario, cargarlos
@@ -116,9 +117,13 @@ onMounted(async () => {
         }
     }
 
-    workers.value = ['Responsable A', 'Responsable B', 'Responsable C']
+    if (tenant.value?._id) {
+        await workerStore.fetchWorkersByTenant(tenant.value._id);
+    }
+
 });
 
+const workers = computed(() => workerStore.workerOptions);
 
 //-----------------------------------------------------------------------------
 // Aplicar theme del tenant a Vuetify
@@ -157,12 +162,13 @@ const areaOptions = computed(() => {
 
 //-----------------------------------------------------------------------------
 function enviar() {
-    if (!form.value.name || !form.value.company || !form.value.worker || form.value.purpose.length === 0 || form.value.area.length === 0) {
+    if (!form.value.name || !form.value.company || !form.value.worker || form.value.purpose.length === 0 || form.value.accessZone.length === 0) {
         showToast('Hay campos sin rellenar', 'error')
         return
     }
-    showToast('hola')
-    console.log('Payload de ejemplo', { tenantSlug, ...form.value })
+    const tenant = tenantSlug.value || null
+    console.log('Payload de ejemplo', { tenantSlug: tenant, ...form.value })
+    showToast('Registro confirmado')
 }
 
 function handleLogout() {
@@ -174,12 +180,13 @@ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-const refreshUser = async () => {
+const refreshStores = async () => {
     try {
         await authStore.fetchUser();
+        await workerStore.fetchWorkersByTenant(tenant.value._id);
         showToast('Perfil actualizado correctamente');
     } catch (error) {
-        console.error('Error al actualizar perfil:', error);
+        console.error('Error al actualizar la página:', error);
     }
 };
 //-----------------------------------------------------------------------------

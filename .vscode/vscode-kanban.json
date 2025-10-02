@@ -13,13 +13,34 @@
       "assignedTo": {
         "name": "carlostellodev"
       },
+      "creation_time": "2025-10-02T16:44:52.879Z",
+      "id": "6",
+      "references": [],
+      "title": "Meter logos en Vista 1"
+    }
+  ],
+  "in-progress": [
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
       "creation_time": "2025-10-02T08:52:12.516Z",
       "id": "2",
       "references": [],
       "title": "Incluir nuevas tablas de Worker y Document"
     }
   ],
-  "in-progress": [
+  "testing": [],
+  "done": [
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-02T10:12:18.360Z",
+      "id": "5",
+      "references": [],
+      "title": "Hacer Vista 1"
+    },
     {
       "assignedTo": {
         "name": "carlostellodev"
@@ -32,20 +53,7 @@
       "id": "1",
       "references": [],
       "title": "Meter nuevos campos en Tenant"
-    }
-  ],
-  "testing": [
-    {
-      "assignedTo": {
-        "name": "carlostellodev"
-      },
-      "creation_time": "2025-10-02T10:12:18.360Z",
-      "id": "5",
-      "references": [],
-      "title": "Hacer Vista 1"
-    }
-  ],
-  "done": [
+    },
     {
       "assignedTo": {
         "name": "carlostellodev"
