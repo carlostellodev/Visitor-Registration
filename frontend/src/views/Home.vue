@@ -53,18 +53,16 @@
                 </div>
                 <v-row class="mt-n4">
                     <v-col>
+                        <span class="text-h6">Resposable que acompaña la visita</span>
+                        <v-select density="compact" variant="outlined" :items="workers" v-model="form.worker" />
+                    </v-col>
+                    <v-col>
                         <span class="text-h6">Matrícula (opcional)</span>
                         <v-text-field density="compact" variant="outlined" v-model="form.plate" />
                     </v-col>
                 </v-row>
-                <v-row class="mt-n4">
-                    <v-col>
-                        <span class="text-h6">Resposable que acompaña la visita</span>
-                        <v-select density="compact" variant="outlined" :items="workers" v-model="form.worker" />
-                    </v-col>
-                </v-row>
             </v-card-text>
-            <v-card-actions class="pa-3 mt-n15 d-flex justify-end ">
+            <v-card-actions class="pa-3 mt-n14 d-flex justify-end ">
                 <v-col cols="2">
                     <v-img height="50" :src="'/imgs/right-arrow.png'" class="cursor-pointer" @click="enviar" />
                 </v-col>
