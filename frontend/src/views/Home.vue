@@ -1,14 +1,23 @@
 <template>
     <v-container fluid class="home-container pa-10" :style="{ background: backgroundGradient }">
+        <h2 class="mb-4 text-center text-decoration-underline">
+            Instrucciones generales de acceso a las instalaciones
+        </h2>
+        <v-row>
+            <v-col class="text-center mb-5 ">
+                <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
+                    Cerrar Sesión
+                </v-btn>
+            </v-col>
+        </v-row>
         <v-card class="home-card mx-auto" max-width="800">
             <v-card-text class="pa-10">
-                <!-- Header -->
-                <v-row class="d-flex justify-space-between align-center flex-wrap mb-5">
+                <!-- <v-row class="d-flex justify-space-between align-center flex-wrap mb-5">
                     <v-col>
                         <v-row>
                             <v-col>
                                 <h1 class="text-h4 text-grey-darken-3">
-                                    Bienvenido, {{ user?.name }}! 👋
+                                    Bienvenido, {{ user?.name }}!
                                 </h1>
                             </v-col>
                         </v-row>
@@ -25,124 +34,72 @@
                             </v-col>
                         </v-row>
                     </v-col>
+                </v-row> -->
+                <v-row>
+                    <v-col>
+                        <span class="text-h6">Nombre y apellidos</span>
+                        <v-text-field density="compact" variant="outlined" v-model="form.name" />
+                    </v-col>
                 </v-row>
-
-                <!-- Información del Tenant -->
-                <v-sheet class="user-info pa-8 mb-8" rounded="lg" color="grey-lighten-4">
-                    <h2 class="text-h5 text-grey-darken-2 mb-5">Información del Tenant</h2>
-
-                    <v-row dense class="info-item">
-                        <v-col cols="12" sm="4" class="label font-weight-bold text-grey-darken-1">
-                            Nombre:
-                        </v-col>
-                        <v-col cols="12" sm="8" class="value text-grey-darken-3">
-                            {{ tenant?.name }}
-                        </v-col>
-                    </v-row>
-
-                    <v-divider class="my-3"></v-divider>
-
-                    <v-row dense class="info-item">
-                        <v-col cols="12" sm="4" class="label font-weight-bold text-grey-darken-1">
-                            Slug:
-                        </v-col>
-                        <v-col cols="12" sm="8" class="value text-grey-darken-3">
-                            {{ tenant?.slug }}
-                        </v-col>
-                    </v-row>
-
-                    <v-divider class="my-3"></v-divider>
-
-                    <v-row dense class="info-item">
-                        <v-col cols="12" sm="4" class="label font-weight-bold text-grey-darken-1">
-                            Color Primario:
-                        </v-col>
-                        <v-col cols="12" sm="8" class="value text-grey-darken-3">
-                            <v-chip :color="tenant?.theme?.primary" size="small">
-                                {{ tenant?.theme?.primary }}
-                            </v-chip>
-                        </v-col>
-                    </v-row>
-
-                    <v-divider class="my-3"></v-divider>
-
-                    <v-row dense class="info-item">
-                        <v-col cols="12" sm="4" class="label font-weight-bold text-grey-darken-1">
-                            Color Secundario:
-                        </v-col>
-                        <v-col cols="12" sm="8" class="value text-grey-darken-3">
-                            <v-chip :color="tenant?.theme?.secondary" size="small">
-                                {{ tenant?.theme?.secondary }}
-                            </v-chip>
-                        </v-col>
-                    </v-row>
-                </v-sheet>
-
-                <!-- Tu Perfil -->
-                <v-sheet class="user-info pa-8 mb-8" rounded="lg" color="grey-lighten-4">
-                    <h2 class="text-h5 text-grey-darken-2 mb-5">Tu Perfil</h2>
-
-                    <v-row dense class="info-item">
-                        <v-col cols="12" sm="4" class="label font-weight-bold text-grey-darken-1">
-                            Nombre:
-                        </v-col>
-                        <v-col cols="12" sm="8" class="value text-grey-darken-3">
-                            {{ user?.name }}
-                        </v-col>
-                    </v-row>
-
-                    <v-divider class="my-3"></v-divider>
-
-                    <v-row dense class="info-item">
-                        <v-col cols="12" sm="4" class="label font-weight-bold text-grey-darken-1">
-                            Email:
-                        </v-col>
-                        <v-col cols="12" sm="8" class="value text-grey-darken-3">
-                            {{ user?.email }}
-                        </v-col>
-                    </v-row>
-
-                    <v-divider class="my-3"></v-divider>
-
-                    <v-row dense class="info-item">
-                        <v-col cols="12" sm="4" class="label font-weight-bold text-grey-darken-1">
-                            Rol:
-                        </v-col>
-                        <v-col cols="12" sm="8" class="value text-grey-darken-3">
-                            {{ user?.role }}
-                        </v-col>
-                    </v-row>
-
-                    <v-divider class="my-3"></v-divider>
-
-                    <v-row dense class="info-item">
-                        <v-col cols="12" sm="4" class="label font-weight-bold text-grey-darken-1">
-                            ID:
-                        </v-col>
-                        <v-col cols="12" sm="8" class="value text-grey-darken-3">
-                            {{ user?._id }}
-                        </v-col>
-                    </v-row>
-                </v-sheet>
+                <v-row class="mt-n4">
+                    <v-col>
+                        <span class="text-h6">Empresa</span>
+                        <v-text-field density="compact" variant="outlined" v-model="form.company" />
+                    </v-col>
+                </v-row>
+                <div class="d-flex ga-4 mt-4 ml-n3">
+                    <v-radio-group v-model="form.purpose" label="Motivo:" mandatory>
+                        <v-radio label="Visita" value="visita" />
+                        <v-radio label="Mantenimiento" value="mantenimiento" />
+                    </v-radio-group>
+                    <v-radio-group v-model="form.area" label="Zona de acceso:" mandatory>
+                        <v-radio label="Oficina" value="oficina" />
+                        <v-radio label="C.Clasificación" value="clasificacion" />
+                        <v-radio label="Naves" value="naves" />
+                    </v-radio-group>
+                </div>
+                <v-row class="mt-n4">
+                    <v-col>
+                        <span class="text-h6">Matrícula (opcional)</span>
+                        <v-text-field density="compact" variant="outlined" v-model="form.plate" />
+                    </v-col>
+                </v-row>
+                <v-row class="mt-n4">
+                    <v-col>
+                        <span class="text-h6">Resposable que acompaña la visita</span>
+                        <v-select density="compact" variant="outlined" :items="workers" v-model="form.worker" />
+                    </v-col>
+                </v-row>
             </v-card-text>
+            <v-card-actions class="pa-3 mt-n15 d-flex justify-end ">
+                <v-col cols="2">
+                    <v-img height="50" :src="'/imgs/right-arrow.png'" @click="showToast" />
+                </v-col>
+            </v-card-actions>
         </v-card>
     </v-container>
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useTheme } from 'vuetify';
 
+import { useToast } from "vue-toastification"
+
 const router = useRouter();
 const route = useRoute();
+const toast = useToast()
 const authStore = useAuthStore();
 const theme = useTheme();
 
 const tenantSlug = computed(() => route.params.slug);
 const tenant = computed(() => authStore.tenant);
 const user = computed(() => authStore.user);
+
+const form = ref({ name: '', company: '', plate: '', worker: null, purpose: '', area: '' })
+const workers = ref([])
 
 // Aplicar theme del tenant a Vuetify
 watch(
@@ -179,9 +136,11 @@ onMounted(async () => {
             router.push('/login');
         }
     }
+
+    workers.value = ['Responsable A', 'Responsable B', 'Responsable C']
 });
 
-const handleLogout = () => {
+function handleLogout() {
     authStore.logout();
     router.push('/login');
 };
@@ -194,6 +153,21 @@ const refreshUser = async () => {
         console.error('Error al actualizar perfil:', error);
     }
 };
+
+function enviar() {
+    if (!form.value.name || !form.value.company || !form.value.worker || !form.value.purpose || !form.value.area) {
+        alert('No hay campos completos')
+        return
+    }
+
+    console.log('Payload de ejemplo', { tenantSlug, ...form.value })
+}
+
+const showToast = () => {
+    toast.success("Inicio de sesión exitoso 🎉")
+    // toast.error("Hubo un error")
+    // toast.info("Esto es solo información")
+}
 </script>
 
 <style scoped>
