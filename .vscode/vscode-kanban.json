@@ -17,7 +17,9 @@
       "id": "2",
       "references": [],
       "title": "Incluir nuevas tablas de Worker y Document"
-    },
+    }
+  ],
+  "in-progress": [
     {
       "assignedTo": {
         "name": "carlostellodev"
@@ -32,7 +34,7 @@
       "title": "Meter nuevos campos en Tenant"
     }
   ],
-  "in-progress": [
+  "testing": [
     {
       "assignedTo": {
         "name": "carlostellodev"
@@ -43,7 +45,6 @@
       "title": "Hacer Vista 1"
     }
   ],
-  "testing": [],
   "done": [
     {
       "assignedTo": {
