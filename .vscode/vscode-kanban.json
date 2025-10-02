@@ -1,0 +1,59 @@
+{
+  "todo": [
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-02T08:52:46.186Z",
+      "id": "4",
+      "references": [],
+      "title": "Cambiar Register por CreateUser"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-02T08:52:12.516Z",
+      "id": "2",
+      "references": [],
+      "title": "Incluir nuevas tablas de Worker y Document"
+    }
+  ],
+  "in-progress": [
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-02T08:51:56.849Z",
+      "description": {
+        "content": "- Campos como accessZone, purposes, etc",
+        "mime": "text/markdown"
+      },
+      "id": "1",
+      "references": [],
+      "title": "Meter nuevos campos en Tenant"
+    }
+  ],
+  "testing": [
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-02T10:12:18.360Z",
+      "id": "5",
+      "references": [],
+      "title": "Hacer Vista 1"
+    }
+  ],
+  "done": [
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-02T08:52:30.939Z",
+      "id": "3",
+      "references": [],
+      "title": "Pasar Login y Register a Vuetify"
+    }
+  ]
+}

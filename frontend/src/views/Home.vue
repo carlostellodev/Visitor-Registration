@@ -1,159 +1,199 @@
 <template>
-    <div class="home-container">
-        <div class="home-card">
-            <div class="header">
-                <h1>Bienvenido, {{ authStore.currentUser?.name }}! 👋</h1>
-                <button @click="handleLogout" class="btn-logout">
-                    Cerrar Sesión
-                </button>
-            </div>
+    <v-container fluid class="home-container pa-10" :style="{ background: backgroundGradient }">
 
-            <div class="user-info">
-                <h2>Tu Perfil</h2>
-                <div class="info-item">
-                    <span class="label">Nombre:</span>
-                    <span class="value">{{ authStore.currentUser?.name }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Email:</span>
-                    <span class="value">{{ authStore.currentUser?.email }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">ID:</span>
-                    <span class="value">{{ authStore.currentUser?._id }}</span>
-                </div>
-            </div>
+        <v-row>
+            <v-col class="text-center mb-5 ">
+                <h2 class="mb-4 text-center text-decoration-underline">
+                    Instrucciones generales de acceso a las instalaciones
+                </h2>
+            </v-col>
+        </v-row>
+        <v-card class="home-card mx-auto" max-width="800">
+            <v-card-text class="pa-10">
 
-            <div class="actions">
-                <button @click="refreshProfile" class="btn-secondary">
-                    Actualizar Perfil
-                </button>
-            </div>
-        </div>
-    </div>
+                <v-row class="d-flex justify-space-between">
+                    <v-col cols="auto">
+                        <v-btn @click="refreshUser" color="primary" variant="flat" prepend-icon="mdi-refresh">
+                            Recargar Perfil
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="auto">
+                        <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
+                            Cerrar Sesión
+                        </v-btn>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col>
+                        <span class="text-h6">Nombre y apellidos</span>
+                        <v-text-field density="compact" variant="outlined" v-model="form.name" />
+                    </v-col>
+                    <v-col>
+                        <span class="text-h6">Empresa</span>
+                        <v-text-field density="compact" variant="outlined" v-model="form.company" />
+                    </v-col>
+                </v-row>
+                <v-row class="mt-n4">
+
+                </v-row>
+                <div class="d-flex justify-space-evenly ga-4 mt-4 mb-2">
+                    <!-- Motivo (dinámico desde config del tenant) -->
+                    <v-card flat>
+                        <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
+                        <v-checkbox v-for="purpose in purposeOptions" :key="purpose" v-model="form.purpose"
+                            :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable" />
+                    </v-card>
+
+                    <!-- Zona de acceso (dinámico desde config del tenant) -->
+                    <v-card flat>
+                        <p class="font-weight-medium mb-2 text-h6">Zona de acceso:</p>
+                        <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.area"
+                            :label="capitalize(area)" :value="area" hide-details density="comfortable" />
+                    </v-card>
+                </div>
+                <v-row class="mt-n4">
+                    <v-col>
+                        <span class="text-h6">Matrícula (opcional)</span>
+                        <v-text-field density="compact" variant="outlined" v-model="form.plate" />
+                    </v-col>
+                </v-row>
+                <v-row class="mt-n4">
+                    <v-col>
+                        <span class="text-h6">Resposable que acompaña la visita</span>
+                        <v-select density="compact" variant="outlined" :items="workers" v-model="form.worker" />
+                    </v-col>
+                </v-row>
+            </v-card-text>
+            <v-card-actions class="pa-3 mt-n15 d-flex justify-end ">
+                <v-col cols="2">
+                    <v-img height="50" :src="'/imgs/right-arrow.png'" class="cursor-pointer" @click="enviar" />
+                </v-col>
+            </v-card-actions>
+        </v-card>
+    </v-container>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '../stores/authStore';
+import { useTheme } from 'vuetify';
+import { useToastComposable } from '@/composables/useToast';
 
-const router = useRouter()
-const authStore = useAuthStore()
+const { showToast } = useToastComposable();
 
-const handleLogout = () => {
-    authStore.logout()
-    router.push('/login')
-}
+const tenantSlug = computed(() => route.params.slug);
+const tenant = computed(() => authStore.tenant);
+const user = computed(() => authStore.user);
 
-const refreshProfile = async () => {
-    try {
-        await authStore.fetchProfile()
-        alert('Perfil actualizado correctamente')
-    } catch (error) {
-        console.error('Error al actualizar perfil:', error)
+const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
+const theme = useTheme();
+
+const form = ref({
+    name: '',
+    company: '',
+    plate: '',
+    worker: null,
+    purpose: [],
+    area: []
+})
+const workers = ref([])
+
+onMounted(async () => {
+    // Si no hay datos del usuario, cargarlos
+    if (!authStore.user || !authStore.tenant) {
+        try {
+            await authStore.fetchUser();
+
+            // Verificar que el slug coincide con el tenant del usuario
+            if (tenantSlug.value && authStore.tenantSlug !== tenantSlug.value) {
+                console.warn('Slug no coincide con el tenant del usuario');
+                router.push(`/home/${authStore.tenantSlug}`);
+            }
+        } catch (error) {
+            console.error('Error al cargar perfil:', error);
+            router.push('/login');
+        }
     }
+
+    workers.value = ['Responsable A', 'Responsable B', 'Responsable C']
+});
+
+
+//-----------------------------------------------------------------------------
+// Aplicar theme del tenant a Vuetify
+watch(
+    () => tenant.value?.theme,
+    (newTheme) => {
+        if (newTheme) {
+            theme.themes.value.light.colors.primary = newTheme.primary || '#667eea';
+            theme.themes.value.light.colors.secondary = newTheme.secondary || '#764ba2';
+        }
+    },
+    { immediate: true }
+);
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+// Computed para el gradiente de fondo dinámico
+const backgroundGradient = computed(() => {
+    const primary = tenant.value?.theme?.primary || '#667eea';
+    const secondary = tenant.value?.theme?.secondary || '#764ba2';
+    // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
+    return `${secondary}`;
+});
+
+// Computeds para los checkboxes dinámicos
+const purposeOptions = computed(() => {
+    return tenant.value?.config?.allowedPurposes || [];
+});
+
+const areaOptions = computed(() => {
+    return tenant.value?.config?.allowedAccessZones || [];
+});
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+function enviar() {
+    if (!form.value.name || !form.value.company || !form.value.worker || form.value.purpose.length === 0 || form.value.area.length === 0) {
+        showToast('Hay campos sin rellenar', 'error')
+        return
+    }
+    showToast('hola')
+    console.log('Payload de ejemplo', { tenantSlug, ...form.value })
 }
+
+function handleLogout() {
+    authStore.logout();
+    router.push('/login');
+};
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+const refreshUser = async () => {
+    try {
+        await authStore.fetchUser();
+        showToast('Perfil actualizado correctamente');
+    } catch (error) {
+        console.error('Error al actualizar perfil:', error);
+    }
+};
+//-----------------------------------------------------------------------------
+
 </script>
 
 <style scoped>
 .home-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 40px 20px;
 }
 
 .home-card {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 12px;
-    padding: 40px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-h1 {
-    margin: 0;
-    color: #333;
-    font-size: 28px;
-}
-
-h2 {
-    margin: 0 0 20px 0;
-    color: #555;
-    font-size: 20px;
-}
-
-.btn-logout {
-    padding: 10px 20px;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.3s;
-}
-
-.btn-logout:hover {
-    opacity: 0.9;
-}
-
-.user-info {
-    background: #f8f9fa;
-    padding: 30px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-}
-
-.info-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.info-item:last-child {
-    border-bottom: none;
-}
-
-.label {
-    font-weight: 600;
-    color: #666;
-}
-
-.value {
-    color: #333;
-}
-
-.actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-}
-
-.btn-secondary {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.3s;
-}
-
-.btn-secondary:hover {
-    opacity: 0.9;
 }
 </style>

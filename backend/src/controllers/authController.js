@@ -2,35 +2,35 @@ import authService from "../services/authService.js";
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, tenantId } = req.body;
 
-    // Validar campos
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !tenantId) {
       return res.status(400).json({
         message: "Todos los campos son requeridos",
       });
     }
 
-    // Validar longitud de contraseña
     if (password.length < 6) {
       return res.status(400).json({
         message: "La contraseña debe tener al menos 6 caracteres",
       });
     }
 
-    const result = await authService.register({ name, email, password });
+    const result = await authService.register(req.body);
 
     res.status(201).json({
       message: "Usuario registrado exitosamente",
       ...result,
     });
   } catch (error) {
-    // Error conocido (validación)
-    if (error.message === "El email ya está registrado") {
+    if (
+      error.message === "El email ya está registrado" ||
+      error.message === "Tenant no encontrado" ||
+      error.message === "El tenant no está activo"
+    ) {
       return res.status(400).json({ message: error.message });
     }
 
-    // Error del servidor
     res.status(500).json({
       message: "Error en el servidor",
       error: error.message,
