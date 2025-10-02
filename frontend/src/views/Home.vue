@@ -1,62 +1,61 @@
 <template>
     <v-container fluid class="home-container pa-10" :style="{ background: backgroundGradient }">
-        <h2 class="mb-4 text-center text-decoration-underline">
-            Instrucciones generales de acceso a las instalaciones
-        </h2>
+
         <v-row>
             <v-col class="text-center mb-5 ">
-                <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
-                    Cerrar Sesión
-                </v-btn>
+                <h2 class="mb-4 text-center text-decoration-underline">
+                    Instrucciones generales de acceso a las instalaciones
+                </h2>
             </v-col>
         </v-row>
         <v-card class="home-card mx-auto" max-width="800">
             <v-card-text class="pa-10">
-                <!-- <v-row class="d-flex justify-space-between align-center flex-wrap mb-5">
-                    <v-col>
-                        <v-row>
-                            <v-col>
-                                <h1 class="text-h4 text-grey-darken-3">
-                                    Bienvenido, {{ user?.name }}!
-                                </h1>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="auto">
-                                <v-btn @click="refreshUser" color="primary" variant="flat" prepend-icon="mdi-refresh">
-                                    Actualizar Perfil
-                                </v-btn>
-                            </v-col>
-                            <v-col>
-                                <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
-                                    Cerrar Sesión
-                                </v-btn>
-                            </v-col>
-                        </v-row>
+
+                <v-row class="d-flex justify-space-between">
+                    <v-col cols="auto">
+                        <v-btn @click="refreshUser" color="primary" variant="flat" prepend-icon="mdi-refresh">
+                            Recargar Perfil
+                        </v-btn>
                     </v-col>
-                </v-row> -->
+                    <v-col cols="auto">
+                        <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
+                            Cerrar Sesión
+                        </v-btn>
+                    </v-col>
+                </v-row>
                 <v-row>
                     <v-col>
                         <span class="text-h6">Nombre y apellidos</span>
                         <v-text-field density="compact" variant="outlined" v-model="form.name" />
                     </v-col>
-                </v-row>
-                <v-row class="mt-n4">
                     <v-col>
                         <span class="text-h6">Empresa</span>
                         <v-text-field density="compact" variant="outlined" v-model="form.company" />
                     </v-col>
                 </v-row>
-                <div class="d-flex ga-4 mt-4 ml-n3">
-                    <v-radio-group v-model="form.purpose" label="Motivo:" mandatory>
-                        <v-radio label="Visita" value="visita" />
-                        <v-radio label="Mantenimiento" value="mantenimiento" />
-                    </v-radio-group>
-                    <v-radio-group v-model="form.area" label="Zona de acceso:" mandatory>
-                        <v-radio label="Oficina" value="oficina" />
-                        <v-radio label="C.Clasificación" value="clasificacion" />
-                        <v-radio label="Naves" value="naves" />
-                    </v-radio-group>
+                <v-row class="mt-n4">
+
+                </v-row>
+                <div class="d-flex justify-space-evenly ga-4 mt-4 mb-2">
+                    <!-- Motivo (se permiten múltiples respuestas)-->
+                    <v-card flat>
+                        <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
+                        <v-checkbox v-model="form.purpose" label="Visita" value="visita" hide-details
+                            density="comfortable" />
+                        <v-checkbox v-model="form.purpose" label="Mantenimiento" value="mantenimiento" hide-details
+                            density="comfortable" />
+                    </v-card>
+
+                    <!-- Zona de acceso (se permiten múltiples respuestas) -->
+                    <v-card flat>
+                        <p class="font-weight-medium mb-2 text-h6">Zona de acceso:</p>
+                        <v-checkbox v-model="form.area" label="Oficina" value="oficina" hide-details
+                            density="comfortable" />
+                        <v-checkbox v-model="form.area" label="C. Clasificación" value="clasificacion" hide-details
+                            density="comfortable" />
+                        <v-checkbox v-model="form.area" label="Naves" value="naves" hide-details
+                            density="comfortable" />
+                    </v-card>
                 </div>
                 <v-row class="mt-n4">
                     <v-col>
@@ -73,7 +72,7 @@
             </v-card-text>
             <v-card-actions class="pa-3 mt-n15 d-flex justify-end ">
                 <v-col cols="2">
-                    <v-img height="50" :src="'/imgs/right-arrow.png'" @click="showToast" />
+                    <v-img height="50" :src="'/imgs/right-arrow.png'" class="cursor-pointer" @click="enviar" />
                 </v-col>
             </v-card-actions>
         </v-card>
@@ -85,12 +84,12 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useTheme } from 'vuetify';
+import { useToastComposable } from '@/composables/useToast';
 
-import { useToast } from "vue-toastification"
+const { showToast } = useToastComposable()
 
 const router = useRouter();
 const route = useRoute();
-const toast = useToast()
 const authStore = useAuthStore();
 const theme = useTheme();
 
@@ -98,7 +97,7 @@ const tenantSlug = computed(() => route.params.slug);
 const tenant = computed(() => authStore.tenant);
 const user = computed(() => authStore.user);
 
-const form = ref({ name: '', company: '', plate: '', worker: null, purpose: '', area: '' })
+const form = ref({ name: '', company: '', plate: '', worker: null, purpose: [], area: [] })
 const workers = ref([])
 
 // Aplicar theme del tenant a Vuetify
@@ -117,7 +116,8 @@ watch(
 const backgroundGradient = computed(() => {
     const primary = tenant.value?.theme?.primary || '#667eea';
     const secondary = tenant.value?.theme?.secondary || '#764ba2';
-    return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
+    // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
+    return `${secondary}`;
 });
 
 onMounted(async () => {
@@ -140,6 +140,15 @@ onMounted(async () => {
     workers.value = ['Responsable A', 'Responsable B', 'Responsable C']
 });
 
+function enviar() {
+    if (!form.value.name || !form.value.company || !form.value.worker || !form.value.purpose || !form.value.area) {
+        showToast('Hay campos sin rellenar', 'error')
+        return
+    }
+    showToast('hola')
+    console.log('Payload de ejemplo', { tenantSlug, ...form.value })
+}
+
 function handleLogout() {
     authStore.logout();
     router.push('/login');
@@ -153,21 +162,6 @@ const refreshUser = async () => {
         console.error('Error al actualizar perfil:', error);
     }
 };
-
-function enviar() {
-    if (!form.value.name || !form.value.company || !form.value.worker || !form.value.purpose || !form.value.area) {
-        alert('No hay campos completos')
-        return
-    }
-
-    console.log('Payload de ejemplo', { tenantSlug, ...form.value })
-}
-
-const showToast = () => {
-    toast.success("Inicio de sesión exitoso 🎉")
-    // toast.error("Hubo un error")
-    // toast.info("Esto es solo información")
-}
 </script>
 
 <style scoped>

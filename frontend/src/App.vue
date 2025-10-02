@@ -1,6 +1,5 @@
 <template>
   <v-app id="app">
-    <Toaster richColors />
     <router-view />
   </v-app>
 </template>
