@@ -37,24 +37,18 @@
 
                 </v-row>
                 <div class="d-flex justify-space-evenly ga-4 mt-4 mb-2">
-                    <!-- Motivo (se permiten múltiples respuestas)-->
+                    <!-- Motivo (dinámico desde config del tenant) -->
                     <v-card flat>
                         <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
-                        <v-checkbox v-model="form.purpose" label="Visita" value="visita" hide-details
-                            density="comfortable" />
-                        <v-checkbox v-model="form.purpose" label="Mantenimiento" value="mantenimiento" hide-details
-                            density="comfortable" />
+                        <v-checkbox v-for="purpose in purposeOptions" :key="purpose" v-model="form.purpose"
+                            :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable" />
                     </v-card>
 
-                    <!-- Zona de acceso (se permiten múltiples respuestas) -->
+                    <!-- Zona de acceso (dinámico desde config del tenant) -->
                     <v-card flat>
                         <p class="font-weight-medium mb-2 text-h6">Zona de acceso:</p>
-                        <v-checkbox v-model="form.area" label="Oficina" value="oficina" hide-details
-                            density="comfortable" />
-                        <v-checkbox v-model="form.area" label="C. Clasificación" value="clasificacion" hide-details
-                            density="comfortable" />
-                        <v-checkbox v-model="form.area" label="Naves" value="naves" hide-details
-                            density="comfortable" />
+                        <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.area"
+                            :label="capitalize(area)" :value="area" hide-details density="comfortable" />
                     </v-card>
                 </div>
                 <v-row class="mt-n4">
@@ -82,43 +76,30 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '../stores/authStore';
 import { useTheme } from 'vuetify';
 import { useToastComposable } from '@/composables/useToast';
 
-const { showToast } = useToastComposable()
+const { showToast } = useToastComposable();
+
+const tenantSlug = computed(() => route.params.slug);
+const tenant = computed(() => authStore.tenant);
+const user = computed(() => authStore.user);
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const theme = useTheme();
 
-const tenantSlug = computed(() => route.params.slug);
-const tenant = computed(() => authStore.tenant);
-const user = computed(() => authStore.user);
-
-const form = ref({ name: '', company: '', plate: '', worker: null, purpose: [], area: [] })
+const form = ref({
+    name: '',
+    company: '',
+    plate: '',
+    worker: null,
+    purpose: [],
+    area: []
+})
 const workers = ref([])
-
-// Aplicar theme del tenant a Vuetify
-watch(
-    () => tenant.value?.theme,
-    (newTheme) => {
-        if (newTheme) {
-            theme.themes.value.light.colors.primary = newTheme.primary || '#667eea';
-            theme.themes.value.light.colors.secondary = newTheme.secondary || '#764ba2';
-        }
-    },
-    { immediate: true }
-);
-
-// Computed para el gradiente de fondo dinámico
-const backgroundGradient = computed(() => {
-    const primary = tenant.value?.theme?.primary || '#667eea';
-    const secondary = tenant.value?.theme?.secondary || '#764ba2';
-    // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
-    return `${secondary}`;
-});
 
 onMounted(async () => {
     // Si no hay datos del usuario, cargarlos
@@ -140,8 +121,45 @@ onMounted(async () => {
     workers.value = ['Responsable A', 'Responsable B', 'Responsable C']
 });
 
+
+//-----------------------------------------------------------------------------
+// Aplicar theme del tenant a Vuetify
+watch(
+    () => tenant.value?.theme,
+    (newTheme) => {
+        if (newTheme) {
+            theme.themes.value.light.colors.primary = newTheme.primary || '#667eea';
+            theme.themes.value.light.colors.secondary = newTheme.secondary || '#764ba2';
+        }
+    },
+    { immediate: true }
+);
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+// Computed para el gradiente de fondo dinámico
+const backgroundGradient = computed(() => {
+    const primary = tenant.value?.theme?.primary || '#667eea';
+    const secondary = tenant.value?.theme?.secondary || '#764ba2';
+    // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
+    return `${secondary}`;
+});
+
+// Computeds para los checkboxes dinámicos
+const purposeOptions = computed(() => {
+    return tenant.value?.config?.allowedPurposes || [];
+});
+
+const areaOptions = computed(() => {
+    return tenant.value?.config?.allowedAccessZones || [];
+});
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
 function enviar() {
-    if (!form.value.name || !form.value.company || !form.value.worker || !form.value.purpose || !form.value.area) {
+    if (!form.value.name || !form.value.company || !form.value.worker || form.value.purpose.length === 0 || form.value.area.length === 0) {
         showToast('Hay campos sin rellenar', 'error')
         return
     }
@@ -154,14 +172,20 @@ function handleLogout() {
     router.push('/login');
 };
 
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 const refreshUser = async () => {
     try {
         await authStore.fetchUser();
-        alert('Perfil actualizado correctamente');
+        showToast('Perfil actualizado correctamente');
     } catch (error) {
         console.error('Error al actualizar perfil:', error);
     }
 };
+//-----------------------------------------------------------------------------
+
 </script>
 
 <style scoped>

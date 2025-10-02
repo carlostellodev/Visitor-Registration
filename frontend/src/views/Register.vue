@@ -17,7 +17,7 @@
                         prepend-inner-icon="mdi-lock" required :rules="[v => v.length >= 6 || 'Mínimo 6 caracteres']"
                         class="mb-4" />
 
-                    <v-text-field v-model="form.tenant" label="ID del Cliente" type="text" placeholder="Tenant-ID"
+                    <v-text-field v-model="form.tenantId" label="ID del Cliente" type="text" placeholder="Tenant-ID"
                         variant="outlined" density="comfortable" prepend-inner-icon="mdi-office-building" required
                         class="mb-4" />
 
@@ -45,7 +45,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/authStore'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -54,7 +54,7 @@ const form = ref({
     name: '',
     email: '',
     password: '',
-    tenant: ''
+    tenantId: ''
 })
 
 onMounted(() => {

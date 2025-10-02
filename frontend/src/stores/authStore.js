@@ -5,7 +5,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     tenant: null,
-    token: localStorage.getItem('token') || null,
+    token: null,
     loading: false,
     error: null,
   }),
@@ -24,15 +24,12 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
 
       try {
-        const response = await api.post('/auth/register', userData)
+        const { data } = await api.post('/auth/register', userData)
+        this.token = data.token
+        this.user = data.user
+        this.tenant = data.user.tenant || null
 
-        this.token = response.data.token
-        this.user = response.data.user
-        this.tenant = response.data.user.tenant || null
-
-        localStorage.setItem('token', this.token)
-
-        return response.data
+        return data
       } catch (error) {
         this.error = error.response?.data?.message || 'Error en el registro'
         throw error
@@ -46,18 +43,12 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
 
       try {
-        const response = await api.post('/auth/login', {
-          email,
-          password,
-        })
+        const { data } = await api.post('/auth/login', { email, password })
+        this.token = data.token
+        this.user = data.user
+        this.tenant = data.user.tenant
 
-        this.token = response.data.token
-        this.user = response.data.user
-        this.tenant = response.data.user.tenant
-
-        localStorage.setItem('token', this.token)
-
-        return response.data
+        return data
       } catch (error) {
         this.error = error.response?.data?.message || 'Error en el login'
         throw error
@@ -71,19 +62,17 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
 
       try {
-        const response = await api.get('/auth/getUser')
-
+        const { data } = await api.get('/auth/getUser')
         this.user = {
-          _id: response.data.user._id,
-          name: response.data.user.name,
-          email: response.data.user.email,
-          role: response.data.user.role,
-          isActive: response.data.user.isActive,
-          createdAt: response.data.user.createdAt,
+          _id: data.user._id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+          isActive: data.user.isActive,
+          createdAt: data.user.createdAt,
         }
-        this.tenant = response.data.user.tenant
-
-        return response.data
+        this.tenant = data.user.tenant
+        return data
       } catch (error) {
         this.error = error.response?.data?.message || 'Error al obtener perfil'
         throw error
@@ -97,7 +86,6 @@ export const useAuthStore = defineStore('auth', {
       this.tenant = null
       this.token = null
       this.error = null
-      localStorage.removeItem('token')
     },
 
     clearError() {
