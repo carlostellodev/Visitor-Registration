@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/authStore'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Home from '../views/Home.vue'
+import Legal from '../views/Legal.vue'
 
 const routes = [
   {
@@ -35,6 +36,12 @@ const routes = [
       const slug = authStore.tenantSlug
       return slug ? `/home/${slug}` : '/login'
     },
+  },
+  {
+    path: '/legal/:slug?',
+    name: 'Legal',
+    component: Legal,
+    meta: { requiresAuth: true },
   },
 ]
 

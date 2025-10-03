@@ -82,7 +82,7 @@ class AuthService {
         email: user.email,
         role: user.role,
         tenant: {
-          id: user.tenantId._id,
+          _id: user.tenantId._id,
           name: user.tenantId.name,
           slug: user.tenantId.slug,
           theme: user.tenantId.theme,

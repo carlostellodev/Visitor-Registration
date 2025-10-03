@@ -1,14 +1,10 @@
 <template>
     <v-container fluid class="home-container pa-10" :style="{ background: backgroundGradient }">
 
-        <v-row>
-            <v-col class="text-center mb-5 ">
-                <h2 class="mb-4 text-center text-decoration-underline">
-                    Instrucciones generales de acceso a las instalaciones
-                </h2>
-            </v-col>
-        </v-row>
         <v-card class="home-card mx-auto" max-width="800">
+            <v-card-title class="text-h5 text-center pa-2 bg-primary text-white">
+                Instrucciones generales de acceso a las instalaciones
+            </v-card-title>
             <v-card-text class="pa-10">
 
                 <v-row class="d-flex justify-space-between">
@@ -36,7 +32,7 @@
                 <v-row class="mt-n4">
 
                 </v-row>
-                <div class="d-flex justify-space-evenly ga-4 mt-4 mb-2">
+                <div class="d-flex justify-space-evenly ga-4 mt-4 mb-3">
                     <!-- Motivos -->
                     <v-card flat>
                         <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
@@ -76,6 +72,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useWorkerStore } from '../stores/workerStore';
+import { useVisitStore } from '../stores/visitStore';
 import { useTheme } from 'vuetify';
 import { useToastComposable } from '@/composables/useToast';
 
@@ -89,6 +86,7 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const workerStore = useWorkerStore();
+const visitStore = useVisitStore();
 const theme = useTheme();
 
 const form = ref({
@@ -115,6 +113,10 @@ onMounted(async () => {
             console.error('Error al cargar perfil:', error);
             router.push('/login');
         }
+    }
+
+    if (visitStore.formData) {
+        form.value = visitStore.formData;
     }
 
     if (tenant.value?._id) {
@@ -162,13 +164,20 @@ const areaOptions = computed(() => {
 
 //-----------------------------------------------------------------------------
 function enviar() {
-    if (!form.value.name || !form.value.company || !form.value.worker || form.value.purpose.length === 0 || form.value.accessZone.length === 0) {
-        showToast('Hay campos sin rellenar', 'error')
-        return
+    if (!form.value.name || !form.value.company || !form.value.worker ||
+        form.value.purpose.length === 0 || form.value.accessZone.length === 0) {
+        showToast('Hay campos sin rellenar', 'error');
+        return;
     }
-    const tenant = tenantSlug.value || null
-    console.log('Payload de ejemplo', { tenantSlug: tenant, ...form.value })
-    showToast('Registro confirmado')
+
+    // Guardar datos del formulario en el store
+    visitStore.saveFormData(form.value);
+
+    const tenant = tenantSlug.value || null;
+    //showToast('Registro confirmado');
+
+    // Redirigir a Legal
+    router.push(`/legal/${tenant}`);
 }
 
 function handleLogout() {
@@ -184,7 +193,7 @@ const refreshStores = async () => {
     try {
         await authStore.fetchUser();
         await workerStore.fetchWorkersByTenant(tenant.value._id);
-        showToast('Perfil actualizado correctamente');
+        showToast('Página actualizada correctamente');
     } catch (error) {
         console.error('Error al actualizar la página:', error);
     }
@@ -199,6 +208,7 @@ const refreshStores = async () => {
 }
 
 .home-card {
+    border-radius: 0px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
 </style>
