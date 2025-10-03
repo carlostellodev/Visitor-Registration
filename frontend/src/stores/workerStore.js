@@ -13,8 +13,9 @@ export const useWorkerStore = defineStore('worker', {
     activeWorkers: (state) => state.workers.filter((w) => w.isActive),
     workerOptions: (state) =>
       state.workers.map((w) => ({
-        title: w.name,
+        name: w.name,
         value: w._id,
+        raw: w, //Objeto completo
       })),
   },
 

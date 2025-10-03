@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid class="sinature-container d-flex align-center justify-center pa-4"
+    <v-container fluid class="signature-container d-flex align-center justify-center pa-4"
         :style="{ background: backgroundGradient }">
         <v-card class="legal-card" max-width="800" width="100%">
             <v-card-title class="text-h5 text-center bg-primary text-white">
@@ -60,7 +60,7 @@
                             <v-col cols="12" sm="6">
                                 <div>
                                     <div class="text-caption text-grey-darken-1">Responsable</div>
-                                    <div class="text-h6">{{ workerName }}</div>
+                                    <div class="text-h6">{{ formData.worker?.name || 'No especificado' }}</div>
                                 </div>
                             </v-col>
                         </v-row>
@@ -78,7 +78,7 @@
                     <v-card-text>
                         <div class="signature-pad-wrapper">
                             <VueSignature ref="signatureRef" :sigOption="{ penColor: 'rgb(0, 0, 0)' }" :w="'100%'"
-                                :h="'200px'" @end="handleEnd" />
+                                :h="'180px'" @end="handleEnd" />
                         </div>
                         <v-divider class="my-2" />
                         <div class="text-center text-caption text-grey-darken-1">
@@ -133,10 +133,10 @@ const loading = ref(false);
 const formData = computed(() => visitStore.formData);
 const tenant = computed(() => authStore.tenant);
 const documentsTitle = computed(() => documentStore.documents.map(d => d.title));
-const workerName = computed(() => {
-    const worker = workerStore.workers.find(w => w._id === formData.value.worker);
-    return worker?.name || 'No especificado';
-});
+// const workerName = computed(() => {
+//     const worker = workerStore.workers.find(w => w._id === formData.value.worker);
+//     return worker?.name || 'No especificado';
+// });
 
 
 onMounted(() => {

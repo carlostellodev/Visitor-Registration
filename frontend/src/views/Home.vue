@@ -27,7 +27,7 @@
                     </v-col>
                     <v-col>
                         <!-- <v-img height="150" :src="tenant.theme.logoUrl" /> -->
-                        <v-img height="190" src="../../public/imgs/Imagen.png" />
+                        <v-img height="190" src="/imgs/Imagen.png" />
                     </v-col>
                 </v-row>
                 <div class="d-flex justify-space-evenly ga-4 mt-4 mb-3">
@@ -48,7 +48,8 @@
                 <v-row class="mt-n4">
                     <v-col>
                         <span class="text-h6">Resposable que acompaña la visita</span>
-                        <v-select density="compact" variant="outlined" :items="workers" v-model="form.worker" />
+                        <v-select density="compact" variant="outlined" :items="workers" v-model="selectedWorker"
+                            return-object item-title="name" item-value="value" />
                     </v-col>
                     <v-col>
                         <span class="text-h6">Matrícula (opcional)</span>
@@ -100,10 +101,10 @@ const form = ref({
     name: '',
     tenant: '',
     plate: '',
-    worker: null,
     purpose: [],
     accessZone: []
 })
+const selectedWorker = ref(null);
 
 onMounted(async () => {
     // Si no hay datos del usuario, cargarlos
@@ -122,8 +123,9 @@ onMounted(async () => {
         }
     }
 
-    if (visitStore.formData) {
+    if (visitStore.formData && visitStore.formData.worker) {
         form.value = visitStore.formData;
+        selectedWorker.value = form.value.worker;
     }
 
     if (tenant.value?._id) {
@@ -171,14 +173,17 @@ const areaOptions = computed(() => {
 
 //-----------------------------------------------------------------------------
 function enviar() {
-    if (!form.value.name || !form.value.tenant || !form.value.worker ||
+    if (!form.value.name || !form.value.tenant || !selectedWorker.value ||
         form.value.purpose.length === 0 || form.value.accessZone.length === 0) {
         showToast('Hay campos sin rellenar', 'error');
         return;
     }
 
     // Guardar datos del formulario en el store
-    visitStore.saveFormData(form.value);
+    visitStore.saveFormData({
+        ...form.value,
+        worker: selectedWorker.value.raw || selectedWorker.value || null,  //Guardamos el objeto completo del responsable
+    });
 
     const tenant = tenantSlug.value || null;
     //showToast('Registro confirmado');
@@ -194,16 +199,6 @@ function handleLogout() {
 
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
-const refreshStores = async () => {
-    try {
-        await authStore.fetchUser();
-        await workerStore.fetchWorkersByTenant(tenant.value._id);
-        showToast('Página actualizada correctamente');
-    } catch (error) {
-        console.error('Error al actualizar la página:', error);
-    }
 };
 //-----------------------------------------------------------------------------
 

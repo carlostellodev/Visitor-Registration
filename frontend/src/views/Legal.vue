@@ -173,11 +173,6 @@ const finishAndContinue = async () => {
         acceptedDocuments.value.push(currentDocument.value._id);
     }
 
-    console.log(canProceed.value);
-    console.log(acceptedDocuments.value.length)
-    console.log(documents.value.length)
-
-
     if (!canProceed.value) {
         return;
     }
