@@ -23,12 +23,12 @@
                     </v-btn>
                 </v-form>
 
-                <p class="text-center text-grey-darken-1 mt-6">
+                <!-- <p class="text-center text-grey-darken-1 mt-6">
                     ¿No tienes cuenta?
                     <router-link to="/register" class="text-primary text-decoration-none font-weight-bold">
                         Regístrate aquí
                     </router-link>
-                </p>
+                </p> -->
             </v-card-text>
         </v-card>
     </v-container>

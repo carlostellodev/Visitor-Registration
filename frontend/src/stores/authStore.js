@@ -21,24 +21,24 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    async register(userData) {
-      this.loading = true
-      this.error = null
+    // async register(userData) {
+    //   this.loading = true
+    //   this.error = null
 
-      try {
-        const { data } = await api.post('/auth/register', userData)
-        this.token = data.token
-        this.user = data.user
-        this.tenant = data.user.tenant || null
+    //   try {
+    //     const { data } = await api.post('/auth/register', userData)
+    //     this.token = data.token
+    //     this.user = data.user
+    //     this.tenant = data.user.tenant || null
 
-        return data
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Error en el registro'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
+    //     return data
+    //   } catch (error) {
+    //     this.error = error.response?.data?.message || 'Error en el registro'
+    //     throw error
+    //   } finally {
+    //     this.loading = false
+    //   }
+    // },
 
     async login({ email, password }) {
       this.loading = true

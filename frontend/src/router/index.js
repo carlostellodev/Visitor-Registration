@@ -17,12 +17,12 @@ const routes = [
     component: Login,
     meta: { requiresGuest: true },
   },
-  {
-    path: '/register',
-    name: 'Register',
-    component: Register,
-    meta: { requiresGuest: true },
-  },
+  // {
+  //   path: '/register',
+  //   name: 'Register',
+  //   component: Register,
+  //   meta: { requiresGuest: true },
+  // },
   {
     path: '/home/:slug',
     name: 'Home',
