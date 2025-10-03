@@ -2,8 +2,11 @@
     <v-container fluid class="legal-container d-flex align-center justify-center pa-4"
         :style="{ background: backgroundGradient }">
         <v-card class="legal-card" max-width="800" width="100%">
-            <v-card-title class="text-h4 text-center pa-2 bg-primary text-white">
-                Documentos Legales
+            <v-card-title class="text-h5 text-center bg-primary text-white">
+                <v-avatar v-if="tenant?.theme?.logoUrl" size="60" class="mr-4">
+                    <v-img :src="tenant.theme.logoUrl" />
+                </v-avatar>
+                <div>{{ tenant?.name }}</div>
             </v-card-title>
 
             <!-- Content -->
@@ -32,11 +35,11 @@
                 </v-sheet>
 
                 <!-- Acceptance checkbox -->
-                <v-card variant="outlined" class="pa-2">
+                <v-card v-if="currentDocument.isRequired" variant="outlined" class="pl-1">
                     <v-checkbox :model-value="hasAcceptedCurrent" @update:model-value="toggleAcceptance" color="primary"
                         hide-details>
                         <template v-slot:label>
-                            <span class="text-body-1 font-weight-medium">
+                            <span class="text-body-1 font-weight-medium ml-2">
                                 Manifiesto que he leído, comprendo y acepto:
                                 <strong>{{ currentDocument.title }}</strong>
                             </span>
@@ -66,7 +69,8 @@
                 </v-alert>
             </v-card-text>
 
-            <v-card-actions class="pa-3 mt-n6 d-flex justify-space-between ">
+            <v-card-actions class="pa-3 d-flex justify-space-between "
+                :class="currentDocument?.isRequired ? 'mt-n7' : 'mt-n12'">
                 <v-col cols="2">
                     <v-img height="50" :src="'/imgs/left-arrow.png'" class="cursor-pointer" @click="goBack" />
                 </v-col>
@@ -104,11 +108,11 @@ const currentStep = ref(0);
 const acceptedDocuments = ref([]);
 const loading = ref(false);
 
-const documents = computed(() => documentStore.requiredDocuments);
+const documents = computed(() => documentStore.activeDocuments);
 const currentDocument = computed(() => documents.value[currentStep.value]);
 const isLastDocument = computed(() => currentStep.value === documents.value.length - 1);
 const hasAcceptedCurrent = computed(() =>
-    currentDocument.value && acceptedDocuments.value.includes(currentDocument.value._id)
+    (currentDocument.value && acceptedDocuments.value.includes(currentDocument.value._id)) || !currentDocument.value?.isRequired
 );
 const canProceed = computed(() => acceptedDocuments.value.length === documents.value.length);
 const tenant = computed(() => authStore.tenant);
@@ -145,12 +149,14 @@ const toggleAcceptance = () => {
     const index = acceptedDocuments.value.indexOf(currentDocument.value._id);
     if (index > -1) {
         acceptedDocuments.value.splice(index, 1);
-    } else {
+    } else if (!acceptedDocuments.value.includes(currentDocument.value._id))
         acceptedDocuments.value.push(currentDocument.value._id);
-    }
 };
 
 const nextDocument = () => {
+    if (!currentDocument.value.isRequired && !acceptedDocuments.value.includes(currentDocument.value._id)) {
+        acceptedDocuments.value.push(currentDocument.value._id);
+    }
     if (hasAcceptedCurrent.value && !isLastDocument.value) {
         currentStep.value++;
     }
@@ -163,6 +169,15 @@ const previousDocument = () => {
 };
 
 const finishAndContinue = async () => {
+    if (!currentDocument.value.isRequired) {
+        acceptedDocuments.value.push(currentDocument.value._id);
+    }
+
+    console.log(canProceed.value);
+    console.log(acceptedDocuments.value.length)
+    console.log(documents.value.length)
+
+
     if (!canProceed.value) {
         return;
     }

@@ -2,22 +2,33 @@
     <v-container fluid class="home-container pa-10" :style="{ background: backgroundGradient }">
 
         <v-card class="home-card mx-auto" max-width="800">
-            <v-card-title class="text-h5 text-center pa-2 bg-primary text-white">
+            <v-card-title class="text-h5 text-center bg-primary text-white">
+                <v-avatar v-if="tenant?.theme?.logoUrl" size="60" class="mr-4">
+                    <v-img :src="tenant.theme.logoUrl" />
+                </v-avatar>
+                <div>{{ tenant?.name }}</div>
                 Instrucciones generales de acceso a las instalaciones
             </v-card-title>
             <v-card-text class="pa-10">
                 <v-row>
                     <v-col>
-                        <span class="text-h6">Nombre y apellidos</span>
-                        <v-text-field density="compact" variant="outlined" v-model="form.name" />
+                        <v-row>
+                            <v-col>
+                                <span class="text-h6">Nombre y apellidos</span>
+                                <v-text-field density="compact" variant="outlined" v-model="form.name" />
+                            </v-col>
+                        </v-row>
+                        <v-row class="mt-n4">
+                            <v-col>
+                                <span class="text-h6">Empresa</span>
+                                <v-text-field density="compact" variant="outlined" v-model="form.tenant" />
+                            </v-col>
+                        </v-row>
                     </v-col>
                     <v-col>
-                        <span class="text-h6">Empresa</span>
-                        <v-text-field density="compact" variant="outlined" v-model="form.tenant" />
+                        <!-- <v-img height="150" :src="tenant.theme.logoUrl" /> -->
+                        <v-img height="190" src="../../public/imgs/Imagen.png" />
                     </v-col>
-                </v-row>
-                <v-row class="mt-n4">
-
                 </v-row>
                 <div class="d-flex justify-space-evenly ga-4 mt-4 mb-3">
                     <!-- Motivos -->
@@ -45,14 +56,9 @@
                     </v-col>
                 </v-row>
             </v-card-text>
-            <v-card-actions class="pa-3 mt-n14 d-flex justify-space-between ">
+            <v-card-actions class="pa-3 mt-n16 d-flex justify-space-between ">
                 <v-col class="ml-4">
                     <v-row>
-                        <v-col cols="auto">
-                            <v-btn @click="refreshStores" color="primary" variant="flat" prepend-icon="mdi-refresh">
-                                Recargar página
-                            </v-btn>
-                        </v-col>
                         <v-col cols="auto">
                             <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
                                 Cerrar Sesión

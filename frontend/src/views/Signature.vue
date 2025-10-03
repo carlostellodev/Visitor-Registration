@@ -2,21 +2,15 @@
     <v-container fluid class="sinature-container d-flex align-center justify-center pa-4"
         :style="{ background: backgroundGradient }">
         <v-card class="legal-card" max-width="800" width="100%">
-            <v-card-title class="text-h4 text-center pa-6 bg-primary text-white d-flex align-center justify-center">
+            <v-card-title class="text-h5 text-center bg-primary text-white">
                 <v-avatar v-if="tenant?.theme?.logoUrl" size="60" class="mr-4">
                     <v-img :src="tenant.theme.logoUrl" />
                 </v-avatar>
                 <div>{{ tenant?.name }}</div>
             </v-card-title>
 
-            <v-card-subtitle class="text-center pt-4 text-h6">
-                Instrucciones generales de acceso a las instalaciones
-            </v-card-subtitle>
-
-            <v-divider class="my-4" />
-
             <v-card-text class="pa-6">
-                <v-alert type="success" variant="tonal" class="mb-6">
+                <v-alert type="success" variant="tonal" class="mb-3">
                     <v-row align="center">
                         <v-col>
                             <strong>Normativa leída:</strong>
@@ -27,57 +21,51 @@
                     </v-row>
                 </v-alert>
 
-                <v-card variant="outlined" class="mb-6">
+                <v-card variant="outlined" class="mb-3">
                     <v-card-title class="bg-grey-lighten-4">
                         Datos de la visita
                     </v-card-title>
                     <v-card-text class="pa-4">
                         <v-row dense>
                             <v-col cols="12" sm="6">
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <div class="text-caption text-grey-darken-1">Nombre y apellidos</div>
-                                    <div class="text-body-1 font-weight-medium">{{ formData.name }}</div>
+                                    <div class="text-h6 font-weight-medium">{{ formData.name }}</div>
                                 </div>
                             </v-col>
                             <v-col cols="12" sm="6">
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <div class="text-caption text-grey-darken-1">Empresa</div>
-                                    <div class="text-body-1 font-weight-medium">{{ formData.tenant }}</div>
+                                    <div class="text-h6 font-weight-medium">{{ formData.tenant }}</div>
                                 </div>
                             </v-col>
                             <v-col cols="12" sm="6">
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <div class="text-caption text-grey-darken-1">Motivo</div>
-                                    <div class="text-body-1">{{ getPurposeNames(formData.purpose) }}</div>
+                                    <div class="text-h6">{{ getPurposeNames(formData.purpose) }}</div>
                                 </div>
                             </v-col>
                             <v-col cols="12" sm="6">
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <div class="text-caption text-grey-darken-1">Zona de acceso</div>
-                                    <div class="text-body-1">{{ getAreaNames(formData.accessZone) }}</div>
+                                    <div class="text-h6">{{ getAreaNames(formData.accessZone) }}</div>
                                 </div>
                             </v-col>
                             <v-col cols="12" sm="6" v-if="formData.plate">
-                                <div class="mb-3">
+                                <div class="">
                                     <div class="text-caption text-grey-darken-1">Matrícula</div>
-                                    <div class="text-body-1">{{ formData.plate }}</div>
+                                    <div class="text-h6">{{ formData.plate }}</div>
                                 </div>
                             </v-col>
                             <v-col cols="12" sm="6">
-                                <div class="mb-3">
+                                <div>
                                     <div class="text-caption text-grey-darken-1">Responsable</div>
-                                    <div class="text-body-1">{{ workerName }}</div>
+                                    <div class="text-h6">{{ workerName }}</div>
                                 </div>
                             </v-col>
                         </v-row>
                     </v-card-text>
                 </v-card>
-
-                <v-alert type="info" variant="outlined" class="mb-6">
-                    <p class="text-body-2 mb-0">
-                        Manifiesto que he leído, comprendo y acepto las normativas mencionadas
-                    </p>
-                </v-alert>
 
                 <v-card variant="outlined">
                     <v-card-title class="d-flex justify-space-between align-center">
@@ -90,7 +78,7 @@
                     <v-card-text>
                         <div class="signature-pad-wrapper">
                             <VueSignature ref="signatureRef" :sigOption="{ penColor: 'rgb(0, 0, 0)' }" :w="'100%'"
-                                :h="'200px'" @endStroke="handleEnd" />
+                                :h="'200px'" @end="handleEnd" />
                         </div>
                         <v-divider class="my-2" />
                         <div class="text-center text-caption text-grey-darken-1">
@@ -99,6 +87,11 @@
                     </v-card-text>
                 </v-card>
 
+                <v-alert type="info" variant="outlined" class="mt-3 pa-3">
+                    <p class="text-body-1 font-weight-medium">
+                        Manifiesto que he leído, comprendo y acepto las normativas mencionadas
+                    </p>
+                </v-alert>
 
             </v-card-text>
             <v-card-actions class="pa-3 mt-n6 d-flex justify-space-between ">
@@ -124,6 +117,8 @@ import { useDocumentStore } from '@/stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
 import { useWorkerStore } from '@/stores/workerStore';
 import VueSignature from 'vue3-signature';
+import { useToastComposable } from '@/composables/useToast';
+const { showToast } = useToastComposable();
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -143,6 +138,14 @@ const workerName = computed(() => {
     return worker?.name || 'No especificado';
 });
 
+
+onMounted(() => {
+    if (!formData.value.name || !formData.value.tenant) {
+        router.push(`/home/${tenant.value.slug}`);
+    }
+});
+
+
 const getPurposeNames = (purposes) => {
     return purposes.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ');
 };
@@ -150,12 +153,6 @@ const getPurposeNames = (purposes) => {
 const getAreaNames = (areas) => {
     return areas.map(a => a.charAt(0).toUpperCase() + a.slice(1)).join(', ');
 };
-
-onMounted(() => {
-    if (!formData.value.name || !formData.value.tenant) {
-        router.push(`/home/${authStore.tenant.slug}`);
-    }
-});
 
 const clearSignature = () => {
     if (signatureRef.value) {
@@ -170,7 +167,7 @@ const handleEnd = () => {
 
 const submitVisit = async () => {
     if (!hasSignature.value) {
-        alert('Por favor, firma el documento antes de continuar');
+        showToast('Por favor, firma el documento antes de continuar', 'error');
         return;
     }
 
@@ -180,12 +177,14 @@ const submitVisit = async () => {
         const signatureData = signatureRef.value.save();
         visitStore.saveSignature(signatureData);
 
-        alert('Visita registrada exitosamente');
-        visitStore.clearVisit();
-        router.push(`/home/${authStore.tenant.slug}`);
+        console.log("signatureData", signatureData);
+
+        showToast('Visita registrada exitosamente');
+        //visitStore.clearVisit();
+        //router.push(`/home/${authStore.tenant.slug}`);
     } catch (error) {
         console.error('Error al registrar visita:', error);
-        alert('Error al registrar la visita');
+        showToast('Error al registrar la visita', 'error');
     } finally {
         loading.value = false;
     }
