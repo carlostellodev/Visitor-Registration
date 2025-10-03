@@ -117,6 +117,8 @@ import { useDocumentStore } from '@/stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
 import { useWorkerStore } from '@/stores/workerStore';
 import VueSignature from 'vue3-signature';
+import { downloadVisitPDF, getVisitPDFBlob } from '../utils/pdfGenerator';
+
 import { useToastComposable } from '@/composables/useToast';
 const { showToast } = useToastComposable();
 
@@ -175,13 +177,29 @@ const submitVisit = async () => {
 
     try {
         const signatureData = signatureRef.value.save();
+
+        const visitDataComplete = {
+            ...formData.value,
+            signature: signatureData,
+            workerName: formData.value.worker?.name || formData.value.worker,
+        };
+
+        // Generar PDF
+        await downloadVisitPDF(
+            visitDataComplete,
+            tenant.value,
+            `visita_${formData.value.name}_${Date.now()}.pdf`
+        );
+
+        // También puedes obtener el blob para subirlo al servidor
+        // const pdfBlob = await getVisitPDFBlob(visitDataComplete, tenant.value);
+        // Aquí subirías el blob a tu servidor o Cloudinary
+
         visitStore.saveSignature(signatureData);
 
-        console.log("signatureData", signatureData);
-
-        showToast('Visita registrada exitosamente');
-        //visitStore.clearVisit();
-        //router.push(`/home/${authStore.tenant.slug}`);
+        showToast('Visita registrada con éxito');
+        visitStore.clearVisit();
+        router.push(`/home/${authStore.tenant.slug}`);
     } catch (error) {
         console.error('Error al registrar visita:', error);
         showToast('Error al registrar la visita', 'error');
