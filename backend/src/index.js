@@ -7,6 +7,7 @@ import connectDB from "./config/database.js";
 import authRoutes from "./routes/authRoute.js";
 import tenantRoutes from "./routes/tenantRoute.js";
 import workerRoutes from "./routes/workerRoute.js";
+import documentRoutes from "./routes/documentRoute.js";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/tenants", tenantRoutes);
 app.use("/api/workers", workerRoutes);
+app.use("/api/documents", documentRoutes);
 
 // Ruta de prueba
 app.get("/", (req, res) => {
