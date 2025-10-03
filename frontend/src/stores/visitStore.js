@@ -5,7 +5,7 @@ export const useVisitStore = defineStore('visit', {
   state: () => ({
     formData: {
       name: '',
-      tenant: '',
+      company: '',
       plate: '',
       worker: null,
       purpose: [],
@@ -36,7 +36,7 @@ export const useVisitStore = defineStore('visit', {
     clearVisit() {
       this.formData = {
         name: '',
-        tenant: '',
+        company: '',
         plate: '',
         worker: null,
         purpose: [],

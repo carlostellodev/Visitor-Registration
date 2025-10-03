@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoute.js";
 import tenantRoutes from "./routes/tenantRoute.js";
 import workerRoutes from "./routes/workerRoute.js";
 import documentRoutes from "./routes/documentRoute.js";
+import visitorRoutes from "./routes/visitor.js";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tenants", tenantRoutes);
 app.use("/api/workers", workerRoutes);
 app.use("/api/documents", documentRoutes);
+app.use("/api/visitors", visitorRoutes);
 
 // Ruta de prueba
 app.get("/", (req, res) => {

@@ -36,7 +36,7 @@
                             <v-col cols="12" sm="6">
                                 <div class="mb-2">
                                     <div class="text-caption text-grey-darken-1">Empresa</div>
-                                    <div class="text-h6 font-weight-medium">{{ formData.tenant }}</div>
+                                    <div class="text-h6 font-weight-medium">{{ formData.company }}</div>
                                 </div>
                             </v-col>
                             <v-col cols="12" sm="6">
@@ -111,6 +111,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import api from '@/utils/api';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useDocumentStore } from '@/stores/documentStore';
@@ -142,7 +143,9 @@ const documentsTitle = computed(() => documentStore.documents.map(d => d.title))
 
 
 onMounted(() => {
-    if (!formData.value.name || !formData.value.tenant) {
+    if (!formData.value.name || !formData.value.company) {
+        console.log("Saliendo", formData.value);
+
         router.push(`/home/${tenant.value.slug}`);
     }
 });
@@ -182,20 +185,43 @@ const submitVisit = async () => {
             ...formData.value,
             signature: signatureData,
             workerName: formData.value.worker?.name || formData.value.worker,
+            tenantId: tenant.value._id,
         };
 
         // Generar PDF
-        await downloadVisitPDF(
-            visitDataComplete,
-            tenant.value,
-            `visita_${formData.value.name}_${Date.now()}.pdf`
-        );
+        // await downloadVisitPDF(
+        //     visitDataComplete,
+        //     tenant.value,
+        //     `visita_${formData.value.name}_${Date.now()}.pdf`
+        // );
 
-        // También puedes obtener el blob para subirlo al servidor
-        // const pdfBlob = await getVisitPDFBlob(visitDataComplete, tenant.value);
-        // Aquí subirías el blob a tu servidor o Cloudinary
+        // Generar PDF blob
+        const pdfBlob = await getVisitPDFBlob(visitDataComplete, tenant.value);
 
-        visitStore.saveSignature(signatureData);
+        const documentsAcceptedFormatted = visitStore.acceptedDocuments.map(docId => ({
+            documentId: docId,
+            acceptedAt: new Date().toISOString()
+        }));
+
+        // Crear FormData para enviar
+        const pdfData = new FormData();
+        pdfData.append('pdf', pdfBlob, `visita_${Date.now()}.pdf`);
+        pdfData.append('name', visitDataComplete.name);
+        pdfData.append('company', visitDataComplete.company);
+        pdfData.append('plate', visitDataComplete.plate || '');
+        pdfData.append('purpose', JSON.stringify(visitDataComplete.purpose));
+        pdfData.append('accessZone', JSON.stringify(visitDataComplete.accessZone));
+        pdfData.append('workerId', visitDataComplete.worker?._id || '');
+        pdfData.append('tenantId', visitDataComplete.tenantId);
+        pdfData.append('signature', signatureData);
+        pdfData.append('documentsAccepted', JSON.stringify(documentsAcceptedFormatted));
+
+        // Enviar al backend
+        const response = await api.post('/visitors', pdfData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
 
         showToast('Visita registrada con éxito');
         visitStore.clearVisit();

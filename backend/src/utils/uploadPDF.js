@@ -6,8 +6,10 @@ export const uploadPDFToCloudinary = async (pdfBuffer, filename) => {
       {
         resource_type: "raw",
         folder: "visitor-pdfs",
-        public_id: filename,
-        format: "pdf",
+        public_id: `${filename}.pdf`,
+        // format: "pdf",
+        access_mode: "public",
+        type: "upload",
       },
       (error, result) => {
         if (error) reject(error);

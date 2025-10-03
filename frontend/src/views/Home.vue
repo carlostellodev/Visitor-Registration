@@ -3,13 +3,12 @@
 
         <v-card class="home-card mx-auto" max-width="800">
             <v-card-title class="text-h5 text-center bg-primary text-white">
-                <v-avatar v-if="tenant?.theme?.logoUrl" size="60" class="mr-4">
-                    <v-img :src="tenant.theme.logoUrl" />
-                </v-avatar>
+                <v-img height="50" :src="tenant.theme.logoUrl" />
                 <div>{{ tenant?.name }}</div>
                 Instrucciones generales de acceso a las instalaciones
             </v-card-title>
-            <v-card-text class="pa-10">
+
+            <v-card-text class="pa-10 mt-n4">
                 <v-row>
                     <v-col>
                         <v-row>
@@ -21,13 +20,12 @@
                         <v-row class="mt-n4">
                             <v-col>
                                 <span class="text-h6">Empresa</span>
-                                <v-text-field density="compact" variant="outlined" v-model="form.tenant" />
+                                <v-text-field density="compact" variant="outlined" v-model="form.company" />
                             </v-col>
                         </v-row>
                     </v-col>
                     <v-col>
-                        <!-- <v-img height="150" :src="tenant.theme.logoUrl" /> -->
-                        <v-img height="190" src="/imgs/Imagen.png" />
+                        <v-img height="190" :src="tenant.theme.logoUrl" />
                     </v-col>
                 </v-row>
                 <div class="d-flex justify-space-evenly ga-4 mt-4 mb-3">
@@ -99,7 +97,7 @@ const theme = useTheme();
 
 const form = ref({
     name: '',
-    tenant: '',
+    company: '',
     plate: '',
     purpose: [],
     accessZone: []
@@ -173,7 +171,7 @@ const areaOptions = computed(() => {
 
 //-----------------------------------------------------------------------------
 function enviar() {
-    if (!form.value.name || !form.value.tenant || !selectedWorker.value ||
+    if (!form.value.name || !form.value.company || !selectedWorker.value ||
         form.value.purpose.length === 0 || form.value.accessZone.length === 0) {
         showToast('Hay campos sin rellenar', 'error');
         return;
