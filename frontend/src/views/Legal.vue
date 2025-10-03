@@ -129,6 +129,14 @@ onMounted(async () => {
     } catch (error) {
         console.error('Error cargando documentos:', error);
     }
+
+    if (visitStore.acceptedDocuments) {
+        acceptedDocuments.value = visitStore.acceptedDocuments;
+    }
+
+    if (visitStore.currentStep) {
+        currentStep.value = visitStore.currentStep;
+    }
 });
 
 const toggleAcceptance = () => {
@@ -167,11 +175,10 @@ const finishAndContinue = async () => {
 
         // Guardar documentos aceptados
         visitStore.saveAcceptedDocuments(acceptedDocuments.value);
+        visitStore.saveCurrentStep(currentStep.value);
 
         // Redirigir a la vista de firma
-        //router.push(`/signature/${tenant.value.slug}`);
-
-        router.push(`/home/${tenant.value.slug}`);
+        router.push(`/signature/${tenant.value.slug}`);
     } catch (error) {
         console.error('Error:', error);
     } finally {
@@ -192,6 +199,8 @@ const backgroundGradient = computed(() => {
 });
 
 const goBack = () => {
+    visitStore.saveAcceptedDocuments(acceptedDocuments.value);
+    visitStore.saveCurrentStep(currentStep.value);
     router.push(`/home/${tenant.value.slug}`);
 };
 

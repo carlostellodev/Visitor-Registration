@@ -86,6 +86,12 @@ export const useWorkerStore = defineStore('worker', {
       }
     },
 
+    clearWorkers() {
+      this.workers = []
+      this.currentWorker = null
+      this.error = null
+    },
+
     clearError() {
       this.error = null
     },

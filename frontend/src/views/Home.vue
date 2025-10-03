@@ -6,19 +6,6 @@
                 Instrucciones generales de acceso a las instalaciones
             </v-card-title>
             <v-card-text class="pa-10">
-
-                <v-row class="d-flex justify-space-between">
-                    <v-col cols="auto">
-                        <v-btn @click="refreshStores" color="primary" variant="flat" prepend-icon="mdi-refresh">
-                            Recargar página
-                        </v-btn>
-                    </v-col>
-                    <v-col cols="auto">
-                        <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
-                            Cerrar Sesión
-                        </v-btn>
-                    </v-col>
-                </v-row>
                 <v-row>
                     <v-col>
                         <span class="text-h6">Nombre y apellidos</span>
@@ -26,7 +13,7 @@
                     </v-col>
                     <v-col>
                         <span class="text-h6">Empresa</span>
-                        <v-text-field density="compact" variant="outlined" v-model="form.company" />
+                        <v-text-field density="compact" variant="outlined" v-model="form.tenant" />
                     </v-col>
                 </v-row>
                 <v-row class="mt-n4">
@@ -58,7 +45,21 @@
                     </v-col>
                 </v-row>
             </v-card-text>
-            <v-card-actions class="pa-3 mt-n14 d-flex justify-end ">
+            <v-card-actions class="pa-3 mt-n14 d-flex justify-space-between ">
+                <v-col class="ml-4">
+                    <v-row>
+                        <v-col cols="auto">
+                            <v-btn @click="refreshStores" color="primary" variant="flat" prepend-icon="mdi-refresh">
+                                Recargar página
+                            </v-btn>
+                        </v-col>
+                        <v-col cols="auto">
+                            <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
+                                Cerrar Sesión
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </v-col>
                 <v-col cols="2">
                     <v-img height="50" :src="'/imgs/right-arrow.png'" class="cursor-pointer" @click="enviar" />
                 </v-col>
@@ -91,7 +92,7 @@ const theme = useTheme();
 
 const form = ref({
     name: '',
-    company: '',
+    tenant: '',
     plate: '',
     worker: null,
     purpose: [],
@@ -164,7 +165,7 @@ const areaOptions = computed(() => {
 
 //-----------------------------------------------------------------------------
 function enviar() {
-    if (!form.value.name || !form.value.company || !form.value.worker ||
+    if (!form.value.name || !form.value.tenant || !form.value.worker ||
         form.value.purpose.length === 0 || form.value.accessZone.length === 0) {
         showToast('Hay campos sin rellenar', 'error');
         return;

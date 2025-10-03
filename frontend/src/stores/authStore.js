@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '../utils/api'
 
+import { useDocumentStore } from './documentStore'
+import { useVisitStore } from './visitStore'
+import { useWorkerStore } from './workerStore'
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
@@ -85,6 +89,10 @@ export const useAuthStore = defineStore('auth', {
       this.tenant = null
       this.token = null
       this.error = null
+
+      useDocumentStore().clearDocuments()
+      useVisitStore().clearVisit()
+      useWorkerStore().clearWorkers()
     },
 
     clearError() {

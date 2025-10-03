@@ -5,12 +5,13 @@ export const useVisitStore = defineStore('visit', {
   state: () => ({
     formData: {
       name: '',
-      company: '',
+      tenant: '',
       plate: '',
       worker: null,
       purpose: [],
-      area: [],
+      accessZone: [],
     },
+    currentStep: null,
     acceptedDocuments: [],
     signature: null,
   }),
@@ -18,6 +19,10 @@ export const useVisitStore = defineStore('visit', {
   actions: {
     saveFormData(data) {
       this.formData = { ...this.formData, ...data }
+    },
+
+    saveCurrentStep(step) {
+      this.currentStep = step
     },
 
     saveAcceptedDocuments(documentIds) {
@@ -31,12 +36,13 @@ export const useVisitStore = defineStore('visit', {
     clearVisit() {
       this.formData = {
         name: '',
-        company: '',
+        tenant: '',
         plate: '',
         worker: null,
         purpose: [],
-        area: [],
+        accessZone: [],
       }
+      this.currentStep = null
       this.acceptedDocuments = []
       this.signature = null
     },

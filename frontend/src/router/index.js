@@ -4,6 +4,7 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Home from '../views/Home.vue'
 import Legal from '../views/Legal.vue'
+import Signature from '../views/Signature.vue'
 
 const routes = [
   {
@@ -41,6 +42,12 @@ const routes = [
     path: '/legal/:slug?',
     name: 'Legal',
     component: Legal,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/signature/:slug',
+    name: 'Signature',
+    component: Signature,
     meta: { requiresAuth: true },
   },
 ]
