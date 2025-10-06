@@ -1,7 +1,6 @@
 <template>
-    <v-container fluid class="home-container pa-10" :style="{ background: backgroundGradient }">
-
-        <v-card class="home-card mx-auto" max-width="800">
+    <v-container fluid class="view-container pa-10">
+        <v-card class="view-card mx-auto" max-width="800">
             <v-card-title class="text-h5 text-center bg-primary text-white">
                 <v-img height="50" :src="tenant.theme.logoUrl" />
                 <div>{{ tenant?.name }}</div>
@@ -63,10 +62,17 @@
                                 Cerrar Sesión
                             </v-btn>
                         </v-col>
+                        <v-col cols="auto">
+                            <v-btn @click="handleClearForm" variant="outlined" prepend-icon="mdi-logout">
+                                Limpiar formulario
+                            </v-btn>
+                        </v-col>
                     </v-row>
                 </v-col>
                 <v-col cols="2">
-                    <v-img height="50" :src="'/imgs/right-arrow.png'" class="cursor-pointer" @click="enviar" />
+                    <v-img height="50"
+                        src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/right-arrow_zj696p.png"
+                        class="cursor-pointer" @click="handleSubmit" />
                 </v-col>
             </v-card-actions>
         </v-card>
@@ -134,30 +140,6 @@ onMounted(async () => {
 
 const workers = computed(() => workerStore.workerOptions);
 
-//-----------------------------------------------------------------------------
-// Aplicar theme del tenant a Vuetify
-watch(
-    () => tenant.value?.theme,
-    (newTheme) => {
-        if (newTheme) {
-            theme.themes.value.light.colors.primary = newTheme.primary || '#667eea';
-            theme.themes.value.light.colors.secondary = newTheme.secondary || '#764ba2';
-        }
-    },
-    { immediate: true }
-);
-//-----------------------------------------------------------------------------
-
-
-//-----------------------------------------------------------------------------
-// Computed para el gradiente de fondo dinámico
-const backgroundGradient = computed(() => {
-    const primary = tenant.value?.theme?.primary || '#667eea';
-    const secondary = tenant.value?.theme?.secondary || '#764ba2';
-    // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
-    return `${secondary}`;
-});
-
 // Computeds para los checkboxes dinámicos
 const purposeOptions = computed(() => {
     return tenant.value?.config?.allowedPurposes || [];
@@ -170,7 +152,7 @@ const areaOptions = computed(() => {
 
 
 //-----------------------------------------------------------------------------
-function enviar() {
+function handleSubmit() {
     if (!form.value.name || !form.value.company || !selectedWorker.value ||
         form.value.purpose.length === 0 || form.value.accessZone.length === 0) {
         showToast('Hay campos sin rellenar', 'error');
@@ -195,6 +177,18 @@ function handleLogout() {
     router.push('/login');
 };
 
+function handleClearForm() {
+    visitStore.clearVisit();
+    form.value = {
+        name: '',
+        company: '',
+        plate: '',
+        purpose: [],
+        accessZone: []
+    }
+    selectedWorker.value = null;
+};
+
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
@@ -202,13 +196,4 @@ function capitalize(str) {
 
 </script>
 
-<style scoped>
-.home-container {
-    min-height: 100vh;
-}
-
-.home-card {
-    border-radius: 0px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-}
-</style>
+<style scoped></style>

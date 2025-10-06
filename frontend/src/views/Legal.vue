@@ -1,7 +1,6 @@
 <template>
-    <v-container fluid class="legal-container d-flex align-center justify-center pa-4"
-        :style="{ background: backgroundGradient }">
-        <v-card class="legal-card" max-width="800" width="100%">
+    <v-container fluid class="view-container d-flex align-center justify-center pa-4">
+        <v-card class="view-card" max-width="800" width="100%">
             <v-card-title class="text-h5 text-center bg-primary text-white">
                 <v-avatar v-if="tenant?.theme?.logoUrl" size="60" class="mr-4">
                     <v-img :src="tenant.theme.logoUrl" />
@@ -72,7 +71,9 @@
             <v-card-actions class="pa-3 d-flex justify-space-between "
                 :class="currentDocument?.isRequired ? 'mt-n7' : 'mt-n12'">
                 <v-col cols="2">
-                    <v-img height="50" :src="'/imgs/left-arrow.png'" class="cursor-pointer" @click="goBack" />
+                    <v-img height="50"
+                        src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/left-arrow_listjp.png"
+                        class="cursor-pointer" @click="goBack" />
                 </v-col>
                 <v-col cols="auto" class="d-flex ga-4">
                     <v-btn v-if="currentStep > 0" @click="previousDocument" prepend-icon="mdi-chevron-left" size="large"
@@ -93,7 +94,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-// import VuePdfEmbed from 'vue-pdf-embed';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useDocumentStore } from '../stores/documentStore';
@@ -180,9 +180,6 @@ const finishAndContinue = async () => {
     loading.value = true;
 
     try {
-        // Aquí más adelante guardaremos las aceptaciones en la BD
-        // Por ahora solo redirigimos al home
-
         // Guardar documentos aceptados
         visitStore.saveAcceptedDocuments(acceptedDocuments.value);
         visitStore.saveCurrentStep(currentStep.value);
@@ -201,13 +198,6 @@ const pdfViewerUrl = computed(() => {
     return `https://docs.google.com/viewer?url=${encodeURIComponent(currentDocument.value.fileUrl)}&embedded=true&chrome=false`;
 });
 
-const backgroundGradient = computed(() => {
-    const primary = tenant.value?.theme?.primary || '#667eea';
-    const secondary = tenant.value?.theme?.secondary || '#764ba2';
-    // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
-    return `${secondary}`;
-});
-
 const goBack = () => {
     visitStore.saveAcceptedDocuments(acceptedDocuments.value);
     visitStore.saveCurrentStep(currentStep.value);
@@ -217,16 +207,6 @@ const goBack = () => {
 </script>
 
 <style scoped>
-.legal-container {
-    min-height: 100vh;
-    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
-}
-
-.legal-card {
-    border-radius: 0px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
 .pdf-viewer {
     border-radius: 8px;
     overflow: hidden;

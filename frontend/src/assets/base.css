@@ -1,14 +1,39 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  min-height: 100vh;
+}
+
 .outline {
   outline: 1px solid red;
 }
 
 .auth-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
 }
 
 .auth-card {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
+}
+/******************************************************************************/
+.view-container {
+  min-height: 100vh;
+}
+
+.view-card {
+  border-radius: 0px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }

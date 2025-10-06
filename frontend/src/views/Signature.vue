@@ -1,7 +1,6 @@
 <template>
-    <v-container fluid class="signature-container d-flex align-center justify-center pa-4"
-        :style="{ background: backgroundGradient }">
-        <v-card class="legal-card" max-width="800" width="100%">
+    <v-container fluid class="view-container d-flex align-center justify-center pa-4">
+        <v-card class="view-card" max-width="800" width="100%">
             <v-card-title class="text-h5 text-center bg-primary text-white">
                 <v-avatar v-if="tenant?.theme?.logoUrl" size="60" class="mr-4">
                     <v-img :src="tenant.theme.logoUrl" />
@@ -10,17 +9,6 @@
             </v-card-title>
 
             <v-card-text class="pa-6">
-                <v-alert type="success" variant="tonal" class="mb-3">
-                    <v-row align="center">
-                        <v-col>
-                            <strong>Normativa leída:</strong>
-                            <p v-for="doc in documentsTitle">
-                                {{ doc }}
-                            </p>
-                        </v-col>
-                    </v-row>
-                </v-alert>
-
                 <v-card variant="outlined" class="mb-3">
                     <v-card-title class="bg-grey-lighten-4">
                         Datos de la visita
@@ -65,12 +53,10 @@
                             </v-col>
                         </v-row>
                     </v-card-text>
-                </v-card>
 
-                <v-card variant="outlined">
-                    <v-card-title class="d-flex justify-space-between align-center">
+                    <v-card-title class="mt-n2 d-flex justify-space-between align-center">
                         <span>Firma:</span>
-                        <v-btn @click="clearSignature" variant="text" size="small" prepend-icon="mdi-eraser"
+                        <v-btn @click="clearSignature" variant="outlined" size="small" prepend-icon="mdi-eraser"
                             color="error">
                             Limpiar
                         </v-btn>
@@ -87,20 +73,32 @@
                     </v-card-text>
                 </v-card>
 
+                <!-- <v-alert type="success" variant="tonal" class="mb-3">
+                    <v-row align="center">
+                        <v-col>
+                            <strong>Normativa leída:</strong>
+                            <p v-for="doc in documentsTitle">
+                                {{ doc }}
+                            </p>
+                        </v-col>
+                    </v-row>
+                </v-alert> -->
                 <v-alert type="info" variant="outlined" class="mt-3 pa-3">
                     <p class="text-body-1 font-weight-medium">
-                        Manifiesto que he leído, comprendo y acepto las normativas mencionadas
+                        Manifiesto que he leído, comprendo y acepto las normativas mostradas previamente
                     </p>
                 </v-alert>
 
             </v-card-text>
             <v-card-actions class="pa-3 mt-n6 d-flex justify-space-between ">
                 <v-col cols="2">
-                    <v-img height="50" :src="'/imgs/left-arrow.png'" class="cursor-pointer" @click="goBack" />
+                    <v-img height="50"
+                        src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/left-arrow_listjp.png"
+                        class="cursor-pointer" @click="goBack" />
                 </v-col>
                 <v-col cols="auto">
                     <v-btn @click="submitVisit" :disabled="!hasSignature" :loading="loading" color="primary"
-                        variant="flat" size="x-large" prepend-icon="mdi-check-circle">
+                        variant="flat" size="x-large" prepend-icon="mdi-check-circle" class="pa-3">
                         Confirmar y Finalizar
                     </v-btn>
                 </v-col>
@@ -234,27 +232,14 @@ const submitVisit = async () => {
     }
 };
 
-const backgroundGradient = computed(() => {
-    const primary = tenant.value?.theme?.primary || '#667eea';
-    const secondary = tenant.value?.theme?.secondary || '#764ba2';
-    // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
-    return `${secondary}`;
-});
-
 const goBack = () => {
     router.push(`/legal/${tenant.value.slug}`);
 };
 </script>
 
 <style scoped>
-.signature-container {
-    min-height: 100vh;
-    background: #f5f5f5;
-}
-
-.legal-card {
-    border-radius: 0px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+.v-alert-border {
+    border: 2px solid rgb(94, 182, 94);
 }
 
 .signature-pad-wrapper {
