@@ -22,10 +22,8 @@
                 </div>
 
                 <!-- PDF Viewer -->
-                <v-sheet class="pdf-viewer mb-6" elevation="0" rounded>
-                    <iframe :src="pdfViewerUrl" width="100%" height="600px"
-                        style="border: none; border-radius: 8px;"></iframe>
-                </v-sheet>
+                <vue-pdf-app style="height: 100vh;" :pdf="currentDocument.fileUrl" :page-scale="'page-width'"
+                    :page-number="1" :config="pdfConfig" class="mb-6" />
 
                 <!-- Acceptance checkbox -->
                 <v-card v-if="currentDocument.isRequired" variant="outlined" class="pl-1">
@@ -80,6 +78,25 @@ import { useDocumentStore } from '../stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
 import ViewCard from '@/components/ViewCard.vue';
 
+import VuePdfApp from "vue3-pdf-app";
+import "vue3-pdf-app/dist/icons/main.css";
+
+const pdfConfig = {
+    toolbar: {
+        toolbarViewerLeft: {
+            findbar: false
+        },
+        toolbarViewerRight: {
+            presentationMode: true,
+            openFile: false,
+            print: false,
+            download: true,
+            viewBookmark: false,
+        },
+    },
+    secondaryToolbar: false,
+}
+
 const router = useRouter();
 const authStore = useAuthStore();
 const documentStore = useDocumentStore();
@@ -99,10 +116,10 @@ const hasAcceptedCurrent = computed(() =>
 const canProceed = computed(() => acceptedDocuments.value.length === documents.value.length);
 const tenant = computed(() => authStore.tenant);
 
-const pdfViewerUrl = computed(() => {
-    if (!currentDocument.value?.fileUrl) return '';
-    return `https://docs.google.com/viewer?url=${encodeURIComponent(currentDocument.value.fileUrl)}&embedded=true&chrome=false`;
-});
+// const pdfViewerUrl = computed(() => {
+//     if (!currentDocument.value?.fileUrl) return '';
+//     return `https://docs.google.com/viewer?url=${encodeURIComponent(currentDocument.value.fileUrl)}&embedded=true&chrome=false`;
+// });
 
 onMounted(async () => {
     if (!tenant.value?._id) {
@@ -188,11 +205,3 @@ const goBack = () => {
     router.push(`/home/${tenant.value.slug}`);
 };
 </script>
-
-<style scoped>
-.pdf-viewer {
-    border-radius: 8px;
-    overflow: hidden;
-    background: #f5f5f5;
-}
-</style>
