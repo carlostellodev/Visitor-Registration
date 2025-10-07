@@ -19,15 +19,6 @@ body {
   outline: 1px solid red;
 }
 
-.auth-container {
-  min-height: 100vh;
-  padding: 20px;
-}
-
-.auth-card {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
 /******************************************************************************/
 .view-container {
   min-height: 100vh;

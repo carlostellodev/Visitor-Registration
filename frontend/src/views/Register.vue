@@ -1,6 +1,6 @@
 <template>
-    <v-container fluid class="auth-container d-flex align-center justify-center">
-        <v-card class="auth-card" max-width="400" width="100%">
+    <v-container fluid class="view-container d-flex align-center justify-center">
+        <v-card class="view-card" max-width="400" width="100%">
             <v-card-text class="pa-10">
                 <h1 class="text-h4 text-center text-grey-darken-3 mb-8">Crear Cuenta</h1>
 

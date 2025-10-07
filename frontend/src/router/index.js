@@ -5,6 +5,7 @@ import Register from '../views/Register.vue'
 import Home from '../views/Home.vue'
 import Legal from '../views/Legal.vue'
 import Signature from '../views/Signature.vue'
+import Help from '../views/Help.vue'
 
 const routes = [
   {
@@ -48,6 +49,12 @@ const routes = [
     path: '/signature/:slug',
     name: 'Signature',
     component: Signature,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/help/:slug',
+    name: 'Help',
+    component: Help,
     meta: { requiresAuth: true },
   },
 ]

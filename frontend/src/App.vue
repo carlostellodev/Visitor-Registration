@@ -10,6 +10,7 @@ import { RouterView } from 'vue-router'
 import { computed, watch } from 'vue'
 import { useAuthStore } from './stores/authStore'
 import { useTheme } from 'vuetify'
+import router from './router'
 
 const authStore = useAuthStore()
 const theme = useTheme()
@@ -39,6 +40,6 @@ const backgroundGradient = computed(() => {
 //-----------------------------------------------------------------------------
 
 function handleHelp() {
-  window.open('https://github.com/ctell/visitor-registration', '_blank');
+  router.push(`/help/${authStore.tenantSlug}`);
 };
 </script>
