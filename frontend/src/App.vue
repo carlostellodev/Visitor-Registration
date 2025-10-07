@@ -1,8 +1,7 @@
 <template>
   <v-app id="app" :style="{ background: backgroundGradient }" class="outline">
     <router-view />
-    <v-icon v-if="showHelp" class="mt-n4 mb-3 ml-3" size="x-large"
-      @click="handleHelp">mdi-tooltip-question-outline</v-icon>
+
   </v-app>
 </template>
 
@@ -11,12 +10,10 @@ import { RouterView } from 'vue-router'
 import { computed, watch } from 'vue'
 import { useAuthStore } from './stores/authStore'
 import { useTheme } from 'vuetify'
-import { useRouter, useRoute } from 'vue-router';
 
 const authStore = useAuthStore()
 const theme = useTheme()
-const router = useRouter();
-const route = useRoute();
+
 
 //-----------------------------------------------------------------------------
 // Aplicar theme del tenant a Vuetify
@@ -41,10 +38,4 @@ const backgroundGradient = computed(() => {
   return `${secondary}`;
 })
 //-----------------------------------------------------------------------------
-
-const showHelp = computed(() => !route.meta.dontShowHelp);
-
-function handleHelp() {
-  router.push(`/help/${authStore.tenantSlug}`);
-};
 </script>

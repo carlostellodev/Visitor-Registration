@@ -22,8 +22,8 @@
                 </div>
 
                 <!-- PDF Viewer -->
-                <vue-pdf-app style="height: 100vh;" :pdf="currentDocument.fileUrl" :page-scale="'page-width'"
-                    :page-number="1" :config="pdfConfig" class="mb-6" />
+                <vue-pdf-app v-show="currentDocument.fileUrl" style="height: 100vh;" :pdf="currentDocument.fileUrl"
+                    :page-scale="'page-width'" :page-number="1" :config="pdfConfig" class="mb-6" />
 
                 <!-- Acceptance checkbox -->
                 <v-card v-if="currentDocument.isRequired" variant="outlined" class="pl-1">
@@ -116,11 +116,6 @@ const hasAcceptedCurrent = computed(() =>
 const canProceed = computed(() => acceptedDocuments.value.length === documents.value.length);
 const tenant = computed(() => authStore.tenant);
 
-// const pdfViewerUrl = computed(() => {
-//     if (!currentDocument.value?.fileUrl) return '';
-//     return `https://docs.google.com/viewer?url=${encodeURIComponent(currentDocument.value.fileUrl)}&embedded=true&chrome=false`;
-// });
-
 onMounted(async () => {
     if (!tenant.value?._id) {
         router.push('/login');
@@ -147,6 +142,8 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+    console.log('Unmounted');
+
     visitStore.saveAcceptedDocuments(acceptedDocuments.value);
     visitStore.saveCurrentStep(currentStep.value);
 });

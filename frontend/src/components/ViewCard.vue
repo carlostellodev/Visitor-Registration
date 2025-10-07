@@ -3,6 +3,9 @@
         <v-card class="view-card" :max-width="maxWidth" width="100%">
             <!-- Header -->
             <v-card-title class="text-h5 text-center bg-primary text-white">
+                <v-btn v-if="showHelp" icon variant="text" color="white" class="help-button" @click="handleHelp">
+                    <v-icon size="x-large">mdi-tooltip-question-outline</v-icon>
+                </v-btn>
                 <v-img v-if="showLogo && tenant?.theme?.logoUrl" :src="tenant.theme.logoUrl" height="60" />
                 <div class="d-flex flex-column align-center">
                     <div v-if="tenant?.name">{{ tenant.name }}</div>
@@ -32,9 +35,13 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { useAuthStore } from '../stores/authStore';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
 
 const props = defineProps({
     // Datos del tenant
@@ -96,9 +103,28 @@ const emit = defineEmits(['back']);
 
 const handleBack = () => {
     emit('back');
+};
 
-    if (!emit('back')) {
-        router.go(-1);
-    }
+const showHelp = computed(() => !route.meta.dontShowHelp);
+
+function handleHelp() {
+    router.push(`/help/${authStore.tenantSlug}`);
 };
 </script>
+
+<style scoped>
+.position-relative {
+    position: relative;
+}
+
+.help-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1;
+}
+
+.help-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+</style>
