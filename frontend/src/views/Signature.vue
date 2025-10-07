@@ -1,100 +1,91 @@
 <template>
-    <v-container fluid class="view-container d-flex align-center justify-center pa-4">
-        <v-card class="view-card" max-width="800" width="100%">
-            <v-card-title class="text-h5 text-center bg-primary text-white">
-                <v-avatar v-if="tenant?.theme?.logoUrl" size="60" class="mr-4">
-                    <v-img :src="tenant.theme.logoUrl" />
-                </v-avatar>
-                <div>{{ tenant?.name }}</div>
-            </v-card-title>
+    <ViewCard :tenant="tenant" content-class="pa-6" actions-class="mt-n6" @back="goBack">
+        <!-- Contenido principal -->
+        <template #default>
+            <!-- Datos de la visita -->
+            <v-card variant="outlined" class="mb-3">
+                <v-card-title class="bg-grey-lighten-4">
+                    Datos de la visita
+                </v-card-title>
+                <v-card-text class="pa-4">
+                    <v-row dense>
+                        <v-col cols="12" sm="6">
+                            <div class="mb-2">
+                                <div class="text-caption text-grey-darken-1">Nombre y apellidos</div>
+                                <div class="text-h6 font-weight-medium">{{ formData.name }}</div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <div class="mb-2">
+                                <div class="text-caption text-grey-darken-1">Empresa</div>
+                                <div class="text-h6 font-weight-medium">{{ formData.company }}</div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <div class="mb-2">
+                                <div class="text-caption text-grey-darken-1">Motivo</div>
+                                <div class="text-h6">{{ getPurposeNames(formData.purpose) }}</div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <div class="mb-2">
+                                <div class="text-caption text-grey-darken-1">Zona de acceso</div>
+                                <div class="text-h6">{{ getAreaNames(formData.accessZone) }}</div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" sm="6" v-if="formData.plate">
+                            <div>
+                                <div class="text-caption text-grey-darken-1">Matrícula</div>
+                                <div class="text-h6">{{ formData.plate }}</div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <div>
+                                <div class="text-caption text-grey-darken-1">Responsable</div>
+                                <div class="text-h6">{{ formData.worker?.name || 'No especificado' }}</div>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
 
-            <v-card-text class="pa-6">
-                <v-card variant="outlined" class="mb-3">
-                    <v-card-title class="bg-grey-lighten-4">
-                        Datos de la visita
-                    </v-card-title>
-                    <v-card-text class="pa-4">
-                        <v-row dense>
-                            <v-col cols="12" sm="6">
-                                <div class="mb-2">
-                                    <div class="text-caption text-grey-darken-1">Nombre y apellidos</div>
-                                    <div class="text-h6 font-weight-medium">{{ formData.name }}</div>
-                                </div>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                                <div class="mb-2">
-                                    <div class="text-caption text-grey-darken-1">Empresa</div>
-                                    <div class="text-h6 font-weight-medium">{{ formData.company }}</div>
-                                </div>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                                <div class="mb-2">
-                                    <div class="text-caption text-grey-darken-1">Motivo</div>
-                                    <div class="text-h6">{{ getPurposeNames(formData.purpose) }}</div>
-                                </div>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                                <div class="mb-2">
-                                    <div class="text-caption text-grey-darken-1">Zona de acceso</div>
-                                    <div class="text-h6">{{ getAreaNames(formData.accessZone) }}</div>
-                                </div>
-                            </v-col>
-                            <v-col cols="12" sm="6" v-if="formData.plate">
-                                <div class="">
-                                    <div class="text-caption text-grey-darken-1">Matrícula</div>
-                                    <div class="text-h6">{{ formData.plate }}</div>
-                                </div>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                                <div>
-                                    <div class="text-caption text-grey-darken-1">Responsable</div>
-                                    <div class="text-h6">{{ formData.worker?.name || 'No especificado' }}</div>
-                                </div>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-
-                    <v-card-title class="mt-n2 d-flex justify-space-between align-center">
-                        <span>Firma:</span>
-                        <v-btn @click="clearSignature" variant="outlined" size="small" prepend-icon="mdi-eraser"
-                            color="error">
-                            Limpiar
-                        </v-btn>
-                    </v-card-title>
-                    <v-card-text>
-                        <div class="signature-pad-wrapper">
-                            <VueSignature ref="signatureRef" :sigOption="{ penColor: 'rgb(0, 0, 0)' }" :w="'100%'"
-                                :h="'180px'" @end="handleEnd" />
-                        </div>
-                        <v-divider class="my-2" />
-                        <div class="text-center text-caption text-grey-darken-1">
-                            Firme en el recuadro superior
-                        </div>
-                    </v-card-text>
-                </v-card>
-
-                <v-alert type="info" variant="outlined" class="mt-3 pa-3">
-                    <p class="text-body-1 font-weight-medium">
-                        Manifiesto que he leído, comprendo y acepto las normativas mostradas previamente
-                    </p>
-                </v-alert>
-
-            </v-card-text>
-            <v-card-actions class="pa-3 mt-n6 d-flex justify-space-between ">
-                <v-col cols="2" class="ml-n3">
-                    <v-img height="50"
-                        src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/left-arrow_listjp.png"
-                        class="cursor-pointer" @click="goBack" />
-                </v-col>
-                <v-col cols="auto">
-                    <v-btn @click="submitVisit" :disabled="!hasSignature" :loading="loading" color="primary"
-                        variant="flat" size="x-large" prepend-icon="mdi-check-circle" class="pa-3">
-                        Confirmar y Finalizar
+                <!-- Firma -->
+                <v-card-title class="mt-n2 d-flex justify-space-between align-center">
+                    <span>Firma:</span>
+                    <v-btn @click="clearSignature" variant="outlined" size="small" prepend-icon="mdi-eraser"
+                        color="error">
+                        Limpiar
                     </v-btn>
-                </v-col>
-            </v-card-actions>
-        </v-card>
-    </v-container>
+                </v-card-title>
+                <v-card-text>
+                    <div class="signature-pad-wrapper">
+                        <VueSignature ref="signatureRef" :sigOption="{ penColor: 'rgb(0, 0, 0)' }" :w="'100%'"
+                            :h="'180px'" @end="handleEnd" />
+                    </div>
+                    <v-divider class="my-2" />
+                    <div class="text-center text-caption text-grey-darken-1">
+                        Firme en el recuadro superior
+                    </div>
+                </v-card-text>
+            </v-card>
+
+            <!-- Alert informativo -->
+            <v-alert type="info" variant="outlined" class="mt-3 pa-3">
+                <p class="text-body-1 font-weight-medium">
+                    Manifiesto que he leído, comprendo y acepto las normativas mostradas previamente
+                </p>
+            </v-alert>
+        </template>
+
+        <!-- Acciones personalizadas -->
+        <template #actions>
+            <v-col cols="auto">
+                <v-btn @click="submitVisit" :disabled="!hasSignature" :loading="loading" color="primary" variant="flat"
+                    size="x-large" prepend-icon="mdi-check-circle" class="pa-3">
+                    Confirmar y Finalizar
+                </v-btn>
+            </v-col>
+        </template>
+    </ViewCard>
 </template>
 
 <script setup>
@@ -106,9 +97,10 @@ import { useDocumentStore } from '@/stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
 import { useWorkerStore } from '@/stores/workerStore';
 import VueSignature from 'vue3-signature';
-import { downloadVisitPDF, getVisitPDFBlob } from '../utils/pdfGenerator';
-
+import { getVisitPDFBlob } from '../utils/pdfGenerator';
 import { useToastComposable } from '@/composables/useToast';
+import ViewCard from '@/components/ViewCard.vue';
+
 const { showToast } = useToastComposable();
 
 const router = useRouter();
@@ -123,21 +115,13 @@ const loading = ref(false);
 
 const formData = computed(() => visitStore.formData);
 const tenant = computed(() => authStore.tenant);
-// const documentsTitle = computed(() => documentStore.documents.map(d => d.title));
-// const workerName = computed(() => {
-//     const worker = workerStore.workers.find(w => w._id === formData.value.worker);
-//     return worker?.name || 'No especificado';
-// });
-
 
 onMounted(() => {
     if (!formData.value.name || !formData.value.company) {
         console.log("Saliendo", formData.value);
-
         router.push(`/home/${tenant.value.slug}`);
     }
 });
-
 
 const getPurposeNames = (purposes) => {
     return purposes.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ');
@@ -183,7 +167,6 @@ const submitVisit = async () => {
         //     `visita_${formData.value.name}_${Date.now()}.pdf`
         // );
 
-        // Generar PDF blob
         const pdfBlob = await getVisitPDFBlob(visitDataComplete, tenant.value);
 
         const documentsAcceptedFormatted = visitStore.acceptedDocuments.map(docId => ({
@@ -191,7 +174,6 @@ const submitVisit = async () => {
             acceptedAt: new Date().toISOString()
         }));
 
-        // Crear FormData para enviar
         const pdfData = new FormData();
         pdfData.append('pdf', pdfBlob, `visita_${Date.now()}.pdf`);
         pdfData.append('name', visitDataComplete.name);
@@ -204,7 +186,6 @@ const submitVisit = async () => {
         pdfData.append('signature', signatureData);
         pdfData.append('documentsAccepted', JSON.stringify(documentsAcceptedFormatted));
 
-        // Enviar al backend
         const response = await api.post('/visitors', pdfData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -228,10 +209,6 @@ const goBack = () => {
 </script>
 
 <style scoped>
-.v-alert-border {
-    border: 2px solid rgb(94, 182, 94);
-}
-
 .signature-pad-wrapper {
     border: 2px dashed #ccc;
     border-radius: 8px;

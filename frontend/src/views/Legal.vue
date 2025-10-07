@@ -1,17 +1,11 @@
 <template>
-    <v-container fluid class="view-container d-flex align-center justify-center pa-4">
-        <v-card class="view-card" max-width="800" width="100%">
-            <v-card-title class="text-h5 text-center bg-primary text-white">
-                <v-avatar v-if="tenant?.theme?.logoUrl" size="60" class="mr-4">
-                    <v-img :src="tenant.theme.logoUrl" />
-                </v-avatar>
-                <div>{{ tenant?.name }}</div>
-            </v-card-title>
-
-            <!-- Content -->
-            <v-card-text v-if="currentDocument" class="pa-6">
+    <ViewCard :tenant="tenant" content-class="pa-6" :actions-class="currentDocument?.isRequired ? 'mt-n7' : 'mt-n12'"
+        @back="goBack">
+        <!-- Contenido principal -->
+        <template #default>
+            <div v-if="currentDocument">
                 <!-- Document title and description -->
-                <div class="mb-4 ">
+                <div class="mb-4">
                     <v-row>
                         <v-col>
                             <h2 class="text-h5 mb-2">{{ currentDocument.title }}</h2>
@@ -45,51 +39,37 @@
                         </template>
                     </v-checkbox>
                 </v-card>
-
-                <!-- Progress bar -->
-                <!-- <v-progress-linear :model-value="(acceptedDocuments.length / documents.length) * 100" color="success"
-                    height="20" rounded>
-                    <template v-slot:default="{ value }">
-                        <strong>{{ Math.ceil(value) }}%</strong>
-                    </template>
-                </v-progress-linear> -->
-            </v-card-text>
+            </div>
 
             <!-- Loading state -->
-            <v-card-text v-else-if="documentStore.loading" class="text-center pa-10">
+            <div v-else-if="documentStore.loading" class="text-center pa-10">
                 <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
                 <p class="mt-4 text-grey-darken-1">Cargando documentos...</p>
-            </v-card-text>
+            </div>
 
             <!-- Error state -->
-            <v-card-text v-else-if="documentStore.error" class="pa-6">
+            <div v-else-if="documentStore.error">
                 <v-alert type="error" variant="tonal">
                     {{ documentStore.error }}
                 </v-alert>
-            </v-card-text>
+            </div>
+        </template>
 
-            <v-card-actions class="pa-3 d-flex justify-space-between "
-                :class="currentDocument?.isRequired ? 'mt-n7' : 'mt-n12'">
-                <v-col cols="2" class="ml-n3">
-                    <v-img height="50"
-                        src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/left-arrow_listjp.png"
-                        class="cursor-pointer" @click="goBack" />
-                </v-col>
-                <v-col cols="auto" class="d-flex ga-4">
-                    <v-btn v-if="currentStep > 0" @click="previousDocument" prepend-icon="mdi-chevron-left" size="large"
-                        variant="outlined">
-                        Anterior
-                    </v-btn>
-                    <v-btn @click="isLastDocument ? finishAndContinue() : nextDocument()"
-                        :disabled="!hasAcceptedCurrent" :loading="loading" color="primary"
-                        :prepend-icon="isLastDocument ? 'mdi-check-circle' : undefined"
-                        :append-icon="!isLastDocument ? 'mdi-chevron-right' : undefined" size="large" variant="flat">
-                        {{ isLastDocument ? 'Finalizar y Continuar' : 'Siguiente' }}
-                    </v-btn>
-                </v-col>
-            </v-card-actions>
-        </v-card>
-    </v-container>
+        <!-- Acciones personalizadas -->
+        <template #actions>
+            <v-col cols="auto" class="d-flex ga-4">
+                <v-btn v-if="currentStep > 0" @click="previousDocument" prepend-icon="mdi-chevron-left" size="large"
+                    variant="outlined">
+                    Anterior
+                </v-btn>
+                <v-btn @click="isLastDocument ? finishAndContinue() : nextDocument()" :disabled="!hasAcceptedCurrent"
+                    :loading="loading" color="primary" :prepend-icon="isLastDocument ? 'mdi-check-circle' : undefined"
+                    :append-icon="!isLastDocument ? 'mdi-chevron-right' : undefined" size="large" variant="flat">
+                    {{ isLastDocument ? 'Finalizar y Continuar' : 'Siguiente' }}
+                </v-btn>
+            </v-col>
+        </template>
+    </ViewCard>
 </template>
 
 <script setup>
@@ -98,6 +78,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useDocumentStore } from '../stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
+import ViewCard from '@/components/ViewCard.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -112,10 +93,16 @@ const documents = computed(() => documentStore.activeDocuments);
 const currentDocument = computed(() => documents.value[currentStep.value]);
 const isLastDocument = computed(() => currentStep.value === documents.value.length - 1);
 const hasAcceptedCurrent = computed(() =>
-    (currentDocument.value && acceptedDocuments.value.includes(currentDocument.value._id)) || !currentDocument.value?.isRequired
+    (currentDocument.value && acceptedDocuments.value.includes(currentDocument.value._id)) ||
+    !currentDocument.value?.isRequired
 );
 const canProceed = computed(() => acceptedDocuments.value.length === documents.value.length);
 const tenant = computed(() => authStore.tenant);
+
+const pdfViewerUrl = computed(() => {
+    if (!currentDocument.value?.fileUrl) return '';
+    return `https://docs.google.com/viewer?url=${encodeURIComponent(currentDocument.value.fileUrl)}&embedded=true&chrome=false`;
+});
 
 onMounted(async () => {
     if (!tenant.value?._id) {
@@ -127,7 +114,6 @@ onMounted(async () => {
         await documentStore.fetchDocumentsByTenant(tenant.value._id);
 
         if (documents.value.length === 0) {
-            // Si no hay documentos, ir directo al formulario
             router.push(`/home/${tenant.value.slug}`);
         }
     } catch (error) {
@@ -154,8 +140,9 @@ const toggleAcceptance = () => {
     const index = acceptedDocuments.value.indexOf(currentDocument.value._id);
     if (index > -1) {
         acceptedDocuments.value.splice(index, 1);
-    } else if (!acceptedDocuments.value.includes(currentDocument.value._id))
+    } else if (!acceptedDocuments.value.includes(currentDocument.value._id)) {
         acceptedDocuments.value.push(currentDocument.value._id);
+    }
 };
 
 const nextDocument = () => {
@@ -185,11 +172,8 @@ const finishAndContinue = async () => {
     loading.value = true;
 
     try {
-        // Guardar documentos aceptados
         visitStore.saveAcceptedDocuments(acceptedDocuments.value);
         visitStore.saveCurrentStep(currentStep.value);
-
-        // Redirigir a la vista de firma
         router.push(`/signature/${tenant.value.slug}`);
     } catch (error) {
         console.error('Error:', error);
@@ -198,17 +182,11 @@ const finishAndContinue = async () => {
     }
 };
 
-const pdfViewerUrl = computed(() => {
-    if (!currentDocument.value?.fileUrl) return '';
-    return `https://docs.google.com/viewer?url=${encodeURIComponent(currentDocument.value.fileUrl)}&embedded=true&chrome=false`;
-});
-
 const goBack = () => {
     visitStore.saveAcceptedDocuments(acceptedDocuments.value);
     visitStore.saveCurrentStep(currentStep.value);
     router.push(`/home/${tenant.value.slug}`);
 };
-
 </script>
 
 <style scoped>
@@ -216,10 +194,5 @@ const goBack = () => {
     border-radius: 8px;
     overflow: hidden;
     background: #f5f5f5;
-}
-
-.pdf-embed {
-    width: 100%;
-    min-height: 600px;
 }
 </style>
