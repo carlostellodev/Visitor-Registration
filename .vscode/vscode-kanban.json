@@ -4,10 +4,10 @@
       "assignedTo": {
         "name": "carlostellodev"
       },
-      "creation_time": "2025-10-03T07:15:25.458Z",
-      "id": "11",
+      "creation_time": "2025-10-06T17:01:57.547Z",
+      "id": "19",
       "references": [],
-      "title": "Añadir vista de Soporte"
+      "title": "Auditoría de código"
     },
     {
       "assignedTo": {
@@ -22,10 +22,64 @@
       "assignedTo": {
         "name": "carlostellodev"
       },
-      "creation_time": "2025-10-03T07:13:29.462Z",
-      "id": "8",
+      "creation_time": "2025-10-06T17:26:43.641Z",
+      "description": {
+        "content": "- No puedo guardar tantísimos pdfs en cloudinary\n- Si es un requisito importante, deben pagar más",
+        "mime": "text/markdown"
+      },
+      "id": "24",
       "references": [],
-      "title": "Deshabilitar el registro"
+      "title": "campo expiresAt en el modelo de Visitors"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-03T17:07:24.533Z",
+      "id": "17",
+      "references": [],
+      "title": "Despliegue en Vercel y Render"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "category": "Futuro",
+      "creation_time": "2025-10-06T17:33:49.461Z",
+      "id": "27",
+      "references": [],
+      "title": "Docker, CI/CD y pruebas unitarias"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-06T17:18:51.391Z",
+      "description": {
+        "content": "- carpeta Inspiración en el navegador",
+        "mime": "text/markdown"
+      },
+      "id": "22",
+      "references": [],
+      "title": "Estudio de competidores"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-06T17:13:51.967Z",
+      "id": "20",
+      "references": [],
+      "title": "Función de descargar PDFs"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-03T17:00:26.473Z",
+      "id": "15",
+      "references": [],
+      "title": "Implementar lista de visitantes de hoy?"
     },
     {
       "assignedTo": {
@@ -41,10 +95,46 @@
       "assignedTo": {
         "name": "carlostellodev"
       },
-      "creation_time": "2025-10-02T16:44:52.879Z",
-      "id": "6",
+      "category": "Futuro",
+      "creation_time": "2025-10-06T17:28:45.559Z",
+      "description": {
+        "content": "- Se les puede avisar por ejemplo que se va a hacer un borrado de PDfs, enviar un informe mensual de visitantes...",
+        "mime": "text/markdown"
+      },
+      "id": "25",
       "references": [],
-      "title": "Meter logos en Vista 1"
+      "title": "Lógica de avisos/notificaciones al correo de contacto de los tenants"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-06T17:21:29.147Z",
+      "id": "23",
+      "references": [],
+      "title": "Lógica del tenant.config: sessionTimeout y autoLogout"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-06T17:15:02.505Z",
+      "id": "21",
+      "references": [],
+      "title": "pasar los logos a escala 1x1 (consultar con Laura)"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-06T17:30:48.105Z",
+      "description": {
+        "content": "- Iniciar sesión en dos tablets o más y que funcione correctamente\n- Vistas en móvil, tablet y ordenador\n- Firmado correcto desde tablet/móvil\n",
+        "mime": "text/markdown"
+      },
+      "id": "26",
+      "references": [],
+      "title": "Pruebas de la aplicación"
     },
     {
       "assignedTo": {
@@ -54,6 +144,19 @@
       "id": "12",
       "references": [],
       "title": "Responsive para ordenador, tablet y movil"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-03T17:07:07.749Z",
+      "id": "16",
+      "references": [],
+      "title": "Seguridad en la aplicación (Login, URLs y campos de formulario sobre todo)",
+      "description": {
+        "content": "- Añadir lo de que no se pueda desactivar JavaScript",
+        "mime": "text/markdown"
+      }
     },
     {
       "assignedTo": {
@@ -70,13 +173,54 @@
       "assignedTo": {
         "name": "carlostellodev"
       },
-      "creation_time": "2025-10-03T07:13:05.957Z",
-      "id": "7",
+      "creation_time": "2025-10-06T17:36:07.545Z",
+      "description": {
+        "content": "- Debo poder entrar en cualquier tenant-slug, hacer CRUD, etc",
+        "mime": "text/markdown"
+      },
+      "id": "28",
       "references": [],
-      "title": "Vista 2"
+      "title": "crearun usuario SuperAdmin para mí"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-07T15:28:13.370Z",
+      "id": "29",
+      "references": [],
+      "title": "Repasar el código de Visitants para ver si puedo inlcuir algo"
     }
   ],
-  "testing": [
+  "testing": [],
+  "done": [
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-05T09:39:11.796Z",
+      "id": "18",
+      "references": [],
+      "title": "Añadir botón de limpiar formulario"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-03T11:11:33.584Z",
+      "id": "14",
+      "references": [],
+      "title": "CRUD PDFs"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-03T07:13:29.462Z",
+      "id": "8",
+      "references": [],
+      "title": "Deshabilitar el registro"
+    },
     {
       "assignedTo": {
         "name": "carlostellodev"
@@ -85,7 +229,46 @@
       "id": "2",
       "references": [],
       "title": "Incluir nueva tabla de Document"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-02T16:44:52.879Z",
+      "id": "6",
+      "references": [],
+      "title": "Meter logos y documents en Cloudinary"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-03T07:13:05.957Z",
+      "id": "7",
+      "references": [],
+      "title": "Vista 2"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-03T11:11:14.922Z",
+      "id": "13",
+      "references": [],
+      "title": "Vista 3"
+    },
+    {
+      "assignedTo": {
+        "name": "carlostellodev"
+      },
+      "creation_time": "2025-10-03T07:15:25.458Z",
+      "id": "11",
+      "references": [],
+      "title": "Añadir vista de Soporte",
+      "description": {
+        "content": "- Añadir tanto mis datos como los datos de contacto del tenant",
+        "mime": "text/markdown"
+      }
     }
-  ],
-  "done": []
+  ]
 }

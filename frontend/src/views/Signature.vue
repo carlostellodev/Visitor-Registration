@@ -107,7 +107,6 @@ const router = useRouter();
 const authStore = useAuthStore();
 const documentStore = useDocumentStore();
 const visitStore = useVisitStore();
-const workerStore = useWorkerStore();
 
 const signatureRef = ref(null);
 const hasSignature = ref(false);
@@ -115,6 +114,7 @@ const loading = ref(false);
 
 const formData = computed(() => visitStore.formData);
 const tenant = computed(() => authStore.tenant);
+const documentTitles = computed(() => documentStore.documents.map(d => d.title));
 
 onMounted(() => {
     if (!formData.value.name || !formData.value.company) {
@@ -156,6 +156,7 @@ const submitVisit = async () => {
         const visitDataComplete = {
             ...formData.value,
             signature: signatureData,
+            documentTitles: documentTitles.value,
             workerName: formData.value.worker?.name || formData.value.worker,
             tenantId: tenant.value._id,
         };
@@ -179,6 +180,7 @@ const submitVisit = async () => {
         pdfData.append('name', visitDataComplete.name);
         pdfData.append('company', visitDataComplete.company);
         pdfData.append('plate', visitDataComplete.plate || '');
+        pdfData.append('documentTitles', JSON.stringify(documentTitles.value));
         pdfData.append('purpose', JSON.stringify(visitDataComplete.purpose));
         pdfData.append('accessZone', JSON.stringify(visitDataComplete.accessZone));
         pdfData.append('workerId', visitDataComplete.worker?._id || '');

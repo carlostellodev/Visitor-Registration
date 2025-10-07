@@ -54,8 +54,8 @@ export const generateVisitPDF = async (visitData, tenantData) => {
 
   doc.setFontSize(11)
   doc.setFont('helvetica', 'normal')
-  const normativas = ['NORMAS DE BIOSEGURIDAD', 'NORMATIVA PRL', 'NORMATIVA LOPD']
-  normativas.forEach((norm) => {
+  const docs = visitData.documentTitles.filter((title) => capitalize(title))
+  docs.forEach((norm) => {
     doc.text(`• ${norm}`, margin + 5, currentY)
     currentY += 6
   })
