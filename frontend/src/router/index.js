@@ -16,13 +16,13 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { requiresGuest: true },
+    meta: { requiresGuest: true, dontShowHelp: true },
   },
   // {
   //   path: '/register',
   //   name: 'Register',
   //   component: Register,
-  //   meta: { requiresGuest: true },
+  //   meta: { requiresGuest: true, dontShowHelp: true },
   // },
   {
     path: '/home/:slug',
@@ -55,7 +55,7 @@ const routes = [
     path: '/help/:slug',
     name: 'Help',
     component: Help,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, dontShowHelp: true },
   },
 ]
 

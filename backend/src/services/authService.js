@@ -84,6 +84,9 @@ class AuthService {
         tenant: {
           _id: user.tenantId._id,
           name: user.tenantId.name,
+          email: user.tenantId.email,
+          phone: user.tenantId.phone,
+          address: user.tenantId.address,
           slug: user.tenantId.slug,
           theme: user.tenantId.theme,
           config: user.tenantId.config,
@@ -112,6 +115,9 @@ class AuthService {
       tenant: {
         _id: user.tenantId._id,
         name: user.tenantId.name,
+        email: user.tenantId.email,
+        phone: user.tenantId.phone,
+        address: user.tenantId.address,
         slug: user.tenantId.slug,
         theme: user.tenantId.theme,
         isActive: user.tenantId.isActive,

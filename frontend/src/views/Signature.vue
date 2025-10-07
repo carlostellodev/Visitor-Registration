@@ -73,16 +73,6 @@
                     </v-card-text>
                 </v-card>
 
-                <!-- <v-alert type="success" variant="tonal" class="mb-3">
-                    <v-row align="center">
-                        <v-col>
-                            <strong>Normativa leída:</strong>
-                            <p v-for="doc in documentsTitle">
-                                {{ doc }}
-                            </p>
-                        </v-col>
-                    </v-row>
-                </v-alert> -->
                 <v-alert type="info" variant="outlined" class="mt-3 pa-3">
                     <p class="text-body-1 font-weight-medium">
                         Manifiesto que he leído, comprendo y acepto las normativas mostradas previamente
@@ -91,7 +81,7 @@
 
             </v-card-text>
             <v-card-actions class="pa-3 mt-n6 d-flex justify-space-between ">
-                <v-col cols="2">
+                <v-col cols="2" class="ml-n3">
                     <v-img height="50"
                         src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/left-arrow_listjp.png"
                         class="cursor-pointer" @click="goBack" />
@@ -133,7 +123,7 @@ const loading = ref(false);
 
 const formData = computed(() => visitStore.formData);
 const tenant = computed(() => authStore.tenant);
-const documentsTitle = computed(() => documentStore.documents.map(d => d.title));
+// const documentsTitle = computed(() => documentStore.documents.map(d => d.title));
 // const workerName = computed(() => {
 //     const worker = workerStore.workers.find(w => w._id === formData.value.worker);
 //     return worker?.name || 'No especificado';

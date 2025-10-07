@@ -70,7 +70,7 @@
 
             <v-card-actions class="pa-3 d-flex justify-space-between "
                 :class="currentDocument?.isRequired ? 'mt-n7' : 'mt-n12'">
-                <v-col cols="2">
+                <v-col cols="2" class="ml-n3">
                     <v-img height="50"
                         src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/left-arrow_listjp.png"
                         class="cursor-pointer" @click="goBack" />
@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useDocumentStore } from '../stores/documentStore';
@@ -141,6 +141,11 @@ onMounted(async () => {
     if (visitStore.currentStep) {
         currentStep.value = visitStore.currentStep;
     }
+});
+
+onUnmounted(() => {
+    visitStore.saveAcceptedDocuments(acceptedDocuments.value);
+    visitStore.saveCurrentStep(currentStep.value);
 });
 
 const toggleAcceptance = () => {

@@ -69,7 +69,7 @@
                         </v-col>
                     </v-row>
                 </v-col>
-                <v-col cols="2">
+                <v-col cols="2" class="mr-n3">
                     <v-img height="50"
                         src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/right-arrow_zj696p.png"
                         class="cursor-pointer" @click="handleSubmit" />
