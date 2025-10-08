@@ -1,5 +1,5 @@
 import Worker from "../models/worker.js";
-import User from "../models/User.js";
+import User from "../models/user.js";
 
 class WorkerService {
   // Crear nuevo worker
