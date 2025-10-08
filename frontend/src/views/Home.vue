@@ -1,113 +1,115 @@
 <template>
-    <v-container fluid class="home-container pa-10" :style="{ background: backgroundGradient }">
+    <ViewCard :tenant="tenant" subtitle="Instrucciones generales de acceso a las instalaciones"
+        content-class="pa-10 mt-n4" actions-class="mt-n15" :show-back-button="false" @back="handleLogout">
+        <!-- Contenido -->
+        <template #default>
+            <v-row>
+                <v-col>
+                    <v-row>
+                        <v-col>
+                            <span class="text-h6">Nombre y apellidos</span>
+                            <v-text-field density="compact" variant="outlined" v-model="form.name" />
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-n4">
+                        <v-col>
+                            <span class="text-h6">Empresa</span>
+                            <v-text-field density="compact" variant="outlined" v-model="form.company" />
+                        </v-col>
+                    </v-row>
+                </v-col>
+                <v-col>
+                    <v-img height="190" :src="tenant.theme.logoUrl" />
+                </v-col>
+            </v-row>
 
-        <v-row>
-            <v-col class="text-center mb-5 ">
-                <h2 class="mb-4 text-center text-decoration-underline">
-                    Instrucciones generales de acceso a las instalaciones
-                </h2>
-            </v-col>
-        </v-row>
-        <v-card class="home-card mx-auto" max-width="800">
-            <v-card-text class="pa-10">
+            <div class="d-flex justify-space-evenly ga-4 mt-4 mb-3">
+                <!-- Motivos -->
+                <v-card flat>
+                    <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
+                    <v-checkbox v-for="purpose in purposeOptions" :key="purpose" v-model="form.purpose"
+                        :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable" />
+                </v-card>
 
-                <v-row class="d-flex justify-space-between">
-                    <v-col cols="auto">
-                        <v-btn @click="refreshUser" color="primary" variant="flat" prepend-icon="mdi-refresh">
-                            Recargar Perfil
-                        </v-btn>
-                    </v-col>
+                <!-- Zonas de acceso-->
+                <v-card flat>
+                    <p class="font-weight-medium mb-2 text-h6">Zona de acceso:</p>
+                    <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.accessZone"
+                        :label="capitalize(area)" :value="area" hide-details density="comfortable" />
+                </v-card>
+            </div>
+
+            <v-row class="mt-n4">
+                <v-col>
+                    <span class="text-h6">Responsable que acompaña la visita</span>
+                    <v-select density="compact" variant="outlined" :items="workers" v-model="selectedWorker"
+                        return-object item-title="name" item-value="value" />
+                </v-col>
+                <v-col>
+                    <span class="text-h6">Matrícula (opcional)</span>
+                    <v-text-field density="compact" variant="outlined" v-model="form.plate" />
+                </v-col>
+            </v-row>
+        </template>
+
+        <!-- Acciones personalizadas -->
+        <template #actions>
+            <v-col class="ml-4 mb-1">
+                <v-row>
                     <v-col cols="auto">
                         <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
                             Cerrar Sesión
                         </v-btn>
                     </v-col>
-                </v-row>
-                <v-row>
-                    <v-col>
-                        <span class="text-h6">Nombre y apellidos</span>
-                        <v-text-field density="compact" variant="outlined" v-model="form.name" />
-                    </v-col>
-                    <v-col>
-                        <span class="text-h6">Empresa</span>
-                        <v-text-field density="compact" variant="outlined" v-model="form.company" />
+                    <v-col cols="auto">
+                        <v-btn @click="handleClearForm" variant="outlined" prepend-icon="mdi-eraser">
+                            Limpiar formulario
+                        </v-btn>
                     </v-col>
                 </v-row>
-                <v-row class="mt-n4">
-
-                </v-row>
-                <div class="d-flex justify-space-evenly ga-4 mt-4 mb-2">
-                    <!-- Motivo (dinámico desde config del tenant) -->
-                    <v-card flat>
-                        <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
-                        <v-checkbox v-for="purpose in purposeOptions" :key="purpose" v-model="form.purpose"
-                            :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable" />
-                    </v-card>
-
-                    <!-- Zona de acceso (dinámico desde config del tenant) -->
-                    <v-card flat>
-                        <p class="font-weight-medium mb-2 text-h6">Zona de acceso:</p>
-                        <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.area"
-                            :label="capitalize(area)" :value="area" hide-details density="comfortable" />
-                    </v-card>
-                </div>
-                <v-row class="mt-n4">
-                    <v-col>
-                        <span class="text-h6">Matrícula (opcional)</span>
-                        <v-text-field density="compact" variant="outlined" v-model="form.plate" />
-                    </v-col>
-                </v-row>
-                <v-row class="mt-n4">
-                    <v-col>
-                        <span class="text-h6">Resposable que acompaña la visita</span>
-                        <v-select density="compact" variant="outlined" :items="workers" v-model="form.worker" />
-                    </v-col>
-                </v-row>
-            </v-card-text>
-            <v-card-actions class="pa-3 mt-n15 d-flex justify-end ">
-                <v-col cols="2">
-                    <v-img height="50" :src="'/imgs/right-arrow.png'" class="cursor-pointer" @click="enviar" />
-                </v-col>
-            </v-card-actions>
-        </v-card>
-    </v-container>
+            </v-col>
+            <v-col cols="2" class="mr-n3">
+                <v-img height="50"
+                    src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/right-arrow_zj696p.png"
+                    class="cursor-pointer" @click="handleSubmit" />
+            </v-col>
+        </template>
+    </ViewCard>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
-import { useTheme } from 'vuetify';
+import { useWorkerStore } from '../stores/workerStore';
+import { useVisitStore } from '../stores/visitStore';
 import { useToastComposable } from '@/composables/useToast';
+import ViewCard from '@/components/ViewCard.vue';
 
 const { showToast } = useToastComposable();
 
 const tenantSlug = computed(() => route.params.slug);
 const tenant = computed(() => authStore.tenant);
-const user = computed(() => authStore.user);
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
-const theme = useTheme();
+const workerStore = useWorkerStore();
+const visitStore = useVisitStore();
 
 const form = ref({
     name: '',
     company: '',
     plate: '',
-    worker: null,
     purpose: [],
-    area: []
-})
-const workers = ref([])
+    accessZone: []
+});
+const selectedWorker = ref(null);
 
 onMounted(async () => {
-    // Si no hay datos del usuario, cargarlos
     if (!authStore.user || !authStore.tenant) {
         try {
             await authStore.fetchUser();
-
-            // Verificar que el slug coincide con el tenant del usuario
             if (tenantSlug.value && authStore.tenantSlug !== tenantSlug.value) {
                 console.warn('Slug no coincide con el tenant del usuario');
                 router.push(`/home/${authStore.tenantSlug}`);
@@ -118,82 +120,54 @@ onMounted(async () => {
         }
     }
 
-    workers.value = ['Responsable A', 'Responsable B', 'Responsable C']
-});
-
-
-//-----------------------------------------------------------------------------
-// Aplicar theme del tenant a Vuetify
-watch(
-    () => tenant.value?.theme,
-    (newTheme) => {
-        if (newTheme) {
-            theme.themes.value.light.colors.primary = newTheme.primary || '#667eea';
-            theme.themes.value.light.colors.secondary = newTheme.secondary || '#764ba2';
-        }
-    },
-    { immediate: true }
-);
-//-----------------------------------------------------------------------------
-
-
-//-----------------------------------------------------------------------------
-// Computed para el gradiente de fondo dinámico
-const backgroundGradient = computed(() => {
-    const primary = tenant.value?.theme?.primary || '#667eea';
-    const secondary = tenant.value?.theme?.secondary || '#764ba2';
-    // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`;
-    return `${secondary}`;
-});
-
-// Computeds para los checkboxes dinámicos
-const purposeOptions = computed(() => {
-    return tenant.value?.config?.allowedPurposes || [];
-});
-
-const areaOptions = computed(() => {
-    return tenant.value?.config?.allowedAccessZones || [];
-});
-//-----------------------------------------------------------------------------
-
-
-//-----------------------------------------------------------------------------
-function enviar() {
-    if (!form.value.name || !form.value.company || !form.value.worker || form.value.purpose.length === 0 || form.value.area.length === 0) {
-        showToast('Hay campos sin rellenar', 'error')
-        return
+    if (visitStore.formData && visitStore.formData.worker) {
+        form.value = visitStore.formData;
+        selectedWorker.value = form.value.worker;
     }
-    showToast('hola')
-    console.log('Payload de ejemplo', { tenantSlug, ...form.value })
+
+    if (tenant.value?._id) {
+        await workerStore.fetchWorkersByTenant(tenant.value._id);
+    }
+});
+
+const workers = computed(() => workerStore.workerOptions);
+const purposeOptions = computed(() => tenant.value?.config?.allowedPurposes || []);
+const areaOptions = computed(() => tenant.value?.config?.allowedAccessZones || []);
+
+function handleSubmit() {
+    if (!form.value.name || !form.value.company || !selectedWorker.value ||
+        form.value.purpose.length === 0 || form.value.accessZone.length === 0) {
+        showToast('Hay campos sin rellenar', 'error');
+        return;
+    }
+
+    visitStore.saveFormData({
+        ...form.value,
+        worker: selectedWorker.value.raw || selectedWorker.value || null,
+    });
+
+    const tenant = tenantSlug.value || null;
+    router.push(`/legal/${tenant}`);
 }
 
 function handleLogout() {
     authStore.logout();
     router.push('/login');
-};
+}
+
+function handleClearForm() {
+    visitStore.clearVisit();
+    form.value = {
+        name: '',
+        company: '',
+        plate: '',
+        purpose: [],
+        accessZone: []
+    };
+    selectedWorker.value = null;
+}
 
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
-const refreshUser = async () => {
-    try {
-        await authStore.fetchUser();
-        showToast('Perfil actualizado correctamente');
-    } catch (error) {
-        console.error('Error al actualizar perfil:', error);
-    }
-};
-//-----------------------------------------------------------------------------
-
+}
 </script>
-
-<style scoped>
-.home-container {
-    min-height: 100vh;
-}
-
-.home-card {
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-}
-</style>

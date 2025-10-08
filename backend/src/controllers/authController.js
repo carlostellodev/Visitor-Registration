@@ -1,44 +1,45 @@
 import authService from "../services/authService.js";
 
-export const register = async (req, res) => {
-  try {
-    const { name, email, password, tenantId } = req.body;
+// export const register = async (req, res) => {
+//   try {
+//     const { name, email, password, tenantId } = req.body;
 
-    if (!name || !email || !password || !tenantId) {
-      return res.status(400).json({
-        message: "Todos los campos son requeridos",
-      });
-    }
+//     if (!name || !email || !password || !tenantId) {
+//       return res.status(400).json({
+//         message: "Todos los campos son requeridos",
+//       });
+//     }
 
-    if (password.length < 6) {
-      return res.status(400).json({
-        message: "La contraseña debe tener al menos 6 caracteres",
-      });
-    }
+//     if (password.length < 6) {
+//       return res.status(400).json({
+//         message: "La contraseña debe tener al menos 6 caracteres",
+//       });
+//     }
 
-    const result = await authService.register(req.body);
+//     const result = await authService.register(req.body);
 
-    res.status(201).json({
-      message: "Usuario registrado exitosamente",
-      ...result,
-    });
-  } catch (error) {
-    if (
-      error.message === "El email ya está registrado" ||
-      error.message === "Tenant no encontrado" ||
-      error.message === "El tenant no está activo"
-    ) {
-      return res.status(400).json({ message: error.message });
-    }
+//     res.status(201).json({
+//       message: "Usuario registrado exitosamente",
+//       ...result,
+//     });
+//   } catch (error) {
+//     if (
+//       error.message === "El email ya está registrado" ||
+//       error.message === "Tenant no encontrado" ||
+//       error.message === "El tenant no está activo"
+//     ) {
+//       return res.status(400).json({ message: error.message });
+//     }
 
-    res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
-    });
-  }
-};
+//     res.status(500).json({
+//       message: "Error en el servidor",
+//       error: error.message,
+//     });
+//   }
+// };
 
 // Controlador de login
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;

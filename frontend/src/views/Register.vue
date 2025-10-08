@@ -1,6 +1,6 @@
 <template>
-    <v-container fluid class="auth-container d-flex align-center justify-center">
-        <v-card class="auth-card" max-width="400" width="100%">
+    <v-container fluid class="view-container d-flex align-center justify-center">
+        <v-card class="view-card" max-width="400" width="100%">
             <v-card-text class="pa-10">
                 <h1 class="text-h4 text-center text-grey-darken-3 mb-8">Crear Cuenta</h1>
 
@@ -70,16 +70,3 @@ const handleRegister = async () => {
     }
 }
 </script>
-
-<style scoped>
-.auth-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
-}
-
-.auth-card {
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-}
-</style>

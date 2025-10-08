@@ -3,6 +3,9 @@ import { useAuthStore } from '../stores/authStore'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Home from '../views/Home.vue'
+import Legal from '../views/Legal.vue'
+import Signature from '../views/Signature.vue'
+import Help from '../views/Help.vue'
 
 const routes = [
   {
@@ -13,14 +16,14 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { requiresGuest: true },
+    meta: { requiresGuest: true, dontShowHelp: true },
   },
-  {
-    path: '/register',
-    name: 'Register',
-    component: Register,
-    meta: { requiresGuest: true },
-  },
+  // {
+  //   path: '/register',
+  //   name: 'Register',
+  //   component: Register,
+  //   meta: { requiresGuest: true, dontShowHelp: true },
+  // },
   {
     path: '/home/:slug',
     name: 'Home',
@@ -35,6 +38,24 @@ const routes = [
       const slug = authStore.tenantSlug
       return slug ? `/home/${slug}` : '/login'
     },
+  },
+  {
+    path: '/legal/:slug?',
+    name: 'Legal',
+    component: Legal,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/signature/:slug',
+    name: 'Signature',
+    component: Signature,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/help/:slug',
+    name: 'Help',
+    component: Help,
+    meta: { requiresAuth: true, dontShowHelp: true },
   },
 ]
 
