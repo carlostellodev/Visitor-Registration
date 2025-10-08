@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import config from "./config/env.js";
 import connectDB from "./config/database.js";
+import mongoose from "mongoose";
 
 // Importación de rutas
 import authRoutes from "./routes/authRoute.js";
