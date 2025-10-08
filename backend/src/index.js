@@ -25,7 +25,26 @@ app.use(
 );
 
 // CORS con configuración desde env
-app.use(cors(config.cors));
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (como mobile apps o curl)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = config.cors.origin.split(",").map((o) => o.trim());
+
+    if (allowedOrigins.includes(origin) || config.isDevelopment) {
+      callback(null, true);
+    } else {
+      callback(new Error("No permitido por CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Content-Range", "X-Content-Range"],
+  maxAge: 600, // 10 minutos
+};
+app.use(cors(corsOptions));
 
 // Body parsing
 app.use(express.json({ limit: "10mb" }));

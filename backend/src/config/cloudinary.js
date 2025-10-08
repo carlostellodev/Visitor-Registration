@@ -7,4 +7,13 @@ cloudinary.config({
   api_secret: config.cloudinary.apiSecret,
 });
 
+// Prefijo de carpeta según entorno
+export const CLOUDINARY_FOLDER_PREFIX =
+  config.env === "production" ? "prod" : "dev";
+
+// Helper para generar rutas de carpetas
+export const getCloudinaryFolder = (folderName) => {
+  return `${CLOUDINARY_FOLDER_PREFIX}/${folderName}`;
+};
+
 export default cloudinary;

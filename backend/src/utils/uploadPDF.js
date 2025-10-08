@@ -1,11 +1,11 @@
-import cloudinary from "../config/cloudinary.js";
+import cloudinary, { getCloudinaryFolder } from "../config/cloudinary.js";
 
 export const uploadPDFToCloudinary = async (pdfBuffer, filename) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         resource_type: "raw",
-        folder: "visitor-pdfs",
+        folder: getCloudinaryFolder("visitor-pdfs"),
         public_id: `${filename}.pdf`,
         // format: "pdf",
         access_mode: "public",
