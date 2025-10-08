@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
-import Tenant from "../models/Tenant.js";
+import User from "../models/user.js";
+import Tenant from "../models/tenant.js";
 
 class AuthService {
   // Generar JWT token

@@ -75,6 +75,6 @@ const visitorSchema = new mongoose.Schema(
 visitorSchema.index({ tenantId: 1, visitDate: -1 });
 visitorSchema.index({ tenantId: 1, createdAt: -1 });
 
-const Visitor = mongoose.model("Visitor", visitorSchema);
-
+const Visitor =
+  mongoose.models.Visitor || mongoose.model("Visitor", visitorSchema);
 export default Visitor;

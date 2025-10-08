@@ -93,5 +93,4 @@ const tenantSchema = new mongoose.Schema(
 tenantSchema.index({ isActive: 1 });
 
 const Tenant = mongoose.models.Tenant || mongoose.model("Tenant", tenantSchema);
-
 export default Tenant;

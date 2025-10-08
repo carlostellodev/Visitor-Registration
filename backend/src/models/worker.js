@@ -45,6 +45,5 @@ const workerSchema = new mongoose.Schema(
 workerSchema.index({ tenantId: 1, isActive: 1 });
 workerSchema.index({ tenantId: 1, name: 1 });
 
-const Worker = mongoose.model("Worker", workerSchema);
-
+const Worker = mongoose.models.Worker || mongoose.model("Worker", workerSchema);
 export default Worker;
