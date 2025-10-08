@@ -60,4 +60,6 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 userSchema.index({ email: 1, tenantId: 1 });
 userSchema.index({ tenantId: 1, isActive: 1 });
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+
+export default User;

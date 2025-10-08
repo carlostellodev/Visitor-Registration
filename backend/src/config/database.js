@@ -1,9 +1,31 @@
 import mongoose from "mongoose";
+import config from "./env.js";
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("MongoDB conectado correctamente");
+    const conn = await mongoose.connect(
+      config.mongodb.uri,
+      config.mongodb.options
+    );
+
+    console.log(`MongoDB conectado: ${conn.connection.host}`);
+
+    // Manejar eventos de conexión
+    mongoose.connection.on("error", (err) => {
+      console.error("Error de MongoDB:", err.message);
+    });
+
+    // Graceful shutdown
+    process.on("SIGINT", async () => {
+      try {
+        await mongoose.connection.close();
+        console.log("\nMongoDB desconectado - Aplicación cerrada");
+        process.exit(0);
+      } catch (err) {
+        console.error("Error al cerrar MongoDB:", err);
+        process.exit(1);
+      }
+    });
   } catch (error) {
     console.error("Error conectando a MongoDB:", error.message);
     process.exit(1);

@@ -46,7 +46,6 @@ const documentSchema = new mongoose.Schema(
 );
 
 documentSchema.index({ tenantId: 1, isActive: 1, order: 1 });
-
-const Document = mongoose.model("Document", documentSchema);
-
+const Document =
+  mongoose.models.Document || mongoose.model("Document", documentSchema);
 export default Document;
