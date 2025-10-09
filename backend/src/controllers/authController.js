@@ -51,7 +51,15 @@ export const login = async (req, res) => {
       });
     }
 
-    const result = await authService.login({ email, password });
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers["user-agent"];
+
+    const result = await authService.login({
+      email,
+      password,
+      ipAddress,
+      userAgent,
+    });
 
     res.json({
       message: "Login exitoso",
