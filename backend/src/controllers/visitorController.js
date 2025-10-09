@@ -1,5 +1,6 @@
 import visitorService from "../services/visitorService.js";
 import { uploadPDFToCloudinary } from "../utils/uploadPDF.js";
+import { isSuperAdmin } from "../config/permissions.js";
 
 export const createVisitor = async (req, res) => {
   try {
@@ -18,13 +19,27 @@ export const createVisitor = async (req, res) => {
     // Validar campos requeridos
     if (!name || !company || !workerId || !tenantId || !signature) {
       return res.status(400).json({
-        message: "Faltan campos requeridos",
+        error: "Campos requeridos",
+        message:
+          "Faltan campos requeridos: name, company, workerId, tenantId, signature",
+      });
+    }
+
+    // Validar que el usuario esté creando en su propio tenant (excepto superadmin)
+    if (
+      !isSuperAdmin(req.user.role) &&
+      tenantId !== req.user.tenantId?.toString()
+    ) {
+      return res.status(403).json({
+        error: "Sin autorización",
+        message: "No puedes registrar visitantes en otros tenants",
       });
     }
 
     // Validar que se subió el PDF
     if (!req.file) {
       return res.status(400).json({
+        error: "PDF requerido",
         message: "El PDF es requerido",
       });
     }
@@ -52,10 +67,9 @@ export const createVisitor = async (req, res) => {
       visitor,
     });
   } catch (error) {
-    console.error("Error creando visitor:", error);
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
@@ -68,6 +82,11 @@ export const getAllVisitors = async (req, res) => {
       endDate: req.query.endDate,
     };
 
+    // Aplicar filtro de tenant desde middleware
+    if (req.tenantFilter) {
+      Object.assign(filters, req.tenantFilter);
+    }
+
     const visitors = await visitorService.getAllVisitors(filters);
 
     res.status(200).json({
@@ -76,37 +95,55 @@ export const getAllVisitors = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
 export const getVisitorById = async (req, res) => {
   try {
+    // checkResourceOwnership ya verificó la propiedad
     const visitor = await visitorService.getVisitorById(req.params.id);
+
     res.status(200).json(visitor);
   } catch (error) {
     if (error.message === "Visita no encontrada") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
 export const getVisitorsByTenant = async (req, res) => {
   try {
+    const { tenantId } = req.params;
+
+    // Verificar que no esté intentando acceder a otro tenant
+    if (
+      !isSuperAdmin(req.user.role) &&
+      tenantId !== req.user.tenantId?.toString()
+    ) {
+      return res.status(403).json({
+        error: "Sin autorización",
+        message: "No puedes acceder a visitantes de otros tenants",
+      });
+    }
+
     const filters = {
       startDate: req.query.startDate,
       endDate: req.query.endDate,
     };
 
     const visitors = await visitorService.getVisitorsByTenant(
-      req.params.tenantId,
+      tenantId,
       filters
     );
 
@@ -116,27 +153,31 @@ export const getVisitorsByTenant = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
 export const deleteVisitor = async (req, res) => {
   try {
-    await visitorService.deleteVisitor(req.params.id);
+    const visitor = await visitorService.deleteVisitor(req.params.id);
 
     res.status(200).json({
       message: "Visita eliminada exitosamente",
+      visitor,
     });
   } catch (error) {
     if (error.message === "Visita no encontrada") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };

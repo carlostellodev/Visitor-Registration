@@ -1,7 +1,9 @@
 import Tenant from "../models/tenant.js";
 
 class TenantService {
-  // Crear nuevo tenant
+  /**
+   * Crear nuevo tenant
+   */
   async createTenant(tenantData) {
     const existingTenant = await Tenant.findOne({
       $or: [{ email: tenantData.email }, { slug: tenantData.slug }],
@@ -22,7 +24,9 @@ class TenantService {
     return tenant.toObject();
   }
 
-  // Obtener todos los tenants
+  /**
+   * Obtener todos los tenants con filtros
+   */
   async getAllTenants(filters = {}) {
     const query = {};
 
@@ -34,7 +38,24 @@ class TenantService {
     return tenants;
   }
 
-  // Obtener tenant por ID
+  /**
+   * Obtener tenants por lista de IDs
+   * Útil para filtrar por tenant del usuario
+   */
+  async getTenantsByIds(tenantIds, filters = {}) {
+    const query = { _id: { $in: tenantIds } };
+
+    if (filters.isActive !== undefined) {
+      query.isActive = filters.isActive;
+    }
+
+    const tenants = await Tenant.find(query).sort({ createdAt: -1 });
+    return tenants;
+  }
+
+  /**
+   * Obtener tenant por ID
+   */
   async getTenantById(id) {
     const tenant = await Tenant.findById(id);
 
@@ -45,7 +66,9 @@ class TenantService {
     return tenant;
   }
 
-  // Obtener tenant por slug
+  /**
+   * Obtener tenant por slug
+   */
   async getTenantBySlug(slug) {
     const tenant = await Tenant.findOne({
       slug: slug.toLowerCase(),
@@ -61,11 +84,14 @@ class TenantService {
       name: tenant.name,
       slug: tenant.slug,
       theme: tenant.theme,
+      config: tenant.config,
       isActive: tenant.isActive,
     };
   }
 
-  // Actualizar tenant
+  /**
+   * Actualizar tenant
+   */
   async updateTenant(id, updateData) {
     if (updateData.email || updateData.slug) {
       const existingTenant = await Tenant.findOne({
@@ -98,7 +124,9 @@ class TenantService {
     return tenant;
   }
 
-  // Desactivar tenant (soft delete)
+  /**
+   * Desactivar tenant (soft delete)
+   */
   async deactivateTenant(id) {
     const tenant = await Tenant.findByIdAndUpdate(
       id,
@@ -113,7 +141,9 @@ class TenantService {
     return tenant;
   }
 
-  // Activar tenant
+  /**
+   * Activar tenant
+   */
   async activateTenant(id) {
     const tenant = await Tenant.findByIdAndUpdate(
       id,
@@ -128,7 +158,9 @@ class TenantService {
     return tenant;
   }
 
-  // Eliminar permanentemente
+  /**
+   * Eliminar permanentemente
+   */
   async deleteTenant(id) {
     const tenant = await Tenant.findByIdAndDelete(id);
 

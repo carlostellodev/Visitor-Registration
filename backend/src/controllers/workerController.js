@@ -1,8 +1,13 @@
 import workerService from "../services/workerService.js";
+import { isSuperAdmin } from "../config/permissions.js";
 
-// Crear worker
 export const createWorker = async (req, res) => {
   try {
+    // Forzar tenantId del usuario (excepto superadmin)
+    if (!isSuperAdmin(req.user.role)) {
+      req.body.tenantId = req.user.tenantId;
+    }
+
     const worker = await workerService.createWorker(req.body);
 
     res.status(201).json({
@@ -12,19 +17,21 @@ export const createWorker = async (req, res) => {
   } catch (error) {
     if (
       error.message === "El email ya está registrado" ||
-      error.message === "El email ya está registrado para este tenant"
+      error.message === "El email ya está registrado para esta empresa"
     ) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({
+        error: "Datos inválidos",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Obtener todos los workers
 export const getAllWorkers = async (req, res) => {
   try {
     const filters = {
@@ -37,6 +44,11 @@ export const getAllWorkers = async (req, res) => {
       tenantId: req.query.tenantId,
     };
 
+    // Aplicar filtro de tenant desde middleware
+    if (req.tenantFilter) {
+      Object.assign(filters, req.tenantFilter);
+    }
+
     const workers = await workerService.getAllWorkers(filters);
 
     res.status(200).json({
@@ -45,36 +57,51 @@ export const getAllWorkers = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Obtener worker por ID
 export const getWorkerById = async (req, res) => {
   try {
+    // checkResourceOwnership ya verificó la propiedad
     const worker = await workerService.getWorkerById(req.params.id);
 
     res.status(200).json(worker);
   } catch (error) {
     if (error.message === "Responsable no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Obtener workers por tenant
 export const getWorkersByTenant = async (req, res) => {
   try {
-    const activeOnly = req.query.activeOnly !== "false"; // Por defecto true
+    const { tenantId } = req.params;
+
+    // Verificar que no esté intentando acceder a otro tenant
+    if (
+      !isSuperAdmin(req.user.role) &&
+      tenantId !== req.user.tenantId?.toString()
+    ) {
+      return res.status(403).json({
+        error: "Sin autorización",
+        message: "No puedes acceder a workers de otros tenants",
+      });
+    }
+
+    const activeOnly = req.query.activeOnly !== "false";
     const workers = await workerService.getWorkersByTenant(
-      req.params.tenantId,
+      tenantId,
       activeOnly
     );
 
@@ -84,15 +111,17 @@ export const getWorkersByTenant = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Actualizar worker
 export const updateWorker = async (req, res) => {
   try {
+    // No permitir cambiar tenantId
+    delete req.body.tenantId;
+
     const worker = await workerService.updateWorker(req.params.id, req.body);
 
     res.status(200).json({
@@ -104,17 +133,19 @@ export const updateWorker = async (req, res) => {
       error.message === "Responsable no encontrado" ||
       error.message === "El email ya está registrado"
     ) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({
+        error: "Datos inválidos",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Desactivar worker
 export const deactivateWorker = async (req, res) => {
   try {
     const worker = await workerService.deactivateWorker(req.params.id);
@@ -125,17 +156,19 @@ export const deactivateWorker = async (req, res) => {
     });
   } catch (error) {
     if (error.message === "Responsable no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Activar worker
 export const activateWorker = async (req, res) => {
   try {
     const worker = await workerService.activateWorker(req.params.id);
@@ -146,32 +179,38 @@ export const activateWorker = async (req, res) => {
     });
   } catch (error) {
     if (error.message === "Responsable no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Eliminar worker permanentemente
 export const deleteWorker = async (req, res) => {
   try {
-    await workerService.deleteWorker(req.params.id);
+    const worker = await workerService.deleteWorker(req.params.id);
 
     res.status(200).json({
       message: "Responsable eliminado permanentemente",
+      worker,
     });
   } catch (error) {
     if (error.message === "Responsable no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
