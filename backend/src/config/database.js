@@ -8,8 +8,6 @@ const connectDB = async () => {
       config.mongodb.options
     );
 
-    console.log(`MongoDB conectado: ${conn.connection.host}`);
-
     // Manejar eventos de conexión
     mongoose.connection.on("error", (err) => {
       console.error("Error de MongoDB:", err.message);

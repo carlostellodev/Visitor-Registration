@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { useVisitStore } from '../stores/visitStore'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Home from '../views/Home.vue'
@@ -28,7 +29,7 @@ const routes = [
     path: '/home/:slug',
     name: 'Home',
     component: Home,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, step: 1 },
   },
   {
     path: '/home',
@@ -40,22 +41,32 @@ const routes = [
     },
   },
   {
-    path: '/legal/:slug?',
+    path: '/legal/:slug',
     name: 'Legal',
     component: Legal,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresFormData: true, step: 2 },
   },
   {
     path: '/signature/:slug',
     name: 'Signature',
     component: Signature,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresLegalAcceptance: true, step: 3 },
   },
   {
     path: '/help/:slug',
     name: 'Help',
     component: Help,
     meta: { requiresAuth: true, dontShowHelp: true },
+  },
+  {
+    // Ruta 404 - Captura cualquier ruta no definida
+    path: '/:pathMatch(.*)*',
+    redirect: (to) => {
+      const authStore = useAuthStore()
+      if (!authStore.isAuthenticated) return '/login'
+      const slug = authStore.tenantSlug
+      return slug ? `/home/${slug}` : '/login'
+    },
   },
 ]
 
@@ -67,7 +78,9 @@ const router = createRouter({
 // // Guard de navegación
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  const visitStore = useVisitStore()
   const isAuthenticated = authStore.isAuthenticated
+  const userSlug = authStore.tenantSlug
 
   // Rutas que requieren autenticación
   if (to.meta.requiresAuth && !isAuthenticated) {
@@ -77,21 +90,48 @@ router.beforeEach(async (to, from, next) => {
 
   // Rutas solo para invitados (login, register)
   if (to.meta.requiresGuest && isAuthenticated) {
-    const slug = authStore.tenantSlug
-    next(slug ? `/home/${slug}` : '/home')
+    next(userSlug ? `/home/${userSlug}` : '/home')
     return
   }
 
-  // Si va a /home/:slug y está autenticado, verificar que el slug coincida
-  if (to.name === 'Home' && isAuthenticated && to.params.slug) {
-    const userSlug = authStore.tenantSlug
-    if (userSlug && to.params.slug !== userSlug) {
-      console.warn('Slug no coincide con el tenant del usuario')
-      next(`/home/${userSlug}`)
+  // Validar slug del tenant
+  if (isAuthenticated && to.params.slug && to.name !== 'Help') {
+    if (!userSlug) {
+      next('/login')
+      return
+    }
+
+    if (to.params.slug !== userSlug) {
+      // Redirigir a la misma ruta pero con el slug correcto
+      const correctPath = to.path.replace(to.params.slug, userSlug)
+      next(correctPath)
       return
     }
   }
 
+  // Validación del flujo correcto (Home -> Legal -> Signature)
+  if (isAuthenticated && to.meta.step) {
+    // Verificar que tenga datos del formulario para Legal
+    if (to.name === 'Legal' && !visitStore.isFormDataValid) {
+      next(`/home/${userSlug}`)
+      return
+    }
+
+    // Verificar que haya aceptado documentos para /signature
+    if (to.name === 'Signature') {
+      if (!visitStore.isFormDataValid) {
+        next(`/home/${userSlug}`)
+        return
+      }
+
+      if (!visitStore.canAccessSignature) {
+        next(`/legal/${userSlug}`)
+        return
+      }
+    }
+  }
+
+  // Permitir navegación
   next()
 })
 

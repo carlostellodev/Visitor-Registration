@@ -81,15 +81,4 @@ export const config = {
   },
 };
 
-// Log de inicio solo en desarrollo
-if (config.isDevelopment) {
-  console.log("\n Configuración del servidor:");
-  console.log(`   - Entorno: ${config.env}`);
-  console.log(`   - Puerto: ${config.port}`);
-  console.log(
-    `   - Base de datos: ${config.mongodb.uri.split("@")[1] || "local"}`
-  );
-  console.log(`   - CORS permitido: ${config.cors.origin}\n`);
-}
-
 export default config;

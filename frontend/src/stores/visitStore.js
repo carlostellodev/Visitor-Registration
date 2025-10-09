@@ -1,4 +1,3 @@
-// src/stores/visit.js
 import { defineStore } from 'pinia'
 
 export const useVisitStore = defineStore('visit', {
@@ -11,14 +10,38 @@ export const useVisitStore = defineStore('visit', {
       purpose: [],
       accessZone: [],
     },
-    currentStep: null,
     acceptedDocuments: [],
-    signature: null,
+
+    // Control de navegación
+    currentStep: 0,
+    completedSteps: {
+      home: false,
+      legal: false,
+      signature: false,
+    },
+    navigationAllowed: true,
   }),
+
+  getters: {
+    hasCompletedHome: (state) => state.completedSteps.home,
+    hasCompletedLegal: (state) => state.completedSteps.legal,
+    canAccessLegal: (state) => state.completedSteps.home,
+    canAccessSignature: (state) => state.completedSteps.home && state.completedSteps.legal,
+    isFormDataValid: (state) => {
+      return !!(
+        state.formData.name &&
+        state.formData.company &&
+        state.formData.worker &&
+        state.formData.purpose.length > 0 &&
+        state.formData.accessZone.length > 0
+      )
+    },
+  },
 
   actions: {
     saveFormData(data) {
       this.formData = { ...this.formData, ...data }
+      this.completedSteps.home = true
     },
 
     saveCurrentStep(step) {
@@ -29,8 +52,8 @@ export const useVisitStore = defineStore('visit', {
       this.acceptedDocuments = documentIds
     },
 
-    saveSignature(signatureData) {
-      this.signature = signatureData
+    markLegalComplete() {
+      this.completedSteps.legal = true
     },
 
     clearVisit() {
@@ -38,13 +61,31 @@ export const useVisitStore = defineStore('visit', {
         name: '',
         company: '',
         plate: '',
-        worker: null,
         purpose: [],
         accessZone: [],
+        worker: null,
       }
-      this.currentStep = null
       this.acceptedDocuments = []
-      this.signature = null
+      this.currentStep = 0
+      this.completedSteps = {
+        home: false,
+        legal: false,
+        signature: false,
+      }
+    },
+
+    // Validar si puede navegar a una ruta específica
+    canNavigateTo(routeName) {
+      switch (routeName) {
+        case 'Home':
+          return true // Siempre puede volver al inicio
+        case 'Legal':
+          return this.canAccessLegal
+        case 'Signature':
+          return this.canAccessSignature
+        default:
+          return false
+      }
     },
   },
 
