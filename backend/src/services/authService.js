@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import Tenant from "../models/tenant.js";
+import config from "../config/env.js";
 
 class AuthService {
   // Generar JWT token
   generateToken(userId) {
-    return jwt.sign({ userId }, config.env.JWT_SECRET, { expiresIn: "7d" });
+    return jwt.sign({ userId }, config.jwt.secret, { expiresIn: "7d" });
   }
 
   // Registrar nuevo usuario
