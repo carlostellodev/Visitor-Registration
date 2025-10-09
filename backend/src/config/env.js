@@ -61,6 +61,11 @@ export const config = {
     expiresIn: "24h",
   },
 
+  // Autenticación
+  auth: {
+    allow_register: process.env.ALLOW_REGISTER || "true",
+  },
+
   // Cloudinary
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,

@@ -10,39 +10,39 @@ class AuthService {
   }
 
   // Registrar nuevo usuario
-  // async register(userData) {
-  //   const existingUser = await User.findOne({ email: userData.email });
-  //   if (existingUser) {
-  //     throw new Error("El email ya está registrado");
-  //   }
+  async register(userData) {
+    const existingUser = await User.findOne({ email: userData.email });
+    if (existingUser) {
+      throw new Error("El email ya está registrado");
+    }
 
-  //   // Verificar que el tenant existe y está activo
-  //   const tenant = await Tenant.findById(userData.tenantId);
-  //   if (!tenant) {
-  //     throw new Error("Tenant no encontrado");
-  //   }
-  //   if (!tenant.isActive) {
-  //     throw new Error("El tenant no está activo");
-  //   }
+    // Verificar que el tenant existe y está activo
+    const tenant = await Tenant.findById(userData.tenantId);
+    if (!tenant) {
+      throw new Error("Tenant no encontrado");
+    }
+    if (!tenant.isActive) {
+      throw new Error("El tenant no está activo");
+    }
 
-  //   // Crear nuevo usuario
-  //   const user = new User(userData);
-  //   await user.save();
+    // Crear nuevo usuario
+    const user = new User(userData);
+    await user.save();
 
-  //   // Generar token
-  //   const token = this.generateToken(user._id);
+    // Generar token
+    const token = this.generateToken(user._id);
 
-  //   return {
-  //     token,
-  //     user: {
-  //       _id: user._id,
-  //       name: user.name,
-  //       email: user.email,
-  //       tenantId: user.tenantId,
-  //       role: user.role,
-  //     },
-  //   };
-  // }
+    return {
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        tenantId: user.tenantId,
+        role: user.role,
+      },
+    };
+  }
 
   // Login de usuario
   async login({ email, password }) {
