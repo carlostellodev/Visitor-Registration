@@ -10,7 +10,7 @@ import authRoutes from "./routes/authRoute.js";
 import tenantRoutes from "./routes/tenantRoute.js";
 import workerRoutes from "./routes/workerRoute.js";
 import documentRoutes from "./routes/documentRoute.js";
-import visitorRoutes from "./routes/visitor.js";
+import visitorRoutes from "./routes/visitorRoute.js";
 
 const app = express();
 

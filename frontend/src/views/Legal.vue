@@ -142,8 +142,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-    console.log('Unmounted');
-
     visitStore.saveAcceptedDocuments(acceptedDocuments.value);
     visitStore.saveCurrentStep(currentStep.value);
 });
@@ -188,6 +186,8 @@ const finishAndContinue = async () => {
     try {
         visitStore.saveAcceptedDocuments(acceptedDocuments.value);
         visitStore.saveCurrentStep(currentStep.value);
+        visitStore.markLegalComplete();
+
         router.push(`/signature/${tenant.value.slug}`);
     } catch (error) {
         console.error('Error:', error);

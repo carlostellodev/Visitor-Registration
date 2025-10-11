@@ -23,7 +23,7 @@
                 <!-- Botón atrás -->
                 <v-col v-if="showBackButton" cols="2" class="ml-n3">
                     <v-img height="50"
-                        src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759774671/left-arrow_listjp.png"
+                        src="https://res.cloudinary.com/dpzkb97cs/image/upload/v1759945637/left-arrow_oi9pnd.png"
                         class="cursor-pointer" @click="handleBack" />
                 </v-col>
 

@@ -2,9 +2,7 @@ import Worker from "../models/worker.js";
 import User from "../models/user.js";
 
 class WorkerService {
-  // Crear nuevo worker
   async createWorker(workerData) {
-    // Validar que el email sea único si se proporciona
     if (workerData.email) {
       const existingWorker = await Worker.findOne({
         email: workerData.email,
@@ -15,7 +13,6 @@ class WorkerService {
         throw new Error("El email ya está registrado para esta empresa");
       }
 
-      // Verificar si existe un user con ese email en el mismo tenant
       const existingUser = await User.findOne({
         email: workerData.email,
         tenantId: workerData.tenantId,
@@ -23,7 +20,6 @@ class WorkerService {
 
       if (existingUser) {
         workerData.userId = existingUser._id;
-        // Usar el nombre del user si no se proporciona
         if (!workerData.name) {
           workerData.name = existingUser.name;
         }
@@ -36,7 +32,6 @@ class WorkerService {
     return worker.toObject();
   }
 
-  // Obtener todos los workers
   async getAllWorkers(filters = {}) {
     const query = {};
 
@@ -49,6 +44,7 @@ class WorkerService {
     }
 
     const workers = await Worker.find(query)
+      .populate("tenantId", "name slug")
       .populate("userId", "name email role")
       .sort({ name: 1 })
       .lean();
@@ -56,9 +52,9 @@ class WorkerService {
     return workers;
   }
 
-  // Obtener worker por ID
   async getWorkerById(id) {
     const worker = await Worker.findById(id)
+      .populate("tenantId", "name slug")
       .populate("userId", "name email role")
       .lean();
 
@@ -69,7 +65,6 @@ class WorkerService {
     return worker;
   }
 
-  // Obtener workers por tenant
   async getWorkersByTenant(tenantId, activeOnly = true) {
     const query = { tenantId };
 
@@ -78,21 +73,25 @@ class WorkerService {
     }
 
     const workers = await Worker.find(query)
-      .select("_id name email")
+      .select("_id name email phone department")
       .sort({ name: 1 })
       .lean();
 
     return workers;
   }
 
-  // Actualizar worker
   async updateWorker(id, updateData) {
-    // Validar email único si se está actualizando
     if (updateData.email) {
+      // Obtener el worker actual para saber su tenant
+      const currentWorker = await Worker.findById(id);
+      if (!currentWorker) {
+        throw new Error("Responsable no encontrado");
+      }
+
       const existingWorker = await Worker.findOne({
         _id: { $ne: id },
         email: updateData.email,
-        tenantId: updateData.tenantId,
+        tenantId: currentWorker.tenantId,
       });
 
       if (existingWorker) {
@@ -112,7 +111,6 @@ class WorkerService {
     return worker;
   }
 
-  // Desactivar worker (soft delete)
   async deactivateWorker(id) {
     const worker = await Worker.findByIdAndUpdate(
       id,
@@ -127,7 +125,6 @@ class WorkerService {
     return worker;
   }
 
-  // Activar worker
   async activateWorker(id) {
     const worker = await Worker.findByIdAndUpdate(
       id,
@@ -142,7 +139,6 @@ class WorkerService {
     return worker;
   }
 
-  // Eliminar permanentemente
   async deleteWorker(id) {
     const worker = await Worker.findByIdAndDelete(id);
 

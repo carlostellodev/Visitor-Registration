@@ -118,7 +118,6 @@ const documentTitles = computed(() => documentStore.documents.map(d => d.title))
 
 onMounted(() => {
     if (!formData.value.name || !formData.value.company) {
-        console.log("Saliendo", formData.value);
         router.push(`/home/${tenant.value.slug}`);
     }
 });
@@ -188,10 +187,9 @@ const submitVisit = async () => {
         pdfData.append('signature', signatureData);
         pdfData.append('documentsAccepted', JSON.stringify(documentsAcceptedFormatted));
 
+
         const response = await api.post('/visitors', pdfData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
         });
 
         showToast('Visita registrada con éxito');

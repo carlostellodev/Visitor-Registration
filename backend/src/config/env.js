@@ -22,6 +22,7 @@ const requiredEnvVars = [
   "CLOUDINARY_CLOUD_NAME",
   "CLOUDINARY_API_KEY",
   "CLOUDINARY_API_SECRET",
+  "ALLOW_REGISTER",
 ];
 
 const missingEnvVars = requiredEnvVars.filter(
@@ -35,12 +36,15 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+const isDevelopment = !isProduction;
+
 // Exportar configuración organizada
 export const config = {
   // Entorno
   env: process.env.NODE_ENV || "development",
-  isDevelopment: process.env.NODE_ENV !== "production",
-  isProduction: process.env.NODE_ENV === "production",
+  isDevelopment,
+  isProduction,
 
   // Servidor
   port: parseInt(process.env.PORT) || 3000,
@@ -49,7 +53,7 @@ export const config = {
   mongodb: {
     uri: process.env.MONGODB_URI,
     options: {
-      maxPoolSize: process.env.NODE_ENV === "production" ? 10 : 5,
+      maxPoolSize: isProduction ? 10 : 5,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     },
@@ -59,6 +63,11 @@ export const config = {
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: "24h",
+  },
+
+  // Autenticación
+  auth: {
+    allow_register: process.env.ALLOW_REGISTER || "true",
   },
 
   // Cloudinary
@@ -73,23 +82,6 @@ export const config = {
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true,
   },
-
-  // Rate Limiting
-  rateLimit: {
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: process.env.NODE_ENV === "production" ? 5 : 100,
-  },
 };
-
-// Log de inicio solo en desarrollo
-if (config.isDevelopment) {
-  console.log("\n Configuración del servidor:");
-  console.log(`   - Entorno: ${config.env}`);
-  console.log(`   - Puerto: ${config.port}`);
-  console.log(
-    `   - Base de datos: ${config.mongodb.uri.split("@")[1] || "local"}`
-  );
-  console.log(`   - CORS permitido: ${config.cors.origin}\n`);
-}
 
 export default config;

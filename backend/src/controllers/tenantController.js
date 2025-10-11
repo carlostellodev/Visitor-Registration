@@ -1,32 +1,32 @@
 import tenantService from "../services/tenantService.js";
+import { isSuperAdmin } from "../config/permissions.js";
 
-// Crear tenant
 export const createTenant = async (req, res) => {
   try {
     const tenant = await tenantService.createTenant(req.body);
 
     res.status(201).json({
       message: "Tenant creado exitosamente",
-      ...tenant,
+      tenant,
     });
   } catch (error) {
-    // Error de validación o duplicado
     if (
       error.message === "El email ya está registrado" ||
       error.message === "El slug ya está en uso"
     ) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({
+        error: "Datos inválidos",
+        message: error.message,
+      });
     }
 
-    // Error del servidor
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Obtener todos los tenants
 export const getAllTenants = async (req, res) => {
   try {
     const filters = {
@@ -38,7 +38,9 @@ export const getAllTenants = async (req, res) => {
           : undefined,
     };
 
-    const tenants = await tenantService.getAllTenants(filters);
+    const tenants = isSuperAdmin(req.user.role)
+      ? await tenantService.getAllTenants(filters)
+      : await tenantService.getTenantsByIds([req.user.tenantId], filters);
 
     res.status(200).json({
       count: tenants.length,
@@ -46,31 +48,41 @@ export const getAllTenants = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Obtener tenant por ID
 export const getTenantById = async (req, res) => {
   try {
-    const tenant = await tenantService.getTenantById(req.params.id);
+    const { id } = req.params;
+
+    if (!isSuperAdmin(req.user.role) && id !== req.user.tenantId?.toString()) {
+      return res.status(403).json({
+        error: "Sin autorización",
+        message: "No puedes acceder a información de otros tenants",
+      });
+    }
+
+    const tenant = await tenantService.getTenantById(id);
 
     res.status(200).json(tenant);
   } catch (error) {
     if (error.message === "Tenant no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Obtener tenant por slug
 export const getTenantBySlug = async (req, res) => {
   try {
     const tenant = await tenantService.getTenantBySlug(req.params.slug);
@@ -78,20 +90,31 @@ export const getTenantBySlug = async (req, res) => {
     res.status(200).json(tenant);
   } catch (error) {
     if (error.message === "Tenant no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: "La organización no existe o está inactiva",
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Actualizar tenant
 export const updateTenant = async (req, res) => {
   try {
-    const tenant = await tenantService.updateTenant(req.params.id, req.body);
+    const { id } = req.params;
+
+    if (!isSuperAdmin(req.user.role) && id !== req.user.tenantId?.toString()) {
+      return res.status(403).json({
+        error: "Sin autorización",
+        message: "No puedes actualizar información de otros tenants",
+      });
+    }
+
+    const tenant = await tenantService.updateTenant(id, req.body);
 
     res.status(200).json({
       message: "Tenant actualizado exitosamente",
@@ -103,17 +126,19 @@ export const updateTenant = async (req, res) => {
       error.message === "El email ya está registrado" ||
       error.message === "El slug ya está en uso"
     ) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({
+        error: "Datos inválidos",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Desactivar tenant
 export const deactivateTenant = async (req, res) => {
   try {
     const tenant = await tenantService.deactivateTenant(req.params.id);
@@ -124,17 +149,19 @@ export const deactivateTenant = async (req, res) => {
     });
   } catch (error) {
     if (error.message === "Tenant no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Activar tenant
 export const activateTenant = async (req, res) => {
   try {
     const tenant = await tenantService.activateTenant(req.params.id);
@@ -145,32 +172,38 @@ export const activateTenant = async (req, res) => {
     });
   } catch (error) {
     if (error.message === "Tenant no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };
 
-// Eliminar tenant permanentemente
 export const deleteTenant = async (req, res) => {
   try {
-    await tenantService.deleteTenant(req.params.id);
+    const tenant = await tenantService.deleteTenant(req.params.id);
 
     res.status(200).json({
       message: "Tenant eliminado permanentemente",
+      tenant,
     });
   } catch (error) {
     if (error.message === "Tenant no encontrado") {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({
+        error: "No encontrado",
+        message: error.message,
+      });
     }
 
     res.status(500).json({
-      message: "Error en el servidor",
-      error: error.message,
+      error: "Error en el servidor",
+      message: error.message,
     });
   }
 };

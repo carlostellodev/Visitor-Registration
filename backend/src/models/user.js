@@ -28,8 +28,33 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["superadmin", "admin", "user", "kiosk-manager"],
+      enum: ["superadmin", "admin", "user"],
       default: "user",
+    },
+    security: {
+      loginAttempts: {
+        type: Number,
+        default: 0,
+        select: false,
+      },
+      lastFailedLogin: {
+        type: Date,
+        default: null,
+        select: false,
+      },
+      lastLogin: {
+        type: Date,
+        default: null,
+      },
+      lastLoginIp: {
+        type: String,
+        default: null,
+      },
+      lockUntil: {
+        type: Date,
+        default: null,
+        select: false,
+      },
     },
     isActive: {
       type: Boolean,

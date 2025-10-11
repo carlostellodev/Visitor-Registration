@@ -19,6 +19,7 @@ class DocumentService {
     }
 
     const documents = await Document.find(query)
+      .populate("tenantId", "name slug")
       .sort({ order: 1, createdAt: 1 })
       .lean();
 
@@ -26,7 +27,9 @@ class DocumentService {
   }
 
   async getDocumentById(id) {
-    const document = await Document.findById(id).lean();
+    const document = await Document.findById(id)
+      .populate("tenantId", "name slug")
+      .lean();
 
     if (!document) {
       throw new Error("Documento no encontrado");
@@ -42,7 +45,9 @@ class DocumentService {
       query.isActive = true;
     }
 
-    const documents = await Document.find(query).sort({ order: 1 }).lean();
+    const documents = await Document.find(query)
+      .sort({ order: 1, createdAt: 1 })
+      .lean();
 
     return documents;
   }

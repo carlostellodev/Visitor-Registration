@@ -12,37 +12,40 @@ export const useAuthStore = defineStore('auth', {
     token: null,
     loading: false,
     error: null,
+    rateLimitInfo: null,
   }),
 
   getters: {
     isAuthenticated: (state) => !!state.token,
     tenantSlug: (state) => state.tenant?.slug || null,
     tenantTheme: (state) => state.tenant?.theme || null,
+    isRateLimited: (state) => !!state.rateLimitInfo,
   },
 
   actions: {
-    // async register(userData) {
-    //   this.loading = true
-    //   this.error = null
+    async register(userData) {
+      this.loading = true
+      this.error = null
 
-    //   try {
-    //     const { data } = await api.post('/auth/register', userData)
-    //     this.token = data.token
-    //     this.user = data.user
-    //     this.tenant = data.user.tenant || null
+      try {
+        const { data } = await api.post('/auth/register', userData)
+        this.token = data.token
+        this.user = data.user
+        this.tenant = data.user.tenant || null
 
-    //     return data
-    //   } catch (error) {
-    //     this.error = error.response?.data?.message || 'Error en el registro'
-    //     throw error
-    //   } finally {
-    //     this.loading = false
-    //   }
-    // },
+        return data
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Error en el registro'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
 
     async login({ email, password }) {
       this.loading = true
       this.error = null
+      this.rateLimitInfo = null
 
       try {
         const { data } = await api.post('/auth/login', { email, password })
@@ -52,7 +55,34 @@ export const useAuthStore = defineStore('auth', {
 
         return data
       } catch (error) {
-        this.error = error.response?.data?.message || 'Error en el login'
+        const response = error.response?.data
+
+        // Manejar error de rate limiting (429)
+        if (error.response?.status === 429) {
+          this.rateLimitInfo = {
+            message: response.message,
+            details: response.details,
+            lockedUntil: response.lockedUntil,
+          }
+          this.error = response.details || response.message
+        }
+        // Manejar credenciales inválidas (401)
+        else if (error.response?.status === 401) {
+          this.error = response.message || 'Credenciales inválidas'
+          if (response.hint) {
+            this.error += `. ${response.hint}`
+          }
+        }
+        // Manejar cuenta inactiva (403)
+        else if (error.response?.status === 403) {
+          this.error = response.message || 'Acceso denegado'
+          if (response.hint) {
+            this.error += `. ${response.hint}`
+          }
+        } else {
+          this.error = response?.message || 'Error en el login'
+        }
+
         throw error
       } finally {
         this.loading = false
@@ -97,6 +127,7 @@ export const useAuthStore = defineStore('auth', {
 
     clearError() {
       this.error = null
+      this.rateLimitInfo = null
     },
   },
   persist: true, // Por el plugin pinia-plugin-persistedstate
