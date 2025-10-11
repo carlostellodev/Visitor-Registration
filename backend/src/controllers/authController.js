@@ -39,7 +39,6 @@ export const register = async (req, res) => {
 };
 
 // Controlador de login
-
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -51,14 +50,18 @@ export const login = async (req, res) => {
       });
     }
 
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    const userAgent = req.headers["user-agent"];
+    // Obtener IP del cliente
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.headers["x-real-ip"] ||
+      req.socket.remoteAddress ||
+      req.connection.remoteAddress ||
+      "unknown";
 
     const result = await authService.login({
       email,
       password,
       ipAddress,
-      userAgent,
     });
 
     res.json({
@@ -66,12 +69,24 @@ export const login = async (req, res) => {
       ...result,
     });
   } catch (error) {
-    // Error conocido (credenciales inválidas)
+    // Error credenciales inválidas
     if (error.message === "Credenciales inválidas") {
-      return res.status(401).json({ message: error.message });
+      return res.status(401).json({
+        message: error.message,
+        hint: "Verifica tu email y contraseña",
+      });
     }
 
-    // Error del servidor
+    if (
+      error.message === "Usuario inactivo" ||
+      error.message === "Tenant inactivo"
+    ) {
+      return res.status(403).json({
+        message: error.message,
+        hint: "Contacta con el administrador",
+      });
+    }
+
     res.status(500).json({
       message: "Error en el servidor",
       error: error.message,

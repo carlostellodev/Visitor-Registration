@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema(
       loginAttempts: {
         type: Number,
         default: 0,
-        select: false, // No incluir por defecto en queries
+        select: false,
       },
       lastFailedLogin: {
         type: Date,
