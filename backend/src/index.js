@@ -21,6 +21,15 @@ await connectDB();
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+    frameguard: { action: "deny" },
   })
 );
 
@@ -102,6 +111,22 @@ app.use((err, req, res, next) => {
       details: err,
     }),
   });
+});
+
+// Middleware personalizado para detectar requests sin JavaScript
+app.use((req, res, next) => {
+  // Verificar si el request viene de un navegador con JS habilitado
+  const userAgent = req.headers["user-agent"] || "";
+  const hasJavaScript =
+    req.headers["x-requested-with"] === "XMLHttpRequest" ||
+    req.headers["content-type"]?.includes("application/json");
+
+  // Agregar header para verificación
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+
+  next();
 });
 
 // Iniciar servidor
