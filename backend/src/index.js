@@ -4,7 +4,6 @@ import helmet from "helmet";
 import config from "./config/env.js";
 import connectDB from "./config/database.js";
 import mongoose from "mongoose";
-import { apiLimiter } from "./middleware/rateLimiter.js";
 
 // Importación de rutas
 import authRoutes from "./routes/authRoute.js";
@@ -50,9 +49,6 @@ app.use(cors(corsOptions));
 // Body parsing
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// Rate limiting general para todas las rutas de la API
-app.use("/api/", apiLimiter);
 
 // Rutas de la API
 app.use("/api/auth", authRoutes);
