@@ -9,7 +9,7 @@ class LoginRateLimiter {
   constructor() {
     // Configuración de rate limiting
     this.maxAttempts = 5; // Intentos máximos permitidos
-    this.lockDuration = 15 * 60 * 1000; // 15 minutos en milisegundos
+    this.lockDuration = 1 * 60 * 1000; // 15 minutos en milisegundos
     this.resetTime = 60 * 60 * 1000; // 1 hora para resetear contador
   }
 

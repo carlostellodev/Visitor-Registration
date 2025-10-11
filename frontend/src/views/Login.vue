@@ -16,23 +16,25 @@
                     </v-text-field>
 
                     <!-- Alerta de Rate Limiting -->
-                    <v-alert v-if="authStore.isRateLimited" type="warning" variant="tonal" prominent border="start"
-                        class="mb-4">
-                        <v-alert-title class="text-h6 mb-2">
-                            <v-icon icon="mdi-shield-lock" class="mr-2"></v-icon>
-                            Cuenta temporalmente bloqueada
-                        </v-alert-title>
-                        <div>{{ authStore.rateLimitInfo.details }}</div>
-                        <div v-if="remainingTime" class="mt-2">
-                            <v-chip color="error" variant="flat" size="small">
-                                <v-icon icon="mdi-clock-outline" start></v-icon>
+                    <v-alert v-if="authStore.isRateLimited" type="warning" variant="tonal" density="compact"
+                        class="mb-4 mt-n3">
+                        <div class="d-flex align-center justify-space-between">
+                            <div class="d-flex align-center">
+                                <v-icon icon="mdi-shield-lock" size="small" class="mr-2"></v-icon>
+                                <div>
+                                    <div class="text-body-2 font-weight-bold">Cuenta bloqueada</div>
+                                    <div class="text-caption">{{ authStore.rateLimitInfo.details }}</div>
+                                </div>
+                            </div>
+                            <v-chip v-if="remainingTime" color="error" size="small" variant="flat" class="ml-2">
+                                <v-icon icon="mdi-clock-outline" size="x-small" start></v-icon>
                                 {{ remainingTime }}
                             </v-chip>
                         </div>
                     </v-alert>
 
                     <!-- Alerta de Error General -->
-                    <v-alert v-else-if="authStore.error" type="error" variant="tonal" class="mb-4">
+                    <v-alert v-else-if="authStore.error" type="error" variant="tonal" density="compact" class="mb-4">
                         {{ authStore.error }}
                     </v-alert>
 
