@@ -31,7 +31,6 @@ watch(
 //-----------------------------------------------------------------------------
 // Computed para el gradiente de fondo dinámico
 const backgroundGradient = computed(() => {
-  if (!authStore.tenant?.theme) return ''
   const primary = authStore.tenant?.theme?.primary || '#667eea'
   const secondary = authStore.tenant?.theme?.secondary || '#9fc5e8'
   // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`
