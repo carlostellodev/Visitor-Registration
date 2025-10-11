@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import User from "../models/user.js";
 import Tenant from "../models/tenant.js";
 import config from "../config/env.js";
