@@ -69,6 +69,15 @@ export const login = async (req, res) => {
       ...result,
     });
   } catch (error) {
+    // Error de rate limiting (429)
+    if (error.statusCode === 429) {
+      return res.status(429).json({
+        message: error.message,
+        details: error.details,
+        lockedUntil: error.lockedUntil,
+      });
+    }
+
     // Error credenciales inválidas
     if (error.message === "Credenciales inválidas") {
       return res.status(401).json({
@@ -77,6 +86,7 @@ export const login = async (req, res) => {
       });
     }
 
+    // Error de usuario o tenant inactivo
     if (
       error.message === "Usuario inactivo" ||
       error.message === "Tenant inactivo"
@@ -86,7 +96,6 @@ export const login = async (req, res) => {
         hint: "Contacta con el administrador",
       });
     }
-
     res.status(500).json({
       message: "Error en el servidor",
       error: error.message,

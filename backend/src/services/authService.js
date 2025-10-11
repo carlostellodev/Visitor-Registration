@@ -48,19 +48,47 @@ class AuthService {
 
   // Login de usuario
   async login({ email, password, ipAddress = null }) {
-    const userForAuth = await User.findOne({ email });
+    const userForAuth = await User.findOne({ email }).select(
+      "+security.loginAttempts +security.lastFailedLogin +security.lockUntil"
+    );
 
     if (!userForAuth) {
-      // Registrar intento fallido (usuario no existe)
       await rateLimiter.recordFailedAttempt(email);
       throw new Error("Credenciales inválidas");
     }
 
-    // Verificar contraseña
+    if (
+      userForAuth.security.lockUntil &&
+      userForAuth.security.lockUntil > new Date()
+    ) {
+      const remainingTime = Math.ceil(
+        (userForAuth.security.lockUntil - new Date()) / 1000 / 60
+      );
+
+      // Código 429
+      const error = new Error("Cuenta temporalmente bloqueada");
+      error.statusCode = 429;
+      error.details = `Intenta nuevamente en ${remainingTime} minutos`;
+      error.lockedUntil = userForAuth.security.lockUntil;
+      throw error;
+    }
+
     const isPasswordValid = await userForAuth.comparePassword(password);
     if (!isPasswordValid) {
-      // Registrar intento fallido (contraseña incorrecta)
-      await rateLimiter.recordFailedAttempt(email);
+      // Contraseña incorrecta
+      const lockInfo = await rateLimiter.recordFailedAttempt(email);
+
+      if (lockInfo && lockInfo.isLocked) {
+        const remainingTime = Math.ceil(
+          (lockInfo.lockUntil - new Date()) / 1000 / 60
+        );
+        const error = new Error("Cuenta temporalmente bloqueada");
+        error.statusCode = 429;
+        error.details = `Demasiados intentos fallidos. Intenta nuevamente en ${remainingTime} minutos`;
+        error.lockedUntil = lockInfo.lockUntil;
+        throw error;
+      }
+
       throw new Error("Credenciales inválidas");
     }
 
@@ -72,7 +100,6 @@ class AuthService {
       .populate("tenantId")
       .lean();
 
-    // Verificar que el tenant esté activo
     if (!user.tenantId || !user.tenantId.isActive) {
       throw new Error("Tenant inactivo");
     }
@@ -80,7 +107,6 @@ class AuthService {
     // Login exitoso
     await rateLimiter.recordSuccessfulLogin(user._id, ipAddress);
 
-    // Generar token
     const token = this.generateToken(user._id);
 
     return {
