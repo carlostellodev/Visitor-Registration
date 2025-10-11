@@ -1,7 +1,6 @@
 <template>
   <v-app id="app" :style="{ background: backgroundGradient }" class="outline">
     <router-view />
-
   </v-app>
 </template>
 
@@ -20,7 +19,7 @@ const theme = useTheme()
 watch(
   () => authStore.tenant?.theme,
   (newTheme) => {
-    if (newTheme) {
+    if (newTheme && authStore.tenant) {
       theme.themes.value.light.colors.primary = newTheme.primary || '#2986cc';
       theme.themes.value.light.colors.secondary = newTheme.secondary || '#9fc5e8';
     }

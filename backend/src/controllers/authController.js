@@ -1,5 +1,14 @@
 import authService from "../services/authService.js";
 
+// Función de sanitización
+const sanitizeInput = (input) => {
+  if (!input || typeof input !== "string") return "";
+  return input
+    .trim()
+    .replace(/[<>\"'%;()&+]/g, "")
+    .slice(0, 200);
+};
+
 export const register = async (req, res) => {
   try {
     const { name, email, password, tenantId } = req.body;
@@ -41,12 +50,29 @@ export const register = async (req, res) => {
 // Controlador de login
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    email = sanitizeInput(email)?.toLowerCase();
+    password = password?.trim();
 
     // Validar campos
     if (!email || !password) {
       return res.status(400).json({
         message: "Email y contraseña son requeridos",
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Formato de email inválido",
+      });
+    }
+
+    // Validar longitud de contraseña
+    if (password.length < 6 || password.length > 128) {
+      return res.status(400).json({
+        message: "Contraseña inválida",
       });
     }
 
@@ -69,6 +95,15 @@ export const login = async (req, res) => {
       ...result,
     });
   } catch (error) {
+    // Error de rate limiting (429)
+    if (error.statusCode === 429) {
+      return res.status(429).json({
+        message: error.message,
+        details: error.details,
+        lockedUntil: error.lockedUntil,
+      });
+    }
+
     // Error credenciales inválidas
     if (error.message === "Credenciales inválidas") {
       return res.status(401).json({
@@ -77,6 +112,7 @@ export const login = async (req, res) => {
       });
     }
 
+    // Error de usuario o tenant inactivo
     if (
       error.message === "Usuario inactivo" ||
       error.message === "Tenant inactivo"
@@ -86,7 +122,6 @@ export const login = async (req, res) => {
         hint: "Contacta con el administrador",
       });
     }
-
     res.status(500).json({
       message: "Error en el servidor",
       error: error.message,

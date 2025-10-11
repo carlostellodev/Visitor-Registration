@@ -6,12 +6,12 @@ import config from "../config/env.js";
  * Solo se activa en producción
  */
 class LoginRateLimiter {
-  constructor() {
-    // Configuración de rate limiting
-    this.maxAttempts = 5; // Intentos máximos permitidos
-    this.lockDuration = 15 * 60 * 1000; // 15 minutos en milisegundos
-    this.resetTime = 60 * 60 * 1000; // 1 hora para resetear contador
-  }
+  // constructor() {
+  //   // Configuración de rate limiting
+  //   this.maxAttempts = 5; // Intentos máximos permitidos
+  //   this.lockDuration = 1 * 60 * 1000; // 15 minutos en milisegundos
+  //   this.resetTime = 60 * 60 * 1000; // 1 hora para resetear contador
+  // }
 
   /**
    * Middleware para verificar si el usuario está bloqueado
@@ -86,7 +86,7 @@ class LoginRateLimiter {
       // Si han pasado más de 1 hora desde el último intento, resetear contador
       if (
         user.security.lastFailedLogin &&
-        now - user.security.lastFailedLogin > this.resetTime
+        now - user.security.lastFailedLogin > config.rateLimiter.resetTime
       ) {
         user.security.loginAttempts = 0;
       }
@@ -96,8 +96,10 @@ class LoginRateLimiter {
       user.security.lastFailedLogin = now;
 
       // Si se alcanzó el máximo de intentos, bloquear cuenta
-      if (user.security.loginAttempts >= this.maxAttempts) {
-        user.security.lockUntil = new Date(now.getTime() + this.lockDuration);
+      if (user.security.loginAttempts >= config.rateLimiter.maxAttempts) {
+        user.security.lockUntil = new Date(
+          now.getTime() + config.rateLimiter.lockDuration
+        );
         console.warn(
           `Usuario bloqueado por múltiples intentos fallidos: ${email}`
         );
@@ -107,7 +109,7 @@ class LoginRateLimiter {
 
       return {
         attempts: user.security.loginAttempts,
-        isLocked: user.security.loginAttempts >= this.maxAttempts,
+        isLocked: user.security.loginAttempts >= config.rateLimiter.maxAttempts,
         lockUntil: user.security.lockUntil,
       };
     } catch (error) {
