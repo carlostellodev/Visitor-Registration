@@ -86,7 +86,7 @@ export const config = {
   // Rate Limiter for login requests
   rateLimiter: {
     maxAttempts: 5,
-    lockDuration: 15 * 60 * 1000,
+    lockDuration: 1 * 60 * 1000,
     resetTime: 60 * 60 * 1000,
   },
 };

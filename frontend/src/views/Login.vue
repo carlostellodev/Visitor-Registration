@@ -16,9 +16,9 @@
                     </v-text-field>
 
                     <!-- Alerta de Rate Limiting -->
-                    <v-card v-if="authStore.isRateLimited" type="warning" variant="tonal" density="compact"
-                        class="mb-4 mt-n3 rate-limiting-alert">
-                        <div class="d-flex flex-column align-center justify-space-between outline">
+                    <v-card v-if="authStore.isRateLimited" variant="tonal" density="compact"
+                        class="mb-4 mt-n3 rate-limiting-alert pa-3">
+                        <v-card-text class="d-flex flex-column align-center justify-space-between">
                             <div class="d-flex align-center">
                                 <v-icon icon="mdi-shield-lock" size="small" class="mr-2"></v-icon>
                                 <div>
@@ -30,7 +30,7 @@
                                 <v-icon icon="mdi-clock-outline" size="x-small" start></v-icon>
                                 {{ remainingTime }}
                             </v-chip>
-                        </div>
+                        </v-card-text>
                     </v-card>
 
                     <!-- Alerta de Error General -->
@@ -143,6 +143,6 @@ const handleLogin = async () => {
 
 <style scoped>
 .rate-limiting-alert {
-    background-color: orange;
+    background-color: #F5B027;
 }
 </style>
