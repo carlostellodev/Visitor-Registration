@@ -1,5 +1,14 @@
 import authService from "../services/authService.js";
 
+// Función de sanitización
+const sanitizeInput = (input) => {
+  if (!input || typeof input !== "string") return "";
+  return input
+    .trim()
+    .replace(/[<>\"'%;()&+]/g, "")
+    .slice(0, 200);
+};
+
 export const register = async (req, res) => {
   try {
     const { name, email, password, tenantId } = req.body;
@@ -41,12 +50,29 @@ export const register = async (req, res) => {
 // Controlador de login
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    email = sanitizeInput(email)?.toLowerCase();
+    password = password?.trim();
 
     // Validar campos
     if (!email || !password) {
       return res.status(400).json({
         message: "Email y contraseña son requeridos",
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Formato de email inválido",
+      });
+    }
+
+    // Validar longitud de contraseña
+    if (password.length < 6 || password.length > 128) {
+      return res.status(400).json({
+        message: "Contraseña inválida",
       });
     }
 
