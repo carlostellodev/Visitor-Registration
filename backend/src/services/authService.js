@@ -6,6 +6,11 @@ import config from "../config/env.js";
 import rateLimiter from "../middleware/rateLimiter.js";
 
 class AuthService {
+  // Generar JWT token
+  generateToken(userId) {
+    return jwt.sign({ userId }, config.jwt.secret, { expiresIn: "7d" });
+  }
+
   // Registrar nuevo usuario
   async register(userData) {
     const existingUser = await User.findOne({ email: userData.email });
@@ -63,9 +68,9 @@ class AuthService {
       throw new Error("Usuario inactivo");
     }
 
-     const user = await User.findById(userForAuth._id)
-       .populate("tenantId")
-       .lean();
+    const user = await User.findById(userForAuth._id)
+      .populate("tenantId")
+      .lean();
 
     // Verificar que el tenant esté activo
     if (!user.tenantId || !user.tenantId.isActive) {
@@ -78,25 +83,25 @@ class AuthService {
     // Generar token
     const token = this.generateToken(user._id);
 
-     return {
-       token,
-       user: {
-         _id: user._id,
-         name: user.name,
-         email: user.email,
-         role: user.role,
-         tenant: {
-           _id: user.tenantId._id,
-           name: user.tenantId.name,
-           email: user.tenantId.email,
-           phone: user.tenantId.phone,
-           address: user.tenantId.address,
-           slug: user.tenantId.slug,
-           theme: user.tenantId.theme,
-           config: user.tenantId.config,
-         },
-       },
-     };
+    return {
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        tenant: {
+          _id: user.tenantId._id,
+          name: user.tenantId.name,
+          email: user.tenantId.email,
+          phone: user.tenantId.phone,
+          address: user.tenantId.address,
+          slug: user.tenantId.slug,
+          theme: user.tenantId.theme,
+          config: user.tenantId.config,
+        },
+      },
+    };
   }
 
   // Obtener usuario por ID
