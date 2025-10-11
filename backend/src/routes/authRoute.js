@@ -4,14 +4,14 @@ import authenticate from "../middleware/authenticate.js";
 import rateLimiter from "../middleware/rateLimiter.js";
 import config from "../config/env.js";
 
+const router = express.Router();
+
 const blockIfDisabled = (req, res, next) => {
   if (config.auth.allow_register !== "true") {
     return res.status(403).json({ message: "Registro deshabilitado" });
   }
   next();
 };
-
-const router = express.Router();
 
 // Rutas públicas
 router.post("/register", blockIfDisabled, register);
