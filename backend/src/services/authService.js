@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import Tenant from "../models/tenant.js";
 import config from "../config/env.js";
+import rateLimiter from "../middleware/rateLimiter.js";
 
 class AuthService {
   // Generar JWT token
@@ -45,20 +46,23 @@ class AuthService {
   }
 
   // Login de usuario
-  async login({ email, password }) {
+  async login({ email, password, ipAddress = null }) {
     const userForAuth = await User.findOne({ email });
 
     if (!userForAuth) {
+      // Registrar intento fallido (usuario no existe)
+      await rateLimiter.recordFailedAttempt(email);
       throw new Error("Credenciales inválidas");
     }
 
     // Verificar contraseña
     const isPasswordValid = await userForAuth.comparePassword(password);
     if (!isPasswordValid) {
+      // Registrar intento fallido (contraseña incorrecta)
+      await rateLimiter.recordFailedAttempt(email);
       throw new Error("Credenciales inválidas");
     }
 
-    // Verificar que el usuario esté activo
     if (!userForAuth.isActive) {
       throw new Error("Usuario inactivo");
     }
@@ -68,9 +72,12 @@ class AuthService {
       .lean();
 
     // Verificar que el tenant esté activo
-    if (!user.tenantId || !user.isActive) {
+    if (!user.tenantId || !user.tenantId.isActive) {
       throw new Error("Tenant inactivo");
     }
+
+    // Login exitoso
+    await rateLimiter.recordSuccessfulLogin(user._id, ipAddress);
 
     // Generar token
     const token = this.generateToken(user._id);

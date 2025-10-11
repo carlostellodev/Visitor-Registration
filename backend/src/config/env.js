@@ -78,12 +78,6 @@ export const config = {
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true,
   },
-
-  // Rate Limiting
-  rateLimit: {
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: process.env.NODE_ENV === "production" ? 5 : 100,
-  },
 };
 
 export default config;

@@ -31,6 +31,31 @@ const userSchema = new mongoose.Schema(
       enum: ["superadmin", "admin", "user"],
       default: "user",
     },
+    security: {
+      loginAttempts: {
+        type: Number,
+        default: 0,
+        select: false,
+      },
+      lastFailedLogin: {
+        type: Date,
+        default: null,
+        select: false,
+      },
+      lastLogin: {
+        type: Date,
+        default: null,
+      },
+      lastLoginIp: {
+        type: String,
+        default: null,
+      },
+      lockUntil: {
+        type: Date,
+        default: null,
+        select: false,
+      },
+    },
     isActive: {
       type: Boolean,
       default: true,
