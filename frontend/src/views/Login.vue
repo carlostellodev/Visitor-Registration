@@ -16,11 +16,10 @@
                     </v-text-field>
 
                     <!-- Alerta de Rate Limiting -->
-                    <v-card v-if="authStore.isRateLimited" variant="tonal" density="compact"
-                        class="mb-4 mt-n3 rate-limiting-alert pa-3">
-                        <v-card-text class="d-flex flex-column align-center justify-space-between">
+                    <v-alert v-if="authStore.isRateLimited" type="warning" variant="tonal" density="compact"
+                        class="mb-4 mt-n3 rate-limiting-alert" border="start">
+                        <div class="d-flex flex-column align-center justify-space-between">
                             <div class="d-flex align-center">
-                                <v-icon icon="mdi-shield-lock" size="small" class="mr-2"></v-icon>
                                 <div>
                                     <div class="text-body-2 font-weight-bold">Cuenta bloqueada</div>
                                     <div class="text-caption">{{ authStore.rateLimitInfo.details }}</div>
@@ -30,8 +29,8 @@
                                 <v-icon icon="mdi-clock-outline" size="x-small" start></v-icon>
                                 {{ remainingTime }}
                             </v-chip>
-                        </v-card-text>
-                    </v-card>
+                        </div>
+                    </v-alert>
 
                     <!-- Alerta de Error General -->
                     <v-alert v-else-if="authStore.error" type="error" variant="tonal" density="compact"
