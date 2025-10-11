@@ -18,7 +18,7 @@
                     <!-- Alerta de Rate Limiting -->
                     <v-alert v-if="authStore.isRateLimited" type="warning" variant="tonal" density="compact"
                         class="mb-4 mt-n3">
-                        <div class="d-flex align-center justify-space-between">
+                        <div class="d-flex flex-row align-center justify-space-between outline">
                             <div class="d-flex align-center">
                                 <v-icon icon="mdi-shield-lock" size="small" class="mr-2"></v-icon>
                                 <div>
@@ -26,7 +26,7 @@
                                     <div class="text-caption">{{ authStore.rateLimitInfo.details }}</div>
                                 </div>
                             </div>
-                            <v-chip v-if="remainingTime" color="error" size="small" variant="flat" class="ml-2">
+                            <v-chip v-if="remainingTime" color="error" variant="flat" class="mt-2">
                                 <v-icon icon="mdi-clock-outline" size="x-small" start></v-icon>
                                 {{ remainingTime }}
                             </v-chip>
@@ -34,7 +34,8 @@
                     </v-alert>
 
                     <!-- Alerta de Error General -->
-                    <v-alert v-else-if="authStore.error" type="error" variant="tonal" density="compact" class="mb-4">
+                    <v-alert v-else-if="authStore.error" type="error" variant="tonal" density="compact"
+                        class="mb-4 mt-n3">
                         {{ authStore.error }}
                     </v-alert>
 
