@@ -16,25 +16,27 @@
                     </v-text-field>
 
                     <!-- Alerta de Rate Limiting -->
-                    <v-alert v-if="authStore.isRateLimited" type="warning" variant="tonal" density="compact"
-                        class="mb-4 mt-n3 rate-limiting-alert" border="start">
-                        <div class="d-flex flex-column align-center justify-space-between">
-                            <div class="d-flex align-center">
-                                <div>
-                                    <div class="text-body-2 font-weight-bold">Cuenta bloqueada</div>
-                                    <div class="text-caption">{{ authStore.rateLimitInfo.details }}</div>
-                                </div>
-                            </div>
-                            <v-chip v-if="remainingTime" color="error" variant="flat" class="mt-2">
-                                <v-icon icon="mdi-clock-outline" size="x-small" start></v-icon>
-                                {{ remainingTime }}
-                            </v-chip>
-                        </div>
+                    <v-alert v-if="authStore.isRateLimited" title="Cuenta bloqueada" icon="mdi-shield-lock"
+                        type="warning" variant="tonal" density="compact" class="mb-4 mt-n5 " border="start">
+                        <v-col>
+                            <v-row>
+                                <div class="text-caption">{{ authStore.rateLimitInfo.details }}</div>
+                            </v-row>
+
+                        </v-col>
+                        <v-col class="ml-13 mb-2">
+                            <v-row>
+                                <v-chip color="error" variant="flat" class="mt-2" size="small">
+                                    <v-icon icon="mdi-clock-outline" size="small" start></v-icon>
+                                    {{ remainingTime }}
+                                </v-chip>
+                            </v-row>
+                        </v-col>
                     </v-alert>
 
                     <!-- Alerta de Error General -->
                     <v-alert v-else-if="authStore.error" type="error" variant="tonal" density="compact"
-                        class="mb-4 mt-n3">
+                        class="mb-4 mt-n5">
                         {{ authStore.error }}
                     </v-alert>
 
@@ -139,9 +141,3 @@ const handleLogin = async () => {
     }
 }
 </script>
-
-<style scoped>
-.rate-limiting-alert {
-    background-color: #F5B027;
-}
-</style>
