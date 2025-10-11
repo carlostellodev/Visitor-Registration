@@ -17,7 +17,7 @@ const theme = useTheme()
 //-----------------------------------------------------------------------------
 // Aplicar theme del tenant a Vuetify
 watch(
-  () => authStore.tenant?.theme,
+  () => authStore.tenant?.theme !== null,
   (newTheme) => {
     console.log(authStore.tenant?.theme);
 
