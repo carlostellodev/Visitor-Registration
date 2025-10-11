@@ -1,7 +1,6 @@
 <template>
   <v-app id="app" :style="{ background: backgroundGradient }" class="outline">
     <router-view />
-
   </v-app>
 </template>
 
@@ -20,7 +19,7 @@ const theme = useTheme()
 watch(
   () => authStore.tenant?.theme,
   (newTheme) => {
-    if (newTheme) {
+    if (newTheme && authStore.tenant) {
       theme.themes.value.light.colors.primary = newTheme.primary || '#2986cc';
       theme.themes.value.light.colors.secondary = newTheme.secondary || '#9fc5e8';
     }
@@ -32,6 +31,7 @@ watch(
 //-----------------------------------------------------------------------------
 // Computed para el gradiente de fondo dinámico
 const backgroundGradient = computed(() => {
+  if (!authStore.tenant?.theme) return ''
   const primary = authStore.tenant?.theme?.primary || '#667eea'
   const secondary = authStore.tenant?.theme?.secondary || '#9fc5e8'
   // return `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`
