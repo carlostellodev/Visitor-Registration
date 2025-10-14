@@ -1,6 +1,6 @@
 <template>
     <ViewCard :tenant="tenant" subtitle="Instrucciones generales de acceso a las instalaciones"
-        content-class="pa-10 mt-n4" actions-class="mt-n15" :show-back-button="false" @back="handleLogout">
+        content-class="pa-10 mt-n5" actions-class="mt-n15" :show-back-button="false" @back="handleLogout">
         <!-- Contenido -->
         <template #default>
             <v-row>
@@ -12,7 +12,7 @@
                                 maxlength="100" counter placeholder="Ej: Juan Pérez García" @input="sanitizeName" />
                         </v-col>
                     </v-row>
-                    <v-row class="mt-n4">
+                    <v-row class="mt-n6">
                         <v-col>
                             <span class="text-h6">Empresa</span>
                             <v-text-field density="compact" variant="outlined" v-model="form.company"
@@ -22,11 +22,11 @@
                     </v-row>
                 </v-col>
                 <v-col>
-                    <v-img height="190" :src="tenant.theme.logoUrl" />
+                    <v-img height="170" :src="tenant.theme.logoUrl" />
                 </v-col>
             </v-row>
 
-            <div class="d-flex justify-space-evenly ga-4 mt-4 mb-3">
+            <div class="d-flex justify-space-evenly ga-4 mt-2 mb-3">
                 <!-- Motivos -->
                 <v-card flat>
                     <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
@@ -42,7 +42,7 @@
                 </v-card>
             </div>
 
-            <v-row class="mt-n4">
+            <v-row class="mt-n5">
                 <v-col>
                     <span class="text-h6">Responsable que acompaña la visita</span>
                     <v-select density="compact" variant="outlined" :items="workers" v-model="selectedWorker"
