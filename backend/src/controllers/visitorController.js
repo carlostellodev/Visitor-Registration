@@ -159,6 +159,52 @@ export const getVisitorsByTenant = async (req, res) => {
   }
 };
 
+export const getVisitorsByTenantAndDate = async (req, res) => {
+  try {
+    console.log(req.query.tenantId);
+
+    const { tenantId, date } = req.params;
+
+    console.log(tenantId);
+
+    if (
+      !isSuperAdmin(req.user.role) &&
+      tenantId !== req.user.tenantId?.toString()
+    ) {
+      return res.status(403).json({
+        error: "Sin autorización",
+        message: "No puedes acceder a visitantes de otros tenants",
+      });
+    }
+
+    // Validar formato de fecha
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      return res.status(400).json({
+        error: "Fecha inválida",
+        message:
+          "El formato de fecha debe ser YYYY-MM-DD o un formato válido ISO",
+      });
+    }
+
+    const visitors = await visitorService.getVisitorsByTenantAndDate(
+      tenantId,
+      date
+    );
+
+    res.status(200).json({
+      date: dateObj.toISOString().split("T")[0],
+      count: visitors.length,
+      visitors,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error en el servidor",
+      message: error.message,
+    });
+  }
+};
+
 export const deleteVisitor = async (req, res) => {
   try {
     const visitor = await visitorService.deleteVisitor(req.params.id);

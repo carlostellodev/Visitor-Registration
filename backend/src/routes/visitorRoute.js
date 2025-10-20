@@ -4,6 +4,7 @@ import {
   getAllVisitors,
   getVisitorById,
   getVisitorsByTenant,
+  getVisitorsByTenantAndDate,
   deleteVisitor,
 } from "../controllers/visitorController.js";
 import { authenticate } from "../middleware/authenticate.js";
@@ -48,6 +49,20 @@ router.get(
   authorize(PERMISSIONS.VISITOR_READ),
   filterByTenant,
   getAllVisitors
+);
+
+/**
+ * GET /api/visitors/tenant/:tenantId/date/:date
+ * Obtener visitantes de un tenant en una fecha específica
+ * SuperAdmin: Cualquier tenant
+ * Admin: Solo su tenant
+ * Esta ruta debe ir ANTES de /tenant/:tenantId para evitar conflictos
+ */
+router.get(
+  "/tenant/:tenantId/date/:date",
+  authenticate,
+  authorize(PERMISSIONS.VISITOR_READ, { checkTenantOwnership: true }),
+  getVisitorsByTenantAndDate
 );
 
 /**

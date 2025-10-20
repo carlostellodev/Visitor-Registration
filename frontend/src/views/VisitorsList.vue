@@ -32,13 +32,13 @@
                     <v-card variant="outlined" color="primary" class="d-flex align-center">
                         <v-card-text class="d-flex align-center justify-space-between w-100 pa-5">
                             <div>
-                                <div class="text-h3 font-weight-bold">{{ filteredVisitors.length }}</div>
+                                <div class="text-h3 font-weight-bold">{{ visitors.length }}</div>
                                 <div class="text-h5 ">
-                                    {{ isToday ? 'Visitantes hoy' : `Visitantes` }}
+                                    <span>{{ visitors.length === 1 ? 'Visitante ' : 'Visitantes' }}</span>
+                                    <span v-if="isToday"> hoy</span>
                                 </div>
                             </div>
-                            <v-icon v-if="filteredVisitors.length > 0" size="70"
-                                color="primary">mdi-account-multiple</v-icon>
+                            <v-icon v-if="visitors.length > 0" size="70" color="primary">mdi-account-multiple</v-icon>
                             <v-icon v-else size="70" color="primary">mdi-account-off</v-icon>
                         </v-card-text>
                     </v-card>
@@ -58,7 +58,7 @@
                                 style="max-width: 300px;" clearable class="bg-white" />
                         </v-card-title>
 
-                        <v-data-table :headers="headers" :items="filteredVisitors" :search="search" :loading="loading"
+                        <v-data-table :headers="headers" :items="visitors" :search="search" :loading="loading"
                             loading-text="Cargando visitantes..."
                             no-data-text="No hay visitantes registrados para esta fecha"
                             items-per-page-text="Visitantes por página" :items-per-page="10">
@@ -117,13 +117,13 @@
         </template>
 
         <template #actions>
-            <v-col class="d-flex justify-end ga-2">
+            <v-col class="d-flex justify-end ga-4 mr-4">
                 <v-btn @click="handleExportExcel" variant="outlined" prepend-icon="mdi-microsoft-excel" color="success"
-                    :disabled="filteredVisitors.length === 0">
+                    :disabled="visitors.length === 0">
                     Exportar a Excel
                 </v-btn>
                 <v-btn @click="handleExportPDF" variant="outlined" prepend-icon="mdi-file-pdf-box" color="error"
-                    :disabled="filteredVisitors.length === 0">
+                    :disabled="visitors.length === 0">
                     Exportar a PDF
                 </v-btn>
             </v-col>
@@ -203,8 +203,8 @@
                                 prepend-inner-icon="mdi-account-tie" />
                         </v-col>
                         <v-col cols="12" md="6">
-                            <v-select v-model="editForm.worker" label="Responsable" :items="workers" item-title="name"
-                                item-value="_id" variant="outlined" density="comfortable"
+                            <v-select v-model="editForm.workerId" label="Responsable" :items="mockWorkers"
+                                item-title="name" item-value="_id" variant="outlined" density="comfortable"
                                 prepend-inner-icon="mdi-account-tie" />
                         </v-col>
                         <v-col cols="12" md="6">
@@ -256,10 +256,10 @@
                                 readonly />
                         </v-col>
                         <v-col cols="12" md="6">
-                            <v-text-field v-model="selectedVisitor.worker.name" label="Responsable" variant="outlined"
+                            <v-text-field v-model="selectedVisitor.workerId.name" label="Responsable" variant="outlined"
                                 density="comfortable" prepend-inner-icon="mdi-account-tie" readonly />
                         </v-col>
-                        <v-col cols="12" md="6">
+                        <v-col v-if="selectedVisitor.plate" cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.plate" label="Matrícula" variant="outlined"
                                 density="comfortable" prepend-inner-icon="mdi-car" readonly />
                         </v-col>
@@ -284,12 +284,14 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
+import { useVisitStore } from '@/stores/visitStore';
 import { useToastComposable } from '@/composables/useToast';
 import ViewCard from '@/components/ViewCard.vue';
 
 const { showToast } = useToastComposable();
 const router = useRouter();
 const authStore = useAuthStore();
+const visitStore = useVisitStore();
 
 const tenant = computed(() => authStore.tenant);
 
@@ -308,63 +310,12 @@ const showDialog = ref(false);
 const editForm = ref(null);
 const editFormRef = ref(null);
 
-// Datos mock para desarrollo
-const mockVisitors = ref([
-    {
-        _id: '1',
-        name: 'Juan Pérez García',
-        company: 'Mercadona',
-        plate: '1234ABC',
-        purpose: ['Visita'],
-        accessZone: ['Oficina'],
-        worker: { _id: 'w1', name: 'María López' },
-        createdAt: new Date('2025-10-19T09:30:00')
-    },
-    {
-        _id: '2',
-        name: 'Ana Martínez López',
-        company: 'Construcciones XYZ',
-        plate: '5678DEF',
-        purpose: ['Mantenimiento'],
-        accessZone: ['Naves'],
-        worker: { _id: 'w2', name: 'Carlos Ruiz' },
-        createdAt: new Date('2025-10-19T10:15:00')
-    },
-    {
-        _id: '3',
-        name: 'Pedro Sánchez Vega',
-        company: 'Transportes ABC',
-        plate: '9012GHI',
-        purpose: ['Visita', 'Mantenimiento'],
-        accessZone: ['Oficina', 'C.Clasificacion'],
-        worker: { _id: 'w1', name: 'María López' },
-        createdAt: new Date('2025-10-20T10:15:00')
-    },
-    {
-        _id: '4',
-        name: 'Laura Fernández',
-        company: 'Tecnología S.L.',
-        plate: '3456JKL',
-        purpose: ['Visita'],
-        accessZone: ['Oficina'],
-        worker: { _id: 'w3', name: 'Juan García López' },
-        createdAt: new Date('2025-10-20T15:15:00')
-    }
-]);
-
-// Workers mock
-const workers = ref([
-    { _id: 'w1', name: 'María López' },
-    { _id: 'w2', name: 'Carlos Ruiz' },
-    { _id: 'w3', name: 'Juan García López' }
-]);
-
 // Headers de la tabla (sin matrícula)
 const headers = [
     { title: 'Hora y fecha', key: 'datetime', sortable: false },
     { title: 'Nombre', key: 'name', sortable: false },
     { title: 'Empresa', key: 'company', sortable: false },
-    { title: 'Responsable', key: 'worker.name', sortable: false },
+    { title: 'Responsable', key: 'workerId.name', sortable: false },
     { title: 'Acciones', key: 'actions', sortable: false, align: 'center' }
 ];
 
@@ -398,63 +349,19 @@ const isToday = computed(() => {
     );
 });
 
-// Filtrar visitantes por la fecha seleccionada
-const filteredVisitors = computed(() => {
-    if (!selectedDate.value) return visitors.value;
-
-    const selected = new Date(selectedDate.value);
-    selected.setHours(0, 0, 0, 0);
-
-    return visitors.value.filter(v => {
-        const visitDate = new Date(v.createdAt);
-        visitDate.setHours(0, 0, 0, 0);
-        return visitDate.getTime() === selected.getTime();
-    });
+// Lifecycle
+onMounted(() => {
+    loadVisitors();
 });
 
-// Watch para cargar visitantes automáticamente cuando cambia la fecha
 watch(selectedDate, () => {
     loadVisitors();
 });
 
-// Métodos
-function formatDate(date) {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
-}
-
-function formatTime(date) {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-function handleDateChange() {
-    showDatePicker.value = false;
-}
-
 async function loadVisitors() {
     loading.value = true;
     try {
-        // TODO: Aquí irá la llamada al backend con la fecha seleccionada
-        // const response = await visitStore.fetchVisitorsByDate(selectedDate.value);
-        // visitors.value = response;
-
-        // Por ahora usamos datos mock
-        await new Promise(resolve => setTimeout(resolve, 800));
-        visitors.value = mockVisitors.value;
-
-        const count = filteredVisitors.value.length;
-        const dateStr = isToday.value ? 'hoy' : `el ${formattedSelectedDate.value}`;
-        // showToast(`${count} visitante${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''} ${dateStr}`, 'success');
+        visitors.value = await visitStore.fetchVisitorsByDate(authStore.tenant._id, selectedDate.value);
     } catch (error) {
         console.error('Error cargando visitantes:', error);
         showToast('Error al cargar visitantes', 'error');
@@ -463,27 +370,6 @@ async function loadVisitors() {
     }
 }
 
-function clearFilters() {
-    selectedDate.value = new Date(); // Volver a hoy
-    search.value = '';
-}
-
-function handleDownload(visitor) {
-    console.log('Descargar PDF:', visitor);
-    // TODO: Implementar descarga de PDF individual
-    showToast(`Descargando documento de ${visitor.name}`, 'info');
-}
-
-function handleEdit(visitor) {
-    selectedVisitor.value = visitor;
-    editForm.value = { ...visitor };
-    editDialog.value = true;
-}
-
-function handleShow(visitor) {
-    selectedVisitor.value = visitor;
-    showDialog.value = true;
-}
 
 async function confirmEdit() {
     // Validar formulario
@@ -503,10 +389,6 @@ async function confirmEdit() {
             visitors.value[index] = { ...editForm.value };
         }
 
-        console.log(editForm.value);
-
-        loadVisitors()
-
         showToast('Visitante actualizado correctamente', 'success');
         editDialog.value = false;
     } catch (error) {
@@ -515,11 +397,6 @@ async function confirmEdit() {
     } finally {
         editing.value = false;
     }
-}
-
-function handleDelete(visitor) {
-    selectedVisitor.value = visitor;
-    deleteDialog.value = true;
 }
 
 async function confirmDelete() {
@@ -543,6 +420,37 @@ async function confirmDelete() {
     }
 }
 
+// Métodos
+function handleDateChange() {
+    showDatePicker.value = false;
+}
+
+function handleShow(visitor) {
+    selectedVisitor.value = visitor;
+    selectedVisitor.value.purpose = selectedVisitor.value.purpose.map(p => capitalize(p));
+    selectedVisitor.value.accessZone = selectedVisitor.value.accessZone.map(a => capitalize(a));
+    showDialog.value = true;
+}
+
+function handleEdit(visitor) {
+    visitor.purpose = visitor.purpose.map(p => capitalize(p));
+    visitor.accessZone = visitor.accessZone.map(a => capitalize(a));
+    selectedVisitor.value = visitor;
+    editForm.value = { ...visitor };
+    editDialog.value = true;
+}
+
+function handleDelete(visitor) {
+    selectedVisitor.value = visitor;
+    deleteDialog.value = true;
+}
+
+function handleDownload(visitor) {
+    console.log('Descargar PDF:', visitor);
+    // TODO: Implementar descarga de PDF individual
+    showToast(`Descargando documento de ${visitor.name}`, 'info');
+}
+
 function handleExportExcel() {
     console.log('Exportar a Excel');
     // TODO: Implementar exportación a Excel
@@ -555,14 +463,37 @@ function handleExportPDF() {
     showToast('Exportando a PDF...', 'info');
 }
 
+function formatDate(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+}
+
+function formatTime(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function clearFilters() {
+    selectedDate.value = new Date(); // Volver a hoy
+    search.value = '';
+}
+
 function goBack() {
     router.go(-1);
 }
-
-// Lifecycle
-onMounted(() => {
-    loadVisitors();
-});
 </script>
 
 <style scoped>

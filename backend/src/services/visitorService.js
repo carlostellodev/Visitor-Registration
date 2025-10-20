@@ -68,6 +68,34 @@ class VisitorService {
     return visitors;
   }
 
+  async getVisitorsByTenantAndDate(tenantId, date) {
+    const searchDate = new Date(date);
+
+    // Establecer el inicio del día (00:00:00)
+    const startOfDay = new Date(searchDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    // Establecer el fin del día (23:59:59)
+    const endOfDay = new Date(searchDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const query = {
+      tenantId,
+      createdAt: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    };
+
+    const visitors = await Visitor.find(query)
+      .populate("workerId", "name email")
+      .populate("tenantId", "name slug")
+      .sort({ createdAt: -1 }) // Ordenar por hora de creación (más reciente primero)
+      .lean();
+
+    return visitors;
+  }
+
   async deleteVisitor(id) {
     const visitor = await Visitor.findByIdAndDelete(id);
 
