@@ -1,6 +1,6 @@
 <template>
     <ViewCard :tenant="tenant" subtitle="Instrucciones generales de acceso a las instalaciones"
-        content-class="pa-10 mt-n5" actions-class="mt-n15" :show-back-button="false" @back="handleLogout">
+        content-class="pa-10 mt-n5" actions-class="mt-n15" :show-back-button="false">
         <!-- Contenido -->
         <template #default>
             <v-row>

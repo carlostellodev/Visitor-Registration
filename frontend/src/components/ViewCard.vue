@@ -119,6 +119,10 @@ function handleHelp() {
     router.push(`/help/${authStore.tenantSlug}`);
 };
 
+function handleList() {
+    router.push(`/visitors/${authStore.tenantSlug}`);
+};
+
 function handleLogout() {
     authStore.logout();
     router.push('/login');
