@@ -11,9 +11,11 @@
                 <v-col>
                     Lista
                 </v-col>
-                <v-col class="d-flex flex-row">
-                    <span>por cada visitante, un botón de descargar</span>
-                    <v-btn size="small">Descargar</v-btn>
+                <v-col class="d-flex flex-row ga-2">
+                    <span>por cada visitante</span>
+                    <v-btn variant="outlined" size="small">Descargar</v-btn>
+                    <v-btn variant="outlined" size="small">Editar</v-btn>
+                    <v-btn variant="outlined" size="small">Borrar</v-btn>
                 </v-col>
             </v-row>
         </template>
@@ -26,6 +28,8 @@
             </v-col>
         </template>
     </ViewCard>
+
+    <!-- Implementar un v-dialog para preguntar por las acciones CRUD de los visitantes -->
 </template>
 
 <script setup>
