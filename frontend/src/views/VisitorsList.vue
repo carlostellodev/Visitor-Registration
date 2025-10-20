@@ -1,50 +1,592 @@
 <template>
-    <ViewCard :tenant="tenant" subtitle="Listado de visitantes" content-class="pa-10 mt-n5" actions-class="mt-n5"
-        :show-back-button="true" @back="goBack">
+    <ViewCard :tenant="tenant" subtitle="Registro histórico de visitantes a las instalaciones"
+        content-class="pa-10 mt-n5" actions-class="mt-n9" :show-back-button="true" @back="goBack">
         <template #default>
-            <v-row>
-                <v-col>
-                    Selector de fecha
+            <v-row class="my-0 mb-n1">
+                <!-- Selector de fecha -->
+                <v-col cols="12" md="6">
+                    <v-card variant="tonal" class="d-flex align-center cursor-pointer flex-column bg-grey-lighten"
+                        @click="showDatePicker = true" :ripple="false">
+                        <v-card-text class="d-flex align-center justify-space-between w-100 pa-5">
+                            <div>
+                                <div class="text-h6 mb-3">Seleccionar fecha</div>
+                                <div class="text-h4 font-weight-bold">
+                                    {{ formattedSelectedDate }}
+                                </div>
+                            </div>
+                            <v-icon size="70">mdi-calendar</v-icon>
+                        </v-card-text>
+                        <v-fade-transition>
+                            <v-card-text v-show="!isToday" class="w-100 mt-n5">
+                                <v-btn color="#3d3d3d" variant="flat" @click.stop="clearFilters" block
+                                    prepend-icon="mdi-refresh" class="return-pointer" :ripple="false">
+                                    Volver a hoy
+                                </v-btn>
+                            </v-card-text>
+                        </v-fade-transition>
+                    </v-card>
+                </v-col>
+
+                <!-- Número de visitantes -->
+                <v-col cols="12" md="6">
+                    <v-card variant="outlined" color="primary" class="d-flex align-center">
+                        <v-card-text class="d-flex align-center justify-space-between w-100 pa-5">
+                            <div>
+                                <div class="text-h3 font-weight-bold">{{ filteredVisitors.length }}</div>
+                                <div class="text-h5 ">
+                                    {{ isToday ? 'Visitantes hoy' : `Visitantes` }}
+                                </div>
+                            </div>
+                            <v-icon v-if="filteredVisitors.length > 0" size="70"
+                                color="primary">mdi-account-multiple</v-icon>
+                            <v-icon v-else size="70" color="primary">mdi-account-off</v-icon>
+                        </v-card-text>
+                    </v-card>
                 </v-col>
             </v-row>
+
+            <!-- Tabla de visitantes -->
             <v-row>
-                <v-col>
-                    Lista
-                </v-col>
-                <v-col class="d-flex flex-row ga-2">
-                    <span>por cada visitante</span>
-                    <v-btn variant="outlined" size="small">Descargar</v-btn>
-                    <v-btn variant="outlined" size="small">Editar</v-btn>
-                    <v-btn variant="outlined" size="small">Borrar</v-btn>
+                <v-col cols="12">
+                    <v-card variant="outlined">
+                        <v-card-title class="d-flex align-center bg-grey-lighten-3">
+                            <v-icon class="mr-2">mdi-clipboard-text</v-icon>
+                            Lista de visitantes
+                            <v-spacer></v-spacer>
+                            <v-text-field v-model="search" density="compact" placeholder="Buscar..."
+                                prepend-inner-icon="mdi-magnify" variant="outlined" hide-details single-line
+                                style="max-width: 300px;" clearable class="bg-white" />
+                        </v-card-title>
+
+                        <v-data-table :headers="headers" :items="filteredVisitors" :search="search" :loading="loading"
+                            loading-text="Cargando visitantes..."
+                            no-data-text="No hay visitantes registrados para esta fecha"
+                            items-per-page-text="Visitantes por página" :items-per-page="10">
+
+                            <!-- Columna de hora y fecha -->
+                            <template v-slot:item.datetime="{ item }">
+                                <div class="ml-2 d-flex flex-column">
+                                    <div class="d-flex align-center">
+                                        <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
+                                        <span class="font-weight-medium">{{ formatTime(item.createdAt) }}</span>
+                                    </div>
+                                    <div class="d-flex align-center text-caption text-grey">
+                                        <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
+                                        <span>{{ formatDate(item.createdAt) }}</span>
+                                    </div>
+
+                                </div>
+                            </template>
+
+                            <!-- Columna de acciones -->
+                            <template v-slot:item.actions="{ item }">
+                                <div class="d-flex ga-1">
+                                    <v-tooltip text="Ver">
+                                        <template v-slot:activator="{ props }">
+                                            <v-btn v-bind="props" @click="handleShow(item)" icon="mdi-eye"
+                                                variant="text" />
+                                        </template>
+                                    </v-tooltip>
+
+                                    <v-tooltip text="Descargar PDF">
+                                        <template v-slot:activator="{ props }">
+                                            <v-btn v-bind="props" @click="handleDownload(item)" icon="mdi-download"
+                                                variant="text" color="primary" />
+                                        </template>
+                                    </v-tooltip>
+
+                                    <v-tooltip text="Editar">
+                                        <template v-slot:activator="{ props }">
+                                            <v-btn v-bind="props" @click="handleEdit(item)" icon="mdi-pencil"
+                                                variant="text" color="info" />
+                                        </template>
+                                    </v-tooltip>
+
+                                    <v-tooltip text="Eliminar">
+                                        <template v-slot:activator="{ props }">
+                                            <v-btn v-bind="props" @click="handleDelete(item)" icon="mdi-delete"
+                                                variant="text" color="error" />
+                                        </template>
+                                    </v-tooltip>
+                                </div>
+                            </template>
+                        </v-data-table>
+                    </v-card>
                 </v-col>
             </v-row>
         </template>
 
         <template #actions>
-            <v-col class="d-flex justify-end">
-                <v-btn @click="handleClearForm" variant="outlined" prepend-icon="mdi-microsoft-excel">
-                    Exportar lista
+            <v-col class="d-flex justify-end ga-2">
+                <v-btn @click="handleExportExcel" variant="outlined" prepend-icon="mdi-microsoft-excel" color="success"
+                    :disabled="filteredVisitors.length === 0">
+                    Exportar a Excel
+                </v-btn>
+                <v-btn @click="handleExportPDF" variant="outlined" prepend-icon="mdi-file-pdf-box" color="error"
+                    :disabled="filteredVisitors.length === 0">
+                    Exportar a PDF
                 </v-btn>
             </v-col>
         </template>
     </ViewCard>
 
-    <!-- Implementar un v-dialog para preguntar por las acciones CRUD de los visitantes -->
+    <!-- Date Picker Dialog -->
+    <v-dialog v-model="showDatePicker" max-width="400">
+        <v-card>
+            <v-card-text class="pa-0">
+                <v-date-picker v-model="selectedDate" color="primary" show-adjacent-months width="100%"
+                    @update:model-value="handleDateChange"></v-date-picker>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+
+    <!-- Diálogo de confirmación para eliminar -->
+    <v-dialog v-model="deleteDialog" max-width="500">
+        <v-card>
+            <v-card-title class="text-h5 d-flex align-center">
+                <v-icon color="error" class="mr-2">mdi-alert-circle</v-icon>
+                Confirmar eliminación
+            </v-card-title>
+            <v-card-text>
+                <p class="text-body-1 mb-2">
+                    ¿Estás seguro de que deseas eliminar este registro de visitante?
+                </p>
+                <v-alert type="warning" variant="tonal" density="compact" class="mb-2">
+                    Esta acción no se puede deshacer
+                </v-alert>
+                <div v-if="selectedVisitor" class="mt-3">
+                    <p><strong>Nombre:</strong> {{ selectedVisitor.name }}</p>
+                    <p><strong>Empresa:</strong> {{ selectedVisitor.company }}</p>
+                    <p><strong>Fecha:</strong> {{ formatDate(selectedVisitor.createdAt) }}</p>
+                    <p><strong>Hora:</strong> {{ formatTime(selectedVisitor.createdAt) }}</p>
+                </div>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn @click="deleteDialog = false" variant="text">
+                    Cancelar
+                </v-btn>
+                <v-btn @click="confirmDelete" color="error" variant="flat" :loading="deleting">
+                    Eliminar
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <!-- Diálogo para editar visitante -->
+    <v-dialog v-model="editDialog" max-width="800">
+        <v-card>
+            <v-card-title class="text-h5 d-flex align-center">
+                <v-icon color="info" class="mr-2">mdi-pencil</v-icon>
+                Editar visitante
+            </v-card-title>
+            <v-card-text>
+                <v-form v-if="editForm" ref="editFormRef">
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="editForm.name" label="Nombre y apellidos" variant="outlined"
+                                density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="editForm.company" label="Empresa" variant="outlined"
+                                density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain" />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-select v-model="editForm.purpose" label="Motivos" :items="['Visita', 'Mantenimiento']"
+                                multiple item-title="name" item-value="_id" variant="outlined" density="comfortable"
+                                prepend-inner-icon="mdi-account-tie" />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-select v-model="editForm.accessZone" label="Zonas de acceso"
+                                :items="['Oficina', 'C.Clasificacion', 'Naves']" multiple item-title="name"
+                                item-value="_id" variant="outlined" density="comfortable"
+                                prepend-inner-icon="mdi-account-tie" />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-select v-model="editForm.worker" label="Responsable" :items="workers" item-title="name"
+                                item-value="_id" variant="outlined" density="comfortable"
+                                prepend-inner-icon="mdi-account-tie" />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="editForm.plate" label="Matrícula" variant="outlined"
+                                density="comfortable" prepend-inner-icon="mdi-car" />
+                        </v-col>
+                    </v-row>
+                </v-form>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn @click="editDialog = false" variant="text">
+                    Cancelar
+                </v-btn>
+                <v-btn @click="confirmEdit" color="primary" variant="flat" :loading="editing">
+                    Guardar cambios
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <!-- Diálogo para ver detalles de un visitante -->
+    <v-dialog v-model="showDialog" max-width="800">
+        <v-card>
+            <v-card-title class="text-h5 d-flex align-center">
+                <v-icon color="info" class="mr-2">mdi-eye</v-icon>
+                Ver visitante
+            </v-card-title>
+            <v-card-text>
+                <v-form v-if="selectedVisitor" ref="editFormRef">
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="selectedVisitor.name" label="Nombre y apellidos" variant="outlined"
+                                density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" readonly />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="selectedVisitor.company" label="Empresa" variant="outlined"
+                                density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain" readonly />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="selectedVisitor.purpose"
+                                :label="selectedVisitor.purpose.length > 1 ? 'Motivos' : 'Motivo'" variant="outlined"
+                                density="comfortable" prepend-inner-icon="mdi-account-tie" readonly />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="selectedVisitor.accessZone"
+                                :label="selectedVisitor.accessZone.length > 1 ? 'Zonas de acceso' : 'Zona de acceso'"
+                                variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie"
+                                readonly />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="selectedVisitor.worker.name" label="Responsable" variant="outlined"
+                                density="comfortable" prepend-inner-icon="mdi-account-tie" readonly />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="selectedVisitor.plate" label="Matrícula" variant="outlined"
+                                density="comfortable" prepend-inner-icon="mdi-car" readonly />
+                        </v-col>
+                        <!-- Espacio para la firma
+                        <v-col>
+                            <v-img :src="selectedVisitor.signature"></v-img>
+                        </v-col> -->
+                    </v-row>
+                </v-form>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn @click="showDialog = false" variant="text">
+                    Volver
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
+import { useToastComposable } from '@/composables/useToast';
 import ViewCard from '@/components/ViewCard.vue';
 
+const { showToast } = useToastComposable();
 const router = useRouter();
 const authStore = useAuthStore();
 
 const tenant = computed(() => authStore.tenant);
 
+// Estados
+const loading = ref(false);
+const deleting = ref(false);
+const editing = ref(false);
+const search = ref('');
+const showDatePicker = ref(false);
+const selectedDate = ref(new Date()); // Por defecto hoy
+const visitors = ref([]);
+const selectedVisitor = ref(null);
+const deleteDialog = ref(false);
+const editDialog = ref(false);
+const showDialog = ref(false);
+const editForm = ref(null);
+const editFormRef = ref(null);
+
+// Datos mock para desarrollo
+const mockVisitors = ref([
+    {
+        _id: '1',
+        name: 'Juan Pérez García',
+        company: 'Mercadona',
+        plate: '1234ABC',
+        purpose: ['Visita'],
+        accessZone: ['Oficina'],
+        worker: { _id: 'w1', name: 'María López' },
+        createdAt: new Date('2025-10-19T09:30:00')
+    },
+    {
+        _id: '2',
+        name: 'Ana Martínez López',
+        company: 'Construcciones XYZ',
+        plate: '5678DEF',
+        purpose: ['Mantenimiento'],
+        accessZone: ['Naves'],
+        worker: { _id: 'w2', name: 'Carlos Ruiz' },
+        createdAt: new Date('2025-10-19T10:15:00')
+    },
+    {
+        _id: '3',
+        name: 'Pedro Sánchez Vega',
+        company: 'Transportes ABC',
+        plate: '9012GHI',
+        purpose: ['Visita', 'Mantenimiento'],
+        accessZone: ['Oficina', 'C.Clasificacion'],
+        worker: { _id: 'w1', name: 'María López' },
+        createdAt: new Date('2025-10-20T10:15:00')
+    },
+    {
+        _id: '4',
+        name: 'Laura Fernández',
+        company: 'Tecnología S.L.',
+        plate: '3456JKL',
+        purpose: ['Visita'],
+        accessZone: ['Oficina'],
+        worker: { _id: 'w3', name: 'Juan García López' },
+        createdAt: new Date('2025-10-20T15:15:00')
+    }
+]);
+
+// Workers mock
+const workers = ref([
+    { _id: 'w1', name: 'María López' },
+    { _id: 'w2', name: 'Carlos Ruiz' },
+    { _id: 'w3', name: 'Juan García López' }
+]);
+
+// Headers de la tabla (sin matrícula)
+const headers = [
+    { title: 'Hora y fecha', key: 'datetime', sortable: false },
+    { title: 'Nombre', key: 'name', sortable: false },
+    { title: 'Empresa', key: 'company', sortable: false },
+    { title: 'Responsable', key: 'worker.name', sortable: false },
+    { title: 'Acciones', key: 'actions', sortable: false, align: 'center' }
+];
+
+// Reglas de validación
+const nameRules = [
+    v => !!v || 'El nombre es requerido',
+    v => v.length >= 3 || 'Mínimo 3 caracteres',
+];
+
+const companyRules = [
+    v => !!v || 'La empresa es requerida',
+    v => v.length >= 2 || 'Mínimo 2 caracteres',
+];
+
+// Computed properties
+const formattedSelectedDate = computed(() => {
+    if (!selectedDate.value) return '';
+    return formatDate(selectedDate.value);
+});
+
+// Verificar si la fecha seleccionada es hoy
+const isToday = computed(() => {
+    if (!selectedDate.value) return true;
+    const today = new Date();
+    const selected = new Date(selectedDate.value);
+
+    return (
+        selected.getDate() === today.getDate() &&
+        selected.getMonth() === today.getMonth() &&
+        selected.getFullYear() === today.getFullYear()
+    );
+});
+
+// Filtrar visitantes por la fecha seleccionada
+const filteredVisitors = computed(() => {
+    if (!selectedDate.value) return visitors.value;
+
+    const selected = new Date(selectedDate.value);
+    selected.setHours(0, 0, 0, 0);
+
+    return visitors.value.filter(v => {
+        const visitDate = new Date(v.createdAt);
+        visitDate.setHours(0, 0, 0, 0);
+        return visitDate.getTime() === selected.getTime();
+    });
+});
+
+// Watch para cargar visitantes automáticamente cuando cambia la fecha
+watch(selectedDate, () => {
+    loadVisitors();
+});
+
+// Métodos
+function formatDate(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+}
+
+function formatTime(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function handleDateChange() {
+    showDatePicker.value = false;
+}
+
+async function loadVisitors() {
+    loading.value = true;
+    try {
+        // TODO: Aquí irá la llamada al backend con la fecha seleccionada
+        // const response = await visitStore.fetchVisitorsByDate(selectedDate.value);
+        // visitors.value = response;
+
+        // Por ahora usamos datos mock
+        await new Promise(resolve => setTimeout(resolve, 800));
+        visitors.value = mockVisitors.value;
+
+        const count = filteredVisitors.value.length;
+        const dateStr = isToday.value ? 'hoy' : `el ${formattedSelectedDate.value}`;
+        // showToast(`${count} visitante${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''} ${dateStr}`, 'success');
+    } catch (error) {
+        console.error('Error cargando visitantes:', error);
+        showToast('Error al cargar visitantes', 'error');
+    } finally {
+        loading.value = false;
+    }
+}
+
+function clearFilters() {
+    selectedDate.value = new Date(); // Volver a hoy
+    search.value = '';
+}
+
+function handleDownload(visitor) {
+    console.log('Descargar PDF:', visitor);
+    // TODO: Implementar descarga de PDF individual
+    showToast(`Descargando documento de ${visitor.name}`, 'info');
+}
+
+function handleEdit(visitor) {
+    selectedVisitor.value = visitor;
+    editForm.value = { ...visitor };
+    editDialog.value = true;
+}
+
+function handleShow(visitor) {
+    selectedVisitor.value = visitor;
+    showDialog.value = true;
+}
+
+async function confirmEdit() {
+    // Validar formulario
+    const { valid } = await editFormRef.value.validate();
+    if (!valid) return;
+
+    editing.value = true;
+    try {
+        // TODO: Aquí irá la llamada al backend
+        // await visitStore.updateVisitor(editForm.value);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Actualizar en el array local
+        const index = visitors.value.findIndex(v => v._id === editForm.value._id);
+        if (index !== -1) {
+            visitors.value[index] = { ...editForm.value };
+        }
+
+        console.log(editForm.value);
+
+        loadVisitors()
+
+        showToast('Visitante actualizado correctamente', 'success');
+        editDialog.value = false;
+    } catch (error) {
+        console.error('Error actualizando visitante:', error);
+        showToast('Error al actualizar visitante', 'error');
+    } finally {
+        editing.value = false;
+    }
+}
+
+function handleDelete(visitor) {
+    selectedVisitor.value = visitor;
+    deleteDialog.value = true;
+}
+
+async function confirmDelete() {
+    deleting.value = true;
+    try {
+        // TODO: Aquí irá la llamada al backend
+        // await visitStore.deleteVisitor(selectedVisitor.value._id);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Eliminar del array local
+        visitors.value = visitors.value.filter(v => v._id !== selectedVisitor.value._id);
+
+        showToast('Visitante eliminado correctamente', 'success');
+        deleteDialog.value = false;
+    } catch (error) {
+        console.error('Error eliminando visitante:', error);
+        showToast('Error al eliminar visitante', 'error');
+    } finally {
+        deleting.value = false;
+    }
+}
+
+function handleExportExcel() {
+    console.log('Exportar a Excel');
+    // TODO: Implementar exportación a Excel
+    showToast('Exportando a Excel...', 'info');
+}
+
+function handleExportPDF() {
+    console.log('Exportar a PDF');
+    // TODO: Implementar exportación a PDF
+    showToast('Exportando a PDF...', 'info');
+}
 
 function goBack() {
     router.go(-1);
 }
+
+// Lifecycle
+onMounted(() => {
+    loadVisitors();
+});
 </script>
+
+<style scoped>
+.cursor-pointer {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.cursor-pointer:hover {
+    transform: scale(1.01);
+}
+
+.return-pointer {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.return-pointer:hover {
+    opacity: 1 !important;
+    background-color: #3d3d3d;
+    transform: scale(1.02);
+}
+
+.return-pointer :deep(.v-btn__overlay) {
+    opacity: 0 !important;
+}
+</style>
