@@ -26,19 +26,20 @@
                 </v-col>
             </v-row>
 
-            <div class="d-flex justify-space-evenly ga-4 mt-2 mb-3">
+            <div class="d-flex justify-space-evenly ga-4 mt-1 mb-3">
                 <!-- Motivos -->
                 <v-card flat>
-                    <p class="font-weight-medium mb-2 text-h6">Motivo:</p>
+                    <p class="font-weight-medium mb-1 text-h6">Motivo:</p>
                     <v-checkbox v-for="purpose in purposeOptions" :key="purpose" v-model="form.purpose"
-                        :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable" />
+                        :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable"
+                        class="mt-n1" />
                 </v-card>
 
                 <!-- Zonas de acceso-->
                 <v-card flat>
-                    <p class="font-weight-medium mb-2 text-h6">Zona de acceso:</p>
+                    <p class="font-weight-medium mb-1 text-h6">Zona de acceso:</p>
                     <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.accessZone"
-                        :label="capitalize(area)" :value="area" hide-details density="comfortable" />
+                        :label="capitalize(area)" :value="area" hide-details density="comfortable" class="mt-n1" />
                 </v-card>
             </div>
 
@@ -47,7 +48,7 @@
                     <span class="text-h6">Responsable que acompaña la visita</span>
                     <v-select density="compact" variant="outlined" :items="workers" v-model="selectedWorker"
                         return-object item-title="name" item-value="value" :rules="workerRules"
-                        placeholder="Selecciona un responsable" />
+                        placeholder="Seleccione una opción" />
                 </v-col>
                 <v-col>
                     <span class="text-h6">Matrícula (opcional)</span>
@@ -61,11 +62,6 @@
         <template #actions>
             <v-col class="ml-4 mb-1">
                 <v-row>
-                    <v-col cols="auto">
-                        <v-btn @click="handleLogout" color="error" variant="flat" prepend-icon="mdi-logout">
-                            Cerrar Sesión
-                        </v-btn>
-                    </v-col>
                     <v-col cols="auto">
                         <v-btn @click="handleClearForm" variant="outlined" prepend-icon="mdi-eraser">
                             Limpiar formulario
@@ -283,11 +279,6 @@ function handleSubmit() {
 
     const tenant = tenantSlug.value || null;
     router.push(`/legal/${tenant}`);
-}
-
-function handleLogout() {
-    authStore.logout();
-    router.push('/login');
 }
 
 function handleClearForm() {
