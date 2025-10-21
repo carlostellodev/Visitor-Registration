@@ -176,7 +176,7 @@
                         <v-col cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.purpose"
                                 :label="selectedVisitor.purpose.length > 1 ? 'Motivos' : 'Motivo'" variant="outlined"
-                                density="comfortable" prepend-inner-icon="mdi-account-tie" />
+                                density="comfortable" prepend-inner-icon="mdi-notebook" />
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.accessZone"
@@ -220,11 +220,11 @@
                         <v-row>
                             <v-col cols="12" md="6">
                                 <v-text-field v-model="selectedVisitor.visitDate" label="Fecha" variant="outlined"
-                                    density="comfortable" prepend-inner-icon="mdi-clock-outline" readonly />
+                                    density="comfortable" prepend-inner-icon="mdi-calendar" readonly />
                             </v-col>
                             <v-col cols="12" md="6">
                                 <v-text-field v-model="selectedVisitor.visitDate" label="Hora" variant="outlined"
-                                    density="comfortable" prepend-inner-icon="mdi-calendar" readonly />
+                                    density="comfortable" prepend-inner-icon="mdi-clock-outline" readonly />
                             </v-col>
                         </v-row>
                         <v-row class="mt-n6">
@@ -237,7 +237,7 @@
                                     readonly />
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-card variant="outlined">
+                                <v-card variant="outlined" class="border-opacity-25">
                                     <v-card-text class="mb-n3 mt-n3 ">
                                         Firma
                                     </v-card-text>
@@ -250,7 +250,7 @@
                             <v-col cols="12" md="6">
                                 <v-text-field v-model="selectedVisitor.purpose"
                                     :label="selectedVisitor.purpose.length > 1 ? 'Motivos' : 'Motivo'"
-                                    variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie"
+                                    variant="outlined" density="comfortable" prepend-inner-icon="mdi-notebook"
                                     readonly />
                             </v-col>
                             <v-col cols="12" md="6">
@@ -307,7 +307,7 @@
                             <v-col cols="12" md="6">
                                 <v-select v-model="editForm.purpose" label="Motivos"
                                     :items="['Visita', 'Mantenimiento']" multiple item-title="name" item-value="_id"
-                                    variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie" />
+                                    variant="outlined" density="comfortable" prepend-inner-icon="mdi-notebook" />
                             </v-col>
                             <v-col cols="12" md="6">
                                 <v-select v-model="editForm.accessZone" label="Zonas de acceso"
