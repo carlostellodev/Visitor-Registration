@@ -61,9 +61,7 @@ export const useVisitStore = defineStore('visit', {
 
     async fetchVisitorsByDate(tenantId, date) {
       try {
-        // Formato de fecha: YYYY-MM-DD
-        const formattedDate = date.toISOString().split('T')[0]
-        const { data } = await api.get(`/visitors/tenant/${tenantId}/date/${formattedDate}`)
+        const { data } = await api.get(`/visitors/tenant/${tenantId}/date/${date}`)
         this.visitors = data.visitors
         return data.visitors
       } catch (error) {

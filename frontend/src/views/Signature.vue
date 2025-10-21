@@ -95,7 +95,6 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
-import { useWorkerStore } from '@/stores/workerStore';
 import VueSignature from 'vue3-signature';
 import { getVisitPDFBlob } from '../utils/pdfGenerator';
 import { useToastComposable } from '@/composables/useToast';

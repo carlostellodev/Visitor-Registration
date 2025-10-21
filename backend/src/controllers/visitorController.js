@@ -161,12 +161,7 @@ export const getVisitorsByTenant = async (req, res) => {
 
 export const getVisitorsByTenantAndDate = async (req, res) => {
   try {
-    console.log(req.query.tenantId);
-
     const { tenantId, date } = req.params;
-
-    console.log(tenantId);
-
     if (
       !isSuperAdmin(req.user.role) &&
       tenantId !== req.user.tenantId?.toString()

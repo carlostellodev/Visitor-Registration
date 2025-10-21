@@ -29,7 +29,7 @@
 
                 <!-- Número de visitantes -->
                 <v-col cols="12" md="6">
-                    <v-card variant="outlined" color="primary" class="d-flex align-center">
+                    <v-card variant="outlined" color="primary" class="d-flex align-center flex-column">
                         <v-card-text class="d-flex align-center justify-space-between w-100 pa-5">
                             <div>
                                 <div class="text-h3 font-weight-bold">{{ visitors.length }}</div>
@@ -41,6 +41,14 @@
                             <v-icon v-if="visitors.length > 0" size="70" color="primary">mdi-account-multiple</v-icon>
                             <v-icon v-else size="70" color="primary">mdi-account-off</v-icon>
                         </v-card-text>
+                        <v-fade-transition>
+                            <v-card-text v-show="!isToday" class="w-100 mt-n5">
+                                <v-btn color="primary" variant="flat" @click="clearFilters" block
+                                    prepend-icon="mdi-account-plus" class="return-pointer" :ripple="false">
+                                    Crear nuevo registro
+                                </v-btn>
+                            </v-card-text>
+                        </v-fade-transition>
                     </v-card>
                 </v-col>
             </v-row>
@@ -116,6 +124,7 @@
             </v-row>
         </template>
 
+        <!-- Botones de exportación -->
         <template #actions>
             <v-col class="d-flex justify-end ga-4 mr-4">
                 <v-btn @click="handleExportExcel" variant="outlined" prepend-icon="mdi-microsoft-excel" color="success"
@@ -135,133 +144,50 @@
         <v-card>
             <v-card-text class="pa-0">
                 <v-date-picker v-model="selectedDate" color="primary" show-adjacent-months width="100%"
-                    @update:model-value="handleDateChange"></v-date-picker>
+                    @update:model-value="handleDateChange" />
             </v-card-text>
         </v-card>
     </v-dialog>
 
-    <!-- Diálogo de confirmación para eliminar -->
-    <v-dialog v-model="deleteDialog" max-width="500">
-        <v-card>
-            <v-card-title class="text-h5 d-flex align-center">
-                <v-icon color="error" class="mr-2">mdi-alert-circle</v-icon>
-                Confirmar eliminación
-            </v-card-title>
-            <v-card-text>
-                <p class="text-body-1 mb-2">
-                    ¿Estás seguro de que deseas eliminar este registro de visitante?
-                </p>
-                <v-alert type="warning" variant="tonal" density="compact" class="mb-2">
-                    Esta acción no se puede deshacer
-                </v-alert>
-                <div v-if="selectedVisitor" class="mt-3">
-                    <p><strong>Nombre:</strong> {{ selectedVisitor.name }}</p>
-                    <p><strong>Empresa:</strong> {{ selectedVisitor.company }}</p>
-                    <p><strong>Fecha:</strong> {{ formatDate(selectedVisitor.createdAt) }}</p>
-                    <p><strong>Hora:</strong> {{ formatTime(selectedVisitor.createdAt) }}</p>
-                </div>
-            </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn @click="deleteDialog = false" variant="text">
-                    Cancelar
-                </v-btn>
-                <v-btn @click="confirmDelete" color="error" variant="flat" :loading="deleting">
-                    Eliminar
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
-
-    <!-- Diálogo para editar visitante -->
-    <v-dialog v-model="editDialog" max-width="800">
-        <v-card>
-            <v-card-title class="text-h5 d-flex align-center">
-                <v-icon color="info" class="mr-2">mdi-pencil</v-icon>
-                Editar visitante
-            </v-card-title>
-            <v-card-text>
-                <v-form v-if="editForm" ref="editFormRef">
-                    <v-row>
-                        <v-col cols="12" md="6">
-                            <v-text-field v-model="editForm.name" label="Nombre y apellidos" variant="outlined"
-                                density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-text-field v-model="editForm.company" label="Empresa" variant="outlined"
-                                density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain" />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select v-model="editForm.purpose" label="Motivos" :items="['Visita', 'Mantenimiento']"
-                                multiple item-title="name" item-value="_id" variant="outlined" density="comfortable"
-                                prepend-inner-icon="mdi-account-tie" />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select v-model="editForm.accessZone" label="Zonas de acceso"
-                                :items="['Oficina', 'C.Clasificacion', 'Naves']" multiple item-title="name"
-                                item-value="_id" variant="outlined" density="comfortable"
-                                prepend-inner-icon="mdi-account-tie" />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select v-model="editForm.workerId" label="Responsable" :items="mockWorkers"
-                                item-title="name" item-value="_id" variant="outlined" density="comfortable"
-                                prepend-inner-icon="mdi-account-tie" />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-text-field v-model="editForm.plate" label="Matrícula" variant="outlined"
-                                density="comfortable" prepend-inner-icon="mdi-car" />
-                        </v-col>
-                    </v-row>
-                </v-form>
-            </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn @click="editDialog = false" variant="text">
-                    Cancelar
-                </v-btn>
-                <v-btn @click="confirmEdit" color="primary" variant="flat" :loading="editing">
-                    Guardar cambios
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
-
-    <!-- Diálogo para ver detalles de un visitante -->
-    <v-dialog v-model="showDialog" max-width="800">
+    <!-- Diálogo para ver crear un nuevo visitante -->
+    <v-dialog v-model="addDialog" max-width="800">
         <v-card>
             <v-card-title class="text-h5 d-flex align-center">
                 <v-icon color="info" class="mr-2">mdi-eye</v-icon>
                 Ver visitante
             </v-card-title>
             <v-card-text>
-                <v-form v-if="selectedVisitor" ref="editFormRef">
+                <v-form v-if="selectedVisitor" ref="createFormRef">
                     <v-row>
+                        <!-- Espacio para la hora de visita
+                        <v-col>
+                            <v-select></v-select>
+                        </v-col> -->
                         <v-col cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.name" label="Nombre y apellidos" variant="outlined"
-                                density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" readonly />
+                                density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" />
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.company" label="Empresa" variant="outlined"
-                                density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain" readonly />
+                                density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain" />
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.purpose"
                                 :label="selectedVisitor.purpose.length > 1 ? 'Motivos' : 'Motivo'" variant="outlined"
-                                density="comfortable" prepend-inner-icon="mdi-account-tie" readonly />
+                                density="comfortable" prepend-inner-icon="mdi-account-tie" />
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.accessZone"
                                 :label="selectedVisitor.accessZone.length > 1 ? 'Zonas de acceso' : 'Zona de acceso'"
-                                variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie"
-                                readonly />
+                                variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie" />
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.workerId.name" label="Responsable" variant="outlined"
-                                density="comfortable" prepend-inner-icon="mdi-account-tie" readonly />
+                                density="comfortable" prepend-inner-icon="mdi-account-tie" />
                         </v-col>
                         <v-col v-if="selectedVisitor.plate" cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.plate" label="Matrícula" variant="outlined"
-                                density="comfortable" prepend-inner-icon="mdi-car" readonly />
+                                density="comfortable" prepend-inner-icon="mdi-car" />
                         </v-col>
                         <!-- Espacio para la firma
                         <v-col>
@@ -278,6 +204,209 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+    <!-- Diálogo para ver detalles de un visitante -->
+    <v-dialog v-model="showDialog" max-width="800">
+        <v-card>
+            <v-card-title class="text-h5 d-flex align-center bg-primary">
+                <v-icon class="mr-2">mdi-eye</v-icon>
+                Ver visitante
+            </v-card-title>
+            <v-card-text>
+                <v-form v-if="selectedVisitor" ref="viewFormRef">
+                    <v-col>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="selectedVisitor.name" label="Nombre y apellidos"
+                                    variant="outlined" density="comfortable" :rules="nameRules"
+                                    prepend-inner-icon="mdi-account" readonly />
+                                <v-text-field v-model="selectedVisitor.company" label="Empresa" variant="outlined"
+                                    density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain"
+                                    readonly />
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-card variant="outlined">
+                                    <v-card-text class="mb-n3 mt-n3 ">
+                                        Firma
+                                    </v-card-text>
+                                    <v-divider class="border-opacity-25" />
+                                    <v-img :src="selectedVisitor.signature" />
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                        <v-row class="mt-n6">
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="selectedVisitor.purpose"
+                                    :label="selectedVisitor.purpose.length > 1 ? 'Motivos' : 'Motivo'"
+                                    variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie"
+                                    readonly />
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="selectedVisitor.accessZone"
+                                    :label="selectedVisitor.accessZone.length > 1 ? 'Zonas de acceso' : 'Zona de acceso'"
+                                    variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie"
+                                    readonly />
+                            </v-col>
+                        </v-row>
+                        <v-row class="mt-n6 mb-n5">
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="selectedVisitor.workerId.name" label="Responsable"
+                                    variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie"
+                                    readonly />
+                            </v-col>
+                            <v-col v-if="selectedVisitor.plate" cols="12" md="6">
+                                <v-text-field v-model="selectedVisitor.plate" label="Matrícula" variant="outlined"
+                                    density="comfortable" prepend-inner-icon="mdi-car" readonly />
+                            </v-col>
+                        </v-row>
+                    </v-col>
+                </v-form>
+            </v-card-text>
+            <v-card-actions class="ma-6 mt-n9">
+                <v-spacer></v-spacer>
+                <v-btn @click="showDialog = false" variant="tonal" class="mr-1">
+                    Volver
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <!-- Diálogo para editar visitante -->
+    <v-dialog v-model="editDialog" max-width="800">
+        <v-card>
+            <v-card-title class="text-h5 d-flex align-center bg-primary">
+                <v-icon class="mr-2">mdi-pencil</v-icon>
+                Editar visitante
+            </v-card-title>
+            <v-card-text>
+                <v-form v-if="editForm" ref="editFormRef">
+                    <v-col>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="editForm.name" label="Nombre y apellidos" variant="outlined"
+                                    density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" />
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="editForm.company" label="Empresa" variant="outlined"
+                                    density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain" />
+                            </v-col>
+                        </v-row>
+                        <v-row class="mt-n4">
+                            <v-col cols="12" md="6">
+                                <v-select v-model="editForm.purpose" label="Motivos"
+                                    :items="['Visita', 'Mantenimiento']" multiple item-title="name" item-value="_id"
+                                    variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie" />
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-select v-model="editForm.accessZone" label="Zonas de acceso"
+                                    :items="['Oficina', 'C.Clasificacion', 'Naves']" multiple item-title="name"
+                                    item-value="_id" variant="outlined" density="comfortable"
+                                    prepend-inner-icon="mdi-account-tie" />
+                            </v-col>
+                        </v-row>
+                        <v-row class="mt-n4">
+                            <v-col cols="12" md="6">
+                                <v-select v-model="editForm.workerId" label="Responsable" :items="mockWorkers"
+                                    item-title="name" item-value="_id" variant="outlined" density="comfortable"
+                                    prepend-inner-icon="mdi-account-tie" />
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="editForm.plate" label="Matrícula" variant="outlined"
+                                    density="comfortable" prepend-inner-icon="mdi-car" />
+                            </v-col>
+                        </v-row>
+                        <v-row v-if="!isEditingSignature" class="mt-n4">
+                            <v-col cols="12">
+                                <v-card variant="outlined">
+                                    <v-card-text class="mb-n2 mt-n2 ">
+                                        Firma
+                                    </v-card-text>
+                                    <v-divider class="border-opacity-25" />
+                                    <v-img :src="editForm.signature" />
+                                    <v-card-actions class="d-flex justify-end mr-2 mb-2">
+                                        <v-btn variant="tonal" @click="isEditingSignature = !isEditingSignature">
+                                            Cambiar firma
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                        <v-row v-if="isEditingSignature" class="mt-n4">
+                            <v-col cols="12">
+                                <v-card variant="outlined" class="pt-4 px-1 pb-0">
+                                    <v-card-title class="mt-n3 d-flex justify-space-between align-center">
+                                        <span>Firma:</span>
+                                        <v-btn @click="clearSignature" variant="outlined" size="small"
+                                            prepend-icon="mdi-eraser" color="error">
+                                            Limpiar
+                                        </v-btn>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <div class="signature-pad-wrapper">
+                                            <VueSignature ref="signatureRef" :sigOption="{ penColor: 'rgb(0, 0, 0)' }"
+                                                :w="'100%'" :h="'180px'" @end="handleEnd" />
+                                        </div>
+                                        <v-divider class="my-2" />
+                                        <div class="text-center text-caption text-grey-darken-1">
+                                            Firme en el recuadro superior
+                                        </div>
+                                        <v-card-actions class="d-flex justify-end mt-n5 mb-n2 mr-n2">
+                                            <v-btn variant="tonal" @click="isEditingSignature = !isEditingSignature">
+                                                Cancelar
+                                            </v-btn>
+                                        </v-card-actions>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </v-col>
+                </v-form>
+            </v-card-text>
+            <v-card-actions class="ma-6 mt-n5 ga-4">
+                <v-spacer />
+                <v-btn @click="editDialog = false" variant="tonal">
+                    Cancelar
+                </v-btn>
+                <v-btn @click="confirmEdit" color="primary" variant="flat" :loading="editing" class="mr-1">
+                    Guardar cambios
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <!-- Diálogo de confirmación para eliminar -->
+    <v-dialog v-model="deleteDialog" max-width="500">
+        <v-card>
+            <v-card-title class="text-h5 d-flex align-center bg-red">
+                <v-icon class="mr-2">mdi-alert-circle</v-icon>
+                Confirmar eliminación
+            </v-card-title>
+            <v-card-text>
+                <p class="text-body-1 mb-1">
+                    ¿Estás seguro de que deseas eliminar este registro de visitante?
+                </p>
+                <div v-if="selectedVisitor" class="">
+                    <p><strong>Nombre:</strong> {{ selectedVisitor.name }}</p>
+                    <p><strong>Empresa:</strong> {{ selectedVisitor.company }}</p>
+                    <p><strong>Fecha:</strong> {{ formatDate(selectedVisitor.createdAt) }}</p>
+                    <p><strong>Hora:</strong> {{ formatTime(selectedVisitor.createdAt) }}</p>
+                </div>
+                <v-alert type="warning" variant="tonal" density="compact" class="mt-4 mb-n2">
+                    Esta acción no se puede deshacer
+                </v-alert>
+            </v-card-text>
+            <v-card-actions class="mb-4 mr-4 mt-n1 ga-4">
+                <v-spacer />
+                <v-btn @click="deleteDialog = false" variant="tonal">
+                    Cancelar
+                </v-btn>
+                <v-btn @click="confirmDelete" color="error" variant="flat" :loading="deleting">
+                    Eliminar
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
 </template>
 
 <script setup>
@@ -287,6 +416,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useVisitStore } from '@/stores/visitStore';
 import { useToastComposable } from '@/composables/useToast';
 import ViewCard from '@/components/ViewCard.vue';
+import VueSignature from 'vue3-signature';
 
 const { showToast } = useToastComposable();
 const router = useRouter();
@@ -304,13 +434,22 @@ const showDatePicker = ref(false);
 const selectedDate = ref(new Date()); // Por defecto hoy
 const visitors = ref([]);
 const selectedVisitor = ref(null);
-const deleteDialog = ref(false);
-const editDialog = ref(false);
+const addDialog = ref(false);
 const showDialog = ref(false);
+const editDialog = ref(false);
+const deleteDialog = ref(false);
+
 const editForm = ref(null);
+const createFormRef = ref(null);
+const viewFormRef = ref(null);
 const editFormRef = ref(null);
 
-// Headers de la tabla (sin matrícula)
+const isEditingSignature = ref(false);
+
+const signatureRef = ref(null);
+const hasSignature = ref(false);
+
+// Headers de la tabla 
 const headers = [
     { title: 'Hora y fecha', key: 'datetime', sortable: false },
     { title: 'Nombre', key: 'name', sortable: false },
@@ -369,7 +508,6 @@ async function loadVisitors() {
         loading.value = false;
     }
 }
-
 
 async function confirmEdit() {
     // Validar formulario
@@ -491,6 +629,17 @@ function clearFilters() {
     search.value = '';
 }
 
+const clearSignature = () => {
+    if (signatureRef.value) {
+        signatureRef.value.clear();
+        hasSignature.value = false;
+    }
+};
+
+const handleEnd = () => {
+    hasSignature.value = !signatureRef.value.isEmpty();
+};
+
 function goBack() {
     router.go(-1);
 }
@@ -519,5 +668,12 @@ function goBack() {
 
 .return-pointer :deep(.v-btn__overlay) {
     opacity: 0 !important;
+}
+
+.signature-pad-wrapper {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
 }
 </style>
