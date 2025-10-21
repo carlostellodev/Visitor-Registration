@@ -165,29 +165,29 @@
                             <v-select></v-select>
                         </v-col> 
                         -->
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="6" sm="6">
                             <v-text-field v-model="selectedVisitor.name" label="Nombre y apellidos" variant="outlined"
                                 density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" />
                         </v-col>
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="6" sm="6">
                             <v-text-field v-model="selectedVisitor.company" label="Empresa" variant="outlined"
                                 density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain" />
                         </v-col>
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="6" sm="6">
                             <v-text-field v-model="selectedVisitor.purpose"
                                 :label="selectedVisitor.purpose.length > 1 ? 'Motivos' : 'Motivo'" variant="outlined"
                                 density="comfortable" prepend-inner-icon="mdi-notebook" />
                         </v-col>
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="6" sm="6">
                             <v-text-field v-model="selectedVisitor.accessZone"
                                 :label="selectedVisitor.accessZone.length > 1 ? 'Zonas de acceso' : 'Zona de acceso'"
                                 variant="outlined" density="comfortable" prepend-inner-icon="mdi-map-marker" />
                         </v-col>
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="6" sm="6">
                             <v-text-field v-model="selectedVisitor.workerId.name" label="Responsable" variant="outlined"
                                 density="comfortable" prepend-inner-icon="mdi-account-tie" />
                         </v-col>
-                        <v-col v-if="selectedVisitor.plate" cols="12" md="6">
+                        <v-col v-if="selectedVisitor.plate" cols="12" md="6" sm="6">
                             <v-text-field v-model="selectedVisitor.plate" label="Matrícula" variant="outlined"
                                 density="comfortable" prepend-inner-icon="mdi-car" />
                         </v-col>
@@ -218,17 +218,17 @@
                 <v-form v-if="selectedVisitor" ref="viewFormRef">
                     <v-col>
                         <v-row>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="selectedVisitor.visitDate" label="Fecha" variant="outlined"
                                     density="comfortable" prepend-inner-icon="mdi-calendar" readonly />
                             </v-col>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="selectedVisitor.visitDate" label="Hora" variant="outlined"
                                     density="comfortable" prepend-inner-icon="mdi-clock-outline" readonly />
                             </v-col>
                         </v-row>
                         <v-row class="mt-n6">
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="selectedVisitor.name" label="Nombre y apellidos"
                                     variant="outlined" density="comfortable" :rules="nameRules"
                                     prepend-inner-icon="mdi-account" readonly />
@@ -236,7 +236,7 @@
                                     density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain"
                                     readonly />
                             </v-col>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-card variant="outlined" class="border-opacity-25">
                                     <v-card-text class="mb-n3 mt-n3 ">
                                         Firma
@@ -247,13 +247,13 @@
                             </v-col>
                         </v-row>
                         <v-row class="mt-n6">
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="selectedVisitor.purpose"
                                     :label="selectedVisitor.purpose.length > 1 ? 'Motivos' : 'Motivo'"
                                     variant="outlined" density="comfortable" prepend-inner-icon="mdi-notebook"
                                     readonly />
                             </v-col>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="selectedVisitor.accessZone"
                                     :label="selectedVisitor.accessZone.length > 1 ? 'Zonas de acceso' : 'Zona de acceso'"
                                     variant="outlined" density="comfortable" prepend-inner-icon="mdi-map-marker"
@@ -261,12 +261,12 @@
                             </v-col>
                         </v-row>
                         <v-row class="mt-n6 mb-n5">
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="selectedVisitor.workerId.name" label="Responsable"
                                     variant="outlined" density="comfortable" prepend-inner-icon="mdi-account-tie"
                                     readonly />
                             </v-col>
-                            <v-col v-if="selectedVisitor.plate" cols="12" md="6">
+                            <v-col v-if="selectedVisitor.plate" cols="12" md="6" sm="6">
                                 <v-text-field v-model="selectedVisitor.plate" label="Matrícula" variant="outlined"
                                     density="comfortable" prepend-inner-icon="mdi-car" readonly />
                             </v-col>
@@ -294,22 +294,22 @@
                 <v-form v-if="editForm" ref="editFormRef">
                     <v-col>
                         <v-row>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="editForm.name" label="Nombre y apellidos" variant="outlined"
                                     density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" />
                             </v-col>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="editForm.company" label="Empresa" variant="outlined"
                                     density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain" />
                             </v-col>
                         </v-row>
                         <v-row class="mt-n4">
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-select v-model="editForm.purpose" label="Motivos"
                                     :items="['Visita', 'Mantenimiento']" multiple item-title="name" item-value="_id"
                                     variant="outlined" density="comfortable" prepend-inner-icon="mdi-notebook" />
                             </v-col>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-select v-model="editForm.accessZone" label="Zonas de acceso"
                                     :items="['Oficina', 'C.Clasificacion', 'Naves']" multiple item-title="name"
                                     item-value="_id" variant="outlined" density="comfortable"
@@ -317,12 +317,12 @@
                             </v-col>
                         </v-row>
                         <v-row class="mt-n4">
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-select v-model="editForm.workerId" label="Responsable" :items="mockWorkers"
                                     item-title="name" item-value="_id" variant="outlined" density="comfortable"
                                     prepend-inner-icon="mdi-account-tie" />
                             </v-col>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12" md="6" sm="6">
                                 <v-text-field v-model="editForm.plate" label="Matrícula" variant="outlined"
                                     density="comfortable" prepend-inner-icon="mdi-car" />
                             </v-col>

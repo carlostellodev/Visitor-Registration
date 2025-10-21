@@ -1,5 +1,5 @@
 <template>
-  <v-app id="app" :style="{ background: backgroundGradient }" class="outline">
+  <v-app id="app" :style="{ background: backgroundGradient }">
     <router-view />
   </v-app>
 </template>
