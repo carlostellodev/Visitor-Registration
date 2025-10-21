@@ -1,7 +1,7 @@
 <template>
     <ViewCard :tenant="tenant" content-class="pa-6" actions-class="mt-n9 ml-n3" @back="goBack">
         <v-card variant="outlined" class="mb-3">
-            <v-card-title class="bg-grey-lighten-4">
+            <v-card-title class="bg-grey-lighten-3">
                 Datos de la empresa
             </v-card-title>
             <v-card-text class="pa-4">
@@ -33,7 +33,7 @@
                 </v-row>
             </v-card-text>
 
-            <v-card-title class="bg-grey-lighten-4">
+            <v-card-title class="bg-grey-lighten-3">
                 Datos del desarrollador
             </v-card-title>
             <v-card-text class="pa-4">

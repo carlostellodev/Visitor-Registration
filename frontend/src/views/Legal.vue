@@ -22,11 +22,14 @@
                 </div>
 
                 <!-- PDF Viewer -->
-                <vue-pdf-app v-show="currentDocument.fileUrl" style="height: 100vh;" :pdf="currentDocument.fileUrl"
-                    :page-scale="'page-width'" :page-number="1" :config="pdfConfig" class="mb-6" />
+                <vue-pdf-app v-show="currentDocument.fileUrl" style="
+                height: 100vh;
+                max-height: 650px;
+                " :pdf="currentDocument.fileUrl" :page-scale="'page-width'" :page-number="1" :config="pdfConfig"
+                    class="mb-6" />
 
                 <!-- Acceptance checkbox -->
-                <v-card v-if="currentDocument.isRequired" variant="outlined" class="pl-1">
+                <v-card v-if="currentDocument.isRequired" variant="outlined" class="pl-1 mt-n3">
                     <v-checkbox :model-value="hasAcceptedCurrent" @update:model-value="toggleAcceptance" color="primary"
                         hide-details>
                         <template v-slot:label>

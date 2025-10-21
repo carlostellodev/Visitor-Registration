@@ -10,37 +10,37 @@
                 <v-card-text class="pa-4">
                     <v-row dense>
                         <v-col cols="12" sm="6">
-                            <div class="mb-2">
+                            <div class="mt-n1">
                                 <div class="text-caption text-grey-darken-1">Nombre y apellidos</div>
                                 <div class="text-h6 font-weight-medium">{{ formData.name }}</div>
                             </div>
                         </v-col>
                         <v-col cols="12" sm="6">
-                            <div class="mb-2">
+                            <div class="mt-n1">
                                 <div class="text-caption text-grey-darken-1">Empresa</div>
                                 <div class="text-h6 font-weight-medium">{{ formData.company }}</div>
                             </div>
                         </v-col>
                         <v-col cols="12" sm="6">
-                            <div class="mb-2">
+                            <div class="mt-n1">
                                 <div class="text-caption text-grey-darken-1">Motivo</div>
                                 <div class="text-h6">{{ getPurposeNames(formData.purpose) }}</div>
                             </div>
                         </v-col>
                         <v-col cols="12" sm="6">
-                            <div class="mb-2">
+                            <div class="mt-n1">
                                 <div class="text-caption text-grey-darken-1">Zona de acceso</div>
                                 <div class="text-h6">{{ getAreaNames(formData.accessZone) }}</div>
                             </div>
                         </v-col>
                         <v-col cols="12" sm="6" v-if="formData.plate">
-                            <div>
+                            <div class="mt-n1">
                                 <div class="text-caption text-grey-darken-1">Matrícula</div>
                                 <div class="text-h6">{{ formData.plate }}</div>
                             </div>
                         </v-col>
                         <v-col cols="12" sm="6">
-                            <div>
+                            <div class="mt-n1">
                                 <div class="text-caption text-grey-darken-1">Responsable</div>
                                 <div class="text-h6">{{ formData.worker?.name || 'No especificado' }}</div>
                             </div>
@@ -49,7 +49,7 @@
                 </v-card-text>
 
                 <!-- Firma -->
-                <v-card-title class="mt-n2 d-flex justify-space-between align-center">
+                <v-card-title class="mt-n3 d-flex justify-space-between align-center">
                     <span>Firma:</span>
                     <v-btn @click="clearSignature" variant="outlined" size="small" prepend-icon="mdi-eraser"
                         color="error">
@@ -95,7 +95,6 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
-import { useWorkerStore } from '@/stores/workerStore';
 import VueSignature from 'vue3-signature';
 import { getVisitPDFBlob } from '../utils/pdfGenerator';
 import { useToastComposable } from '@/composables/useToast';

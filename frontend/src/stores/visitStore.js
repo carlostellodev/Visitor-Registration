@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import api from '@/utils/api'
 
 export const useVisitStore = defineStore('visit', {
   state: () => ({
@@ -20,6 +21,8 @@ export const useVisitStore = defineStore('visit', {
       signature: false,
     },
     navigationAllowed: true,
+
+    visitors: [],
   }),
 
   getters: {
@@ -56,6 +59,21 @@ export const useVisitStore = defineStore('visit', {
       this.completedSteps.legal = true
     },
 
+    async fetchVisitorsByDate(tenantId, date) {
+      try {
+        const { data } = await api.get(`/visitors/tenant/${tenantId}/date/${date}`)
+        this.visitors = data.visitors
+        return data.visitors
+      } catch (error) {
+        console.error('Error fetching visitors by date:', error)
+        throw error
+      }
+    },
+
+    saveVisitors(visitors) {
+      this.visitors = visitors
+    },
+
     clearVisit() {
       this.formData = {
         name: '',
@@ -72,6 +90,7 @@ export const useVisitStore = defineStore('visit', {
         legal: false,
         signature: false,
       }
+      this.visitors = []
     },
 
     // Validar si puede navegar a una ruta específica

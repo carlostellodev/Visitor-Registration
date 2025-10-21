@@ -7,6 +7,7 @@ import Home from '../views/Home.vue'
 import Legal from '../views/Legal.vue'
 import Signature from '../views/Signature.vue'
 import Help from '../views/Help.vue'
+import VisitorsList from '@/views/VisitorsList.vue'
 
 const routes = [
   {
@@ -57,6 +58,12 @@ const routes = [
     name: 'Help',
     component: Help,
     meta: { requiresAuth: true, dontShowHelp: true },
+  },
+  {
+    path: '/visitors/:slug',
+    name: 'VisitorsList',
+    component: VisitorsList,
+    meta: { requiresAuth: true, dontShowList: true },
   },
   {
     // Ruta 404 - Captura cualquier ruta no definida

@@ -1,6 +1,12 @@
 <template>
     <v-container fluid class="view-container d-flex align-center justify-center">
-        <v-card class="view-card" max-width="400" width="100%">
+        <div v-if="!jsEnabled" class="js-warning">
+            <v-alert type="error" prominent icon="mdi-alert">
+                <v-alert-title>JavaScript requerido</v-alert-title>
+                Esta aplicación necesita JavaScript habilitado para funcionar.
+            </v-alert>
+        </div>
+        <v-card v-else class="view-card" max-width="400" width="100%">
             <v-card-text class="pa-10">
                 <h1 class="text-h4 text-center text-grey-darken-3 mb-8">Iniciar Sesión</h1>
 
@@ -72,6 +78,8 @@ const router = useRouter()
 const authStore = useAuthStore()
 const formRef = ref(null)
 const showPassword = ref(false)
+
+const jsEnabled = ref(false)
 
 const form = ref({
     email: '',
@@ -163,6 +171,7 @@ watch(() => authStore.rateLimitInfo, (newVal) => {
 }, { immediate: true })
 
 onMounted(() => {
+    jsEnabled.value = true
     authStore.clearError()
 })
 
@@ -201,3 +210,10 @@ const handleLogin = async () => {
     }
 }
 </script>
+
+<style scoped>
+.js-warning {
+    max-width: 500px;
+    margin: 0 auto;
+}
+</style>

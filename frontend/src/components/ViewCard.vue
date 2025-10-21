@@ -6,6 +6,13 @@
                 <v-btn v-if="showHelp" icon variant="text" color="white" class="help-button" @click="handleHelp">
                     <v-icon size="x-large">mdi-tooltip-question-outline</v-icon>
                 </v-btn>
+                <v-btn v-if="showHelp && showList" icon variant="text" color="white" class="list-button"
+                    @click="handleList">
+                    <v-icon size="x-large">mdi-text-account</v-icon>
+                </v-btn>
+                <v-btn icon variant="text" color="white" class="exit-button" @click="handleLogout">
+                    <v-icon size="x-large">mdi-exit-to-app</v-icon>
+                </v-btn>
                 <v-img v-if="showLogo && tenant?.theme?.logoUrl" :src="tenant.theme.logoUrl" height="60" />
                 <div class="d-flex flex-column align-center">
                     <div v-if="tenant?.name">{{ tenant.name }}</div>
@@ -106,10 +113,20 @@ const handleBack = () => {
 };
 
 const showHelp = computed(() => !route.meta.dontShowHelp);
+const showList = computed(() => !route.meta.dontShowList);
 
 function handleHelp() {
     router.push(`/help/${authStore.tenantSlug}`);
 };
+
+function handleList() {
+    router.push(`/visitors/${authStore.tenantSlug}`);
+};
+
+function handleLogout() {
+    authStore.logout();
+    router.push('/login');
+}
 </script>
 
 <style scoped>
@@ -125,6 +142,28 @@ function handleHelp() {
 }
 
 .help-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.list-button {
+    position: absolute;
+    top: 11px;
+    right: 65px;
+    z-index: 1;
+}
+
+.list-button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.exit-button {
+    position: absolute;
+    top: 11px;
+    left: 12px;
+    z-index: 1;
+}
+
+.exit-button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 </style>
