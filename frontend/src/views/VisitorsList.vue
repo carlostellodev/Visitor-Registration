@@ -2,7 +2,7 @@
     <ViewCard :tenant="tenant" subtitle="Registro histórico de visitantes a las instalaciones"
         content-class="pa-10 mt-n5" actions-class="mt-n9" :show-back-button="true" @back="goBack">
         <template #default>
-            <v-row class="my-0 mb-n1">
+            <v-row class="mt-n2 mb-n1">
                 <!-- Selector de fecha -->
                 <v-col cols="12" md="6">
                     <v-card variant="tonal" class="d-flex align-center cursor-pointer flex-column bg-grey-lighten"
@@ -56,7 +56,7 @@
             <!-- Tabla de visitantes -->
             <v-row>
                 <v-col cols="12">
-                    <v-card variant="outlined">
+                    <v-card variant="outlined" class="mt-n2">
                         <v-card-title class="d-flex align-center bg-grey-lighten-3">
                             <v-icon class="mr-2">mdi-clipboard-text</v-icon>
                             Lista de visitantes
@@ -76,11 +76,11 @@
                                 <div class="ml-2 d-flex flex-column">
                                     <div class="d-flex align-center">
                                         <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
-                                        <span class="font-weight-medium">{{ formatTime(item.createdAt) }}</span>
+                                        <span class="font-weight-medium">{{ formatTime(item.visitDate) }}</span>
                                     </div>
                                     <div class="d-flex align-center text-caption text-grey">
                                         <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
-                                        <span>{{ formatDate(item.createdAt) }}</span>
+                                        <span>{{ formatDate(item.visitDate) }}</span>
                                     </div>
 
                                 </div>
@@ -89,17 +89,17 @@
                             <!-- Columna de acciones -->
                             <template v-slot:item.actions="{ item }">
                                 <div class="d-flex ga-1">
-                                    <v-tooltip text="Ver">
+                                    <v-tooltip text="Ver registro">
                                         <template v-slot:activator="{ props }">
                                             <v-btn v-bind="props" @click="handleShow(item)" icon="mdi-eye"
                                                 variant="text" />
                                         </template>
                                     </v-tooltip>
 
-                                    <v-tooltip text="Descargar PDF">
+                                    <v-tooltip text="Ver PDF">
                                         <template v-slot:activator="{ props }">
-                                            <v-btn v-bind="props" @click="handleDownload(item)" icon="mdi-download"
-                                                variant="text" color="primary" />
+                                            <v-btn v-bind="props" @click="handleDownload(item)" icon="mdi-file-pdf-box"
+                                                variant="text" color="error" />
                                         </template>
                                     </v-tooltip>
 
@@ -159,10 +159,12 @@
             <v-card-text>
                 <v-form v-if="selectedVisitor" ref="createFormRef">
                     <v-row>
-                        <!-- Espacio para la hora de visita
+                        <!-- 
+                        Espacio para la hora de visita
                         <v-col>
                             <v-select></v-select>
-                        </v-col> -->
+                        </v-col> 
+                        -->
                         <v-col cols="12" md="6">
                             <v-text-field v-model="selectedVisitor.name" label="Nombre y apellidos" variant="outlined"
                                 density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" />
@@ -216,6 +218,16 @@
                 <v-form v-if="selectedVisitor" ref="viewFormRef">
                     <v-col>
                         <v-row>
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="selectedVisitor.visitDate" label="Fecha" variant="outlined"
+                                    density="comfortable" prepend-inner-icon="mdi-account-tie" readonly />
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field v-model="selectedVisitor.visitDate" label="Hora" variant="outlined"
+                                    density="comfortable" prepend-inner-icon="mdi-account-tie" readonly />
+                            </v-col>
+                        </v-row>
+                        <v-row class="mt-n6">
                             <v-col cols="12" md="6">
                                 <v-text-field v-model="selectedVisitor.name" label="Nombre y apellidos"
                                     variant="outlined" density="comfortable" :rules="nameRules"
@@ -540,10 +552,8 @@ async function confirmEdit() {
 async function confirmDelete() {
     deleting.value = true;
     try {
-        // TODO: Aquí irá la llamada al backend
-        // await visitStore.deleteVisitor(selectedVisitor.value._id);
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const res = await visitStore.deleteVisitor(selectedVisitor.value._id);
+        console.log(res);
 
         // Eliminar del array local
         visitors.value = visitors.value.filter(v => v._id !== selectedVisitor.value._id);
@@ -584,9 +594,21 @@ function handleDelete(visitor) {
 }
 
 function handleDownload(visitor) {
-    console.log('Descargar PDF:', visitor);
-    // TODO: Implementar descarga de PDF individual
-    showToast(`Descargando documento de ${visitor.name}`, 'info');
+    if (!visitor.pdfUrl) {
+        showToast(`No hay pdf disponible para este visitante`, 'error');
+        return;
+    }
+
+    // Crear un enlace temporal
+    const link = document.createElement('a');
+    link.href = visitor.pdfUrl;
+    link.download = `visitor_${visitor.name}_${visitor.visitDate}.pdf`;
+    link.target = '_blank';
+
+    // Simular click y limpiar
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function handleExportExcel() {

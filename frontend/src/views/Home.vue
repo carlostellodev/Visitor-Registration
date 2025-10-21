@@ -45,15 +45,26 @@
 
             <v-row class="mt-n5">
                 <v-col>
-                    <span class="text-h6">Responsable que acompaña la visita</span>
-                    <v-select density="compact" variant="outlined" :items="workers" v-model="selectedWorker"
-                        return-object item-title="name" item-value="value" :rules="workerRules"
-                        placeholder="Seleccione una opción" />
-                </v-col>
-                <v-col>
-                    <span class="text-h6">Matrícula (opcional)</span>
-                    <v-text-field density="compact" variant="outlined" v-model="form.plate" :rules="plateRules"
-                        maxlength="15" counter placeholder="Ej: 1234ABC" @input="sanitizePlate" />
+                    <v-row>
+                        <v-col>
+                            <span class="text-h6">Responsable que acompaña la visita</span>
+
+                        </v-col>
+                        <v-col class="d-flex align-end">
+                            <span class="text-h6">Matrícula (opcional)</span>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-n6">
+                        <v-col>
+                            <v-select density="compact" variant="outlined" :items="workers" v-model="selectedWorker"
+                                return-object item-title="name" item-value="value" :rules="workerRules"
+                                placeholder="Seleccione una opción" />
+                        </v-col>
+                        <v-col>
+                            <v-text-field density="compact" variant="outlined" v-model="form.plate" :rules="plateRules"
+                                maxlength="15" counter placeholder="Ej: 1234ABC" @input="sanitizePlate" />
+                        </v-col>
+                    </v-row>
                 </v-col>
             </v-row>
         </template>
@@ -79,7 +90,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useWorkerStore } from '../stores/workerStore';
@@ -139,12 +150,6 @@ const workerRules = [
 ];
 
 // ============ FUNCIONES DE SANITIZACIÓN ============
-// Sanitizar caracteres peligrosos generales
-const sanitizeDangerousChars = (input) => {
-    if (!input) return '';
-    return input.replace(/[<>\"'%;()&+\[\]{}=]/g, '');
-};
-
 // Sanitizar nombre (solo letras, espacios, guiones y apóstrofes)
 const sanitizeName = (event) => {
     const value = event.target.value;
@@ -198,6 +203,7 @@ const validateArray = (arr, fieldName) => {
 
 // ============ LIFECYCLE ============
 onMounted(async () => {
+    window.scrollTo(0, 0);
     if (!authStore.user || !authStore.tenant) {
         try {
             await authStore.fetchUser();
@@ -211,14 +217,39 @@ onMounted(async () => {
         }
     }
 
-    if (visitStore.formData && visitStore.formData.worker) {
+    if (visitStore.formData) {
         form.value = visitStore.formData;
-        selectedWorker.value = form.value.worker;
+        if (visitStore.formData.worker) selectedWorker.value = form.value.worker;
     }
 
     if (tenant.value?._id) {
         await workerStore.fetchWorkersByTenant(tenant.value._id);
     }
+});
+
+onUnmounted(() => {
+    // Validar reglas de los campos
+    const nameValid = nameRules.every(rule => rule(form.value.name) === true);
+    const companyValid = companyRules.every(rule => rule(form.value.company) === true);
+    const plateValid = plateRules.every(rule => rule(form.value.plate) === true);
+
+    if (!nameValid || !companyValid || !plateValid) {
+        return;
+    }
+
+    // Sanitizar datos antes de guardar
+    const sanitizedData = {
+        name: sanitizeInput(form.value.name),
+        company: sanitizeInput(form.value.company),
+        plate: sanitizeInput(form.value.plate),
+        purpose: form.value.purpose.map(p => sanitizeInput(p)),
+        accessZone: form.value.accessZone.map(z => sanitizeInput(z)),
+        worker: selectedWorker?.value?.raw || selectedWorker?.value || null,
+    };
+
+    visitStore.saveFormData(sanitizedData);
+    console.log("Se ha guardado");
+
 });
 
 // ============ COMPUTED ============
