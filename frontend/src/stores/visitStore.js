@@ -59,17 +59,6 @@ export const useVisitStore = defineStore('visit', {
       this.completedSteps.legal = true
     },
 
-    async fetchVisitorsByDate(tenantId, date) {
-      try {
-        const { data } = await api.get(`/visitors/tenant/${tenantId}/date/${date}`)
-        this.visitors = data.visitors
-        return data.visitors
-      } catch (error) {
-        console.error('Error fetching visitors by date:', error)
-        throw error
-      }
-    },
-
     saveVisitors(visitors) {
       this.visitors = visitors
     },
@@ -104,6 +93,27 @@ export const useVisitStore = defineStore('visit', {
           return this.canAccessSignature
         default:
           return false
+      }
+    },
+
+    async fetchVisitorsByDate(tenantId, date) {
+      try {
+        const { data } = await api.get(`/visitors/tenant/${tenantId}/date/${date}`)
+        this.visitors = data.visitors
+        return data.visitors
+      } catch (error) {
+        console.error('Error fetching visitors by date:', error)
+        throw error
+      }
+    },
+
+    async deleteVisitor(id) {
+      try {
+        const res = await api.delete(`/visitors/${id}`)
+        return res
+      } catch (error) {
+        console.error('Error deleting visitor:', error)
+        throw error
       }
     },
   },

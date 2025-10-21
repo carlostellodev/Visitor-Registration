@@ -116,6 +116,7 @@ const tenant = computed(() => authStore.tenant);
 const documentTitles = computed(() => documentStore.documents.map(d => d.title));
 
 onMounted(() => {
+    window.scrollTo(0, 0);
     if (!formData.value.name || !formData.value.company) {
         router.push(`/home/${tenant.value.slug}`);
     }

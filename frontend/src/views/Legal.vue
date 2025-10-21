@@ -120,6 +120,7 @@ const canProceed = computed(() => acceptedDocuments.value.length === documents.v
 const tenant = computed(() => authStore.tenant);
 
 onMounted(async () => {
+    window.scrollTo(0, 0);
     if (!tenant.value?._id) {
         router.push('/login');
         return;
@@ -167,12 +168,14 @@ const nextDocument = () => {
     if (hasAcceptedCurrent.value && !isLastDocument.value) {
         currentStep.value++;
     }
+    window.scrollTo(0, 0);
 };
 
 const previousDocument = () => {
     if (currentStep.value > 0) {
         currentStep.value--;
     }
+    window.scrollTo(0, 0);
 };
 
 const finishAndContinue = async () => {
