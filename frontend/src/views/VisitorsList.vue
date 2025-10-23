@@ -514,13 +514,25 @@ watch(selectedDate, (newDate) => {
 async function loadVisitors() {
     loading.value = true;
     try {
-        const dateToSend = selectedDate.value instanceof Date
-            ? selectedDate.value.toISOString()
-            : new Date(selectedDate.value).toISOString();
+        // Obtener la fecha seleccionada y normalizarla a medianoche UTC
+        const localDate = new Date(selectedDate.value);
 
-        console.log("Enviando fecha al backend: ", dateToSend);
-        visitors.value = await visitStore.fetchVisitorsByDate(authStore.tenant._id, dateToSend);
+        // Crear una fecha UTC usando los componentes locales
+        // Esto asegura que el "22 de octubre" local sea el "22 de octubre" UTC
+        const utcDate = new Date(Date.UTC(
+            localDate.getFullYear(),
+            localDate.getMonth(),
+            localDate.getDate(),
+            12, 0, 0, 0  // Usar mediodía para evitar problemas de DST
+        ));
 
+        console.log("Fecha local seleccionada:", localDate.toLocaleDateString('es-ES'));
+        console.log("Enviando al backend (UTC):", utcDate.toISOString());
+
+        visitors.value = await visitStore.fetchVisitorsByDate(
+            authStore.tenant._id,
+            utcDate.toISOString()
+        );
     } catch (error) {
         console.error('Error cargando visitantes:', error);
         showToast('Error al cargar visitantes', 'error');

@@ -77,18 +77,19 @@ class VisitorService {
       throw new Error("Fecha inválida");
     }
 
-    const year = searchDate.getFullYear();
-    const month = searchDate.getMonth();
-    const day = searchDate.getDate();
+    const year = searchDate.getUTCFullYear();
+    const month = searchDate.getUTCMonth();
+    const day = searchDate.getUTCDate();
 
-    const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
-    const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
+    // Crear inicio y fin del día en UTC
+    const startOfDay = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
 
-    console.log("Búsqueda desde: ", startOfDay.toISOString());
-    console.log("Búsqueda hasta: ", endOfDay.toISOString());
+    console.log("Búsqueda desde (UTC): ", startOfDay.toISOString());
+    console.log("Búsqueda hasta (UTC): ", endOfDay.toISOString());
     console.log("Rango local: ", {
-      inicio: startOfDay.toLocaleString("es-ES"),
-      fin: endOfDay.toLocaleString("es-ES"),
+      inicio: startOfDay.toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
+      fin: endOfDay.toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
     });
 
     const query = {
