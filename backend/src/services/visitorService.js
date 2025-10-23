@@ -69,6 +69,10 @@ class VisitorService {
   }
 
   async getVisitorsByTenantAndDate(tenantId, dateInput) {
+    console.log("Fecha que viene del frontend: ", dateInput);
+
+    // Convertir la fecha a un objeto Date de JavaScript
+    // Si viene como ISO string desde Vue (selectedDate.value), funcionará directamente
     const searchDate = new Date(dateInput);
 
     // Verificar que la fecha es válida
@@ -76,16 +80,29 @@ class VisitorService {
       throw new Error("Fecha inválida");
     }
 
+    // Obtener componentes de la fecha en la zona horaria local
     const year = searchDate.getFullYear();
     const month = searchDate.getMonth();
     const day = searchDate.getDate();
 
+    // Crear las fechas de inicio y fin del día en la zona horaria local
+    // Esto asegura que buscamos por el día completo independientemente de la zona horaria
     const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
     const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
 
+    console.log("Búsqueda desde: ", startOfDay.toISOString());
+    console.log("Búsqueda hasta: ", endOfDay.toISOString());
+    console.log("Rango local: ", {
+      inicio: startOfDay.toLocaleString("es-ES"),
+      fin: endOfDay.toLocaleString("es-ES"),
+    });
+
+    // IMPORTANTE: Cambiado de 'createdAt' a 'visitDate' para ser consistente
+    // con el resto del servicio
     const query = {
       tenantId,
       visitDate: {
+        // Cambio aquí: usar visitDate en lugar de createdAt
         $gte: startOfDay,
         $lte: endOfDay,
       },
@@ -94,7 +111,7 @@ class VisitorService {
     const visitors = await Visitor.find(query)
       .populate("workerId", "name email")
       .populate("tenantId", "name slug")
-      .sort({ visitDate: -1 })
+      .sort({ visitDate: -1 }) // Cambio aquí: ordenar por visitDate
       .lean();
 
     console.log(
