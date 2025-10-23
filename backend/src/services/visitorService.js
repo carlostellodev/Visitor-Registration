@@ -68,25 +68,19 @@ class VisitorService {
     return visitors;
   }
 
-  async getVisitorsByTenantAndDate(tenantId, dateInput) {
-    console.log("Fecha que viene del frontend: ", dateInput);
+  async getVisitorsByTenantAndDate(tenantId, date) {
+    console.log("Fecha que viene del frontend: ", date);
 
-    // Convertir la fecha a un objeto Date de JavaScript
-    // Si viene como ISO string desde Vue (selectedDate.value), funcionará directamente
-    const searchDate = new Date(dateInput);
+    const searchDate = new Date(date);
 
-    // Verificar que la fecha es válida
     if (isNaN(searchDate.getTime())) {
       throw new Error("Fecha inválida");
     }
 
-    // Obtener componentes de la fecha en la zona horaria local
     const year = searchDate.getFullYear();
     const month = searchDate.getMonth();
     const day = searchDate.getDate();
 
-    // Crear las fechas de inicio y fin del día en la zona horaria local
-    // Esto asegura que buscamos por el día completo independientemente de la zona horaria
     const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
     const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
 
@@ -97,12 +91,9 @@ class VisitorService {
       fin: endOfDay.toLocaleString("es-ES"),
     });
 
-    // IMPORTANTE: Cambiado de 'createdAt' a 'visitDate' para ser consistente
-    // con el resto del servicio
     const query = {
       tenantId,
       visitDate: {
-        // Cambio aquí: usar visitDate en lugar de createdAt
         $gte: startOfDay,
         $lte: endOfDay,
       },
@@ -111,13 +102,13 @@ class VisitorService {
     const visitors = await Visitor.find(query)
       .populate("workerId", "name email")
       .populate("tenantId", "name slug")
-      .sort({ visitDate: -1 }) // Cambio aquí: ordenar por visitDate
+      .sort({ visitDate: -1 })
       .lean();
 
     console.log(
-      `Encontrados ${
-        visitors.length
-      } visitantes para el ${startOfDay.toLocaleDateString("es-ES")}`
+      `Encontrados ${visitors.length} visitantes para el ${day}/${
+        month + 1
+      }/${year}`
     );
 
     return visitors;
