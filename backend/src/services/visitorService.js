@@ -68,20 +68,24 @@ class VisitorService {
     return visitors;
   }
 
-  async getVisitorsByTenantAndDate(tenantId, date) {
-    const searchDate = new Date(date);
+  async getVisitorsByTenantAndDate(tenantId, dateInput) {
+    const searchDate = new Date(dateInput);
 
-    // Establecer el inicio del día (00:00:00)
-    const startOfDay = new Date(searchDate);
-    startOfDay.setHours(0, 0, 0, 0);
+    // Verificar que la fecha es válida
+    if (isNaN(searchDate.getTime())) {
+      throw new Error("Fecha inválida");
+    }
 
-    // Establecer el fin del día (23:59:59)
-    const endOfDay = new Date(searchDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    const year = searchDate.getFullYear();
+    const month = searchDate.getMonth();
+    const day = searchDate.getDate();
+
+    const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
+    const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
 
     const query = {
       tenantId,
-      createdAt: {
+      visitDate: {
         $gte: startOfDay,
         $lte: endOfDay,
       },
@@ -90,8 +94,14 @@ class VisitorService {
     const visitors = await Visitor.find(query)
       .populate("workerId", "name email")
       .populate("tenantId", "name slug")
-      .sort({ createdAt: -1 }) // Ordenar por hora de creación (más reciente primero)
+      .sort({ visitDate: -1 })
       .lean();
+
+    console.log(
+      `Encontrados ${
+        visitors.length
+      } visitantes para el ${startOfDay.toLocaleDateString("es-ES")}`
+    );
 
     return visitors;
   }

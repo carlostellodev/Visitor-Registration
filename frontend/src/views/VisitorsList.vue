@@ -505,15 +505,22 @@ onMounted(() => {
     loadVisitors();
 });
 
-watch(selectedDate, () => {
-    loadVisitors();
+watch(selectedDate, (newDate) => {
+    if (newDate) {
+        loadVisitors();
+    }
 });
 
 async function loadVisitors() {
     loading.value = true;
     try {
-        console.log("Llamada a loadVisitors. Día: ", selectedDate.value);
-        visitors.value = await visitStore.fetchVisitorsByDate(authStore.tenant._id, selectedDate.value);
+        const dateToSend = selectedDate.value instanceof Date
+            ? selectedDate.value.toISOString()
+            : new Date(selectedDate.value).toISOString();
+
+        console.log("Enviando fecha al backend: ", dateToSend);
+        visitors.value = await visitStore.fetchVisitorsByDate(authStore.tenant._id, dateToSend);
+
     } catch (error) {
         console.error('Error cargando visitantes:', error);
         showToast('Error al cargar visitantes', 'error');
