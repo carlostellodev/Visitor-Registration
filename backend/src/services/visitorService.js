@@ -68,29 +68,18 @@ class VisitorService {
     return visitors;
   }
 
-  async getVisitorsByTenantAndDate(tenantId, date) {
-    console.log("Fecha que viene del frontend: ", date);
+  async getVisitorsByTenantAndDate(tenantId, dateString) {
+    console.log("Fecha que viene del frontend: ", dateString);
 
-    const searchDate = new Date(date);
+    // Parsear YYYY-MM-DD
+    const [year, month, day] = dateString.split("-").map(Number);
 
-    if (isNaN(searchDate.getTime())) {
-      throw new Error("Fecha inválida");
-    }
+    // Crear inicio y fin del día en UTC directamente
+    const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
-    const year = searchDate.getUTCFullYear();
-    const month = searchDate.getUTCMonth();
-    const day = searchDate.getUTCDate();
-
-    // Crear inicio y fin del día en UTC
-    const startOfDay = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
-    const endOfDay = new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
-
-    console.log("Búsqueda desde (UTC): ", startOfDay.toISOString());
-    console.log("Búsqueda hasta (UTC): ", endOfDay.toISOString());
-    console.log("Rango local: ", {
-      inicio: startOfDay.toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
-      fin: endOfDay.toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
-    });
+    console.log("Búsqueda desde: ", startOfDay.toISOString());
+    console.log("Búsqueda hasta: ", endOfDay.toISOString());
 
     const query = {
       tenantId,
@@ -107,9 +96,7 @@ class VisitorService {
       .lean();
 
     console.log(
-      `Encontrados ${visitors.length} visitantes para el ${day}/${
-        month + 1
-      }/${year}`
+      `Encontrados ${visitors.length} visitantes para el ${day}/${month}/${year}`
     );
 
     return visitors;
