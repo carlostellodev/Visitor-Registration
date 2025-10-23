@@ -69,8 +69,6 @@ class VisitorService {
   }
 
   async getVisitorsByTenantAndDate(tenantId, dateString) {
-    console.log("Fecha que viene del frontend: ", dateString);
-
     // Parsear YYYY-MM-DD
     const [year, month, day] = dateString.split("-").map(Number);
 
