@@ -512,6 +512,7 @@ watch(selectedDate, () => {
 async function loadVisitors() {
     loading.value = true;
     try {
+        console.log("Llamada a loadVisitors. Día: ", selectedDate.value);
         visitors.value = await visitStore.fetchVisitorsByDate(authStore.tenant._id, selectedDate.value);
     } catch (error) {
         console.error('Error cargando visitantes:', error);

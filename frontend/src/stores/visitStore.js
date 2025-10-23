@@ -97,6 +97,7 @@ export const useVisitStore = defineStore('visit', {
     },
 
     async fetchVisitorsByDate(tenantId, date) {
+      console.log('Llamada a fetchVisitorsByDate. Día: ', date)
       try {
         const { data } = await api.get(`/visitors/tenant/${tenantId}/date/${date}`)
         this.visitors = data.visitors
