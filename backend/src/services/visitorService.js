@@ -78,9 +78,6 @@ class VisitorService {
     const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
     const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
-    console.log("Búsqueda desde: ", startOfDay.toISOString());
-    console.log("Búsqueda hasta: ", endOfDay.toISOString());
-
     const query = {
       tenantId,
       visitDate: {
@@ -94,10 +91,6 @@ class VisitorService {
       .populate("tenantId", "name slug")
       .sort({ visitDate: -1 })
       .lean();
-
-    console.log(
-      `Encontrados ${visitors.length} visitantes para el ${day}/${month}/${year}`
-    );
 
     return visitors;
   }

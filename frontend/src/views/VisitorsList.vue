@@ -514,11 +514,9 @@ watch(selectedDate, (newDate) => {
 async function loadVisitors() {
     loading.value = true;
     try {
-        // Enviar solo la fecha en formato YYYY-MM-DD
+        // Enviar la fecha en formato YYYY-MM-DD
         const localDate = new Date(selectedDate.value);
         const dateString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
-
-        console.log("Enviando fecha:", dateString);
 
         visitors.value = await visitStore.fetchVisitorsByDate(
             authStore.tenant._id,
