@@ -254,7 +254,7 @@ export const exportVisitors = async (req, res) => {
     if (format === "excel") {
       const buffer = await generateExcel(visitors, tenantName);
 
-      const filename = `visitantes_${tenantName}_${
+      const filename = `Visitantes_${tenantName}_${
         new Date().toISOString().split("T")[0]
       }.xlsx`;
 
@@ -262,23 +262,15 @@ export const exportVisitors = async (req, res) => {
         "Content-Type",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       );
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${filename}"`
-      );
       res.send(buffer);
     } else if (format === "pdf") {
       const buffer = await generatePDF(visitors, tenantName, tenantLogo);
 
-      const filename = `visitantes_${tenantName}_${
+      const filename = `Visitantes_${tenantName}_${
         new Date().toISOString().split("T")[0]
       }.pdf`;
 
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${filename}"`
-      );
       res.send(buffer);
     }
   } catch (error) {

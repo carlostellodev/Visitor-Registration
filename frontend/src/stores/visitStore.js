@@ -125,6 +125,8 @@ export const useVisitStore = defineStore('visit', {
           },
         )
 
+        const filename = `Visitantes_${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'pdf' : 'xlsx'}`
+
         // Crear enlace de descarga
         const blob = new Blob([response.data], {
           type:
@@ -136,10 +138,7 @@ export const useVisitStore = defineStore('visit', {
         const url = window.URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-
-        const filename = `visitantes_${new Date().getTime()}.${format === 'pdf' ? 'pdf' : 'xlsx'}`
         link.setAttribute('download', filename)
-
         document.body.appendChild(link)
         link.click()
 

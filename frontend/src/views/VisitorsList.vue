@@ -625,8 +625,6 @@ async function handleExport(exportData) {
     const { format, startDate, endDate } = exportData;
 
     try {
-        showToast('Generando archivo...', 'info');
-
         await visitStore.exportVisitors(
             tenant.value._id,
             startDate,

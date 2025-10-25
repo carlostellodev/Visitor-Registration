@@ -3,6 +3,10 @@ import ExcelJS from "exceljs";
 
 import { loadImageFromUrl } from "./imageLoader.js";
 
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export const generateExcel = async (visitors, tenantName) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Visitantes");
@@ -44,11 +48,11 @@ export const generateExcel = async (visitors, tenantName) => {
       company: visitor.company,
       plate: visitor.plate || "-",
       purpose: Array.isArray(visitor.purpose)
-        ? visitor.purpose.join(", ")
-        : visitor.purpose,
+        ? visitor.purpose.map((p) => capitalize(p)).join(", ")
+        : capitalize(visitor.purpose),
       accessZone: Array.isArray(visitor.accessZone)
-        ? visitor.accessZone.join(", ")
-        : visitor.accessZone,
+        ? visitor.accessZone.map((z) => capitalize(z)).join(", ")
+        : capitalize(visitor.accessZone),
       worker: visitor.workerId?.name || "-",
     });
   });
@@ -235,14 +239,14 @@ export const generatePDF = async (visitors, tenantName, tenantLogo) => {
 
         // Motivo
         const purpose = Array.isArray(visitor.purpose)
-          ? visitor.purpose.join(", ")
-          : visitor.purpose;
+          ? visitor.purpose.map((p) => capitalize(p)).join(", ")
+          : capitalize(visitor.purpose);
         doc.text(`Motivo: ${purpose}`, 60, currentY + 53, { width: 220 });
 
         // Zona de acceso
         const accessZone = Array.isArray(visitor.accessZone)
-          ? visitor.accessZone.join(", ")
-          : visitor.accessZone;
+          ? visitor.accessZone.map((z) => capitalize(z)).join(", ")
+          : capitalize(visitor.accessZone);
         doc.text(`Zona: ${accessZone}`, 60, currentY + 68, { width: 220 });
 
         // Responsable
