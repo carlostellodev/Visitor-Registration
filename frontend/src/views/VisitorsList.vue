@@ -520,7 +520,7 @@ async function loadVisitors() {
         const dateString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
 
         visitors.value = await visitStore.fetchVisitorsByDate(
-            authStore.tenant._id,
+            tenant.value._id,
             dateString
         );
     } catch (error) {
@@ -622,23 +622,28 @@ function handleDownload(visitor) {
 }
 
 async function handleExport(exportData) {
-    console.log('Exportar con:', exportData);
-
-    const { format, dateRange, startDate, endDate } = exportData;
+    const { format, startDate, endDate } = exportData;
 
     try {
-        if (format === 'pdf') {
-            // TODO: Llamar a la API para exportar PDF
-            await exportToPDF(startDate, endDate);
-            showToast('PDF exportado correctamente', 'success');
-        } else {
-            // TODO: Llamar a la API para exportar Excel
-            await exportToExcel(startDate, endDate);
-            showToast('Excel exportado correctamente', 'success');
-        }
+        showToast('Generando archivo...', 'info');
+
+        await visitStore.exportVisitors(
+            tenant.value._id,
+            startDate,
+            endDate,
+            format
+        );
+
+        showToast(
+            `${format === 'pdf' ? 'PDF' : 'Excel'} descargado correctamente`,
+            'success'
+        );
     } catch (error) {
         console.error('Error exportando:', error);
-        showToast('Error al exportar', 'error');
+        showToast(
+            error.response?.data?.message || 'Error al exportar',
+            'error'
+        );
     }
 }
 

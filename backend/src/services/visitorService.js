@@ -72,7 +72,6 @@ class VisitorService {
     // Parsear YYYY-MM-DD
     const [year, month, day] = dateString.split("-").map(Number);
 
-    // Crear inicio y fin del día en UTC directamente
     const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
     const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
@@ -88,6 +87,30 @@ class VisitorService {
       .populate("workerId", "name email")
       .populate("tenantId", "name slug")
       .sort({ visitDate: -1 })
+      .lean();
+
+    return visitors;
+  }
+
+  async getVisitorsByDateRange(tenantId, startDate, endDate) {
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    const query = {
+      tenantId,
+      createdAt: {
+        $gte: start,
+        $lte: end,
+      },
+    };
+
+    const visitors = await Visitor.find(query)
+      .populate("workerId", "name email")
+      .populate("tenantId", "name slug theme")
+      .sort({ createdAt: -1 })
       .lean();
 
     return visitors;
