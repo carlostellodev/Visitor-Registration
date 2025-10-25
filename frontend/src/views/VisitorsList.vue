@@ -578,7 +578,6 @@ async function confirmDelete() {
     }
 }
 
-// Métodos
 function handleDateChange() {
     showDatePicker.value = false;
 }
@@ -643,17 +642,6 @@ async function handleExport(exportData) {
             'error'
         );
     }
-}
-
-// Funciones de exportación (implementar según tu API)
-async function exportToPDF(startDate, endDate) {
-    // TODO: Implementar llamada a la API
-    console.log('Exportando PDF desde', startDate, 'hasta', endDate);
-}
-
-async function exportToExcel(startDate, endDate) {
-    // TODO: Implementar llamada a la API
-    console.log('Exportando Excel desde', startDate, 'hasta', endDate);
 }
 
 function formatDate(date) {

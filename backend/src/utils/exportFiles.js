@@ -11,7 +11,7 @@ export const generateExcel = async (visitors, tenantName) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Visitantes");
 
-  // Configurar columnas
+  // Columnas
   worksheet.columns = [
     { header: "Fecha", key: "date", width: 12 },
     { header: "Hora", key: "time", width: 10 },
@@ -124,7 +124,7 @@ export const generatePDF = async (visitors, tenantName, tenantLogo) => {
 
       let startY = 50;
 
-      // Header con logo (si existe)
+      // Header con logo
       if (tenantLogo) {
         const imageBuffer = await loadImageFromUrl(tenantLogo);
 
@@ -189,7 +189,7 @@ export const generatePDF = async (visitors, tenantName, tenantLogo) => {
       for (const [index, visitor] of visitors.entries()) {
         const date = new Date(visitor.createdAt);
 
-        // Altura de cada tarjeta (aumentada para incluir la firma)
+        // Altura de cada tarjeta
         const cardHeight = 100;
 
         // Verificar si hay espacio suficiente para la tarjeta completa
@@ -269,7 +269,7 @@ export const generatePDF = async (visitors, tenantName, tenantLogo) => {
         const signatureBoxWidth = 90; // Ancho del contenedor
         const signatureBoxHeight = 75; // Alto del contenedor
 
-        // Dibujar el borde del contenedor de firma
+        // Borde del contenedor de firma
         doc
           .rect(
             signatureBoxX,
@@ -292,22 +292,18 @@ export const generatePDF = async (visitors, tenantName, tenantLogo) => {
 
         if (visitor.signature) {
           try {
-            // La firma ya está en base64, extraer el buffer
             const base64Data = visitor.signature.replace(
               /^data:image\/\w+;base64,/,
               ""
             );
             const signatureBuffer = Buffer.from(base64Data, "base64");
 
-            // Ajustar la imagen de la firma para que ocupe todo el contenedor
-            // Dejamos un pequeño margen de 3px en cada lado
             const imageMargin = 3;
             const imageX = signatureBoxX + imageMargin;
             const imageY = signatureBoxY + imageMargin;
             const imageWidth = signatureBoxWidth - imageMargin * 2;
             const imageHeight = signatureBoxHeight - imageMargin * 2;
 
-            // Insertar la imagen de la firma ocupando todo el espacio disponible
             doc.image(signatureBuffer, imageX, imageY, {
               width: imageWidth,
               height: imageHeight,
@@ -331,7 +327,7 @@ export const generatePDF = async (visitors, tenantName, tenantLogo) => {
               );
           }
         } else {
-          // Sin firma - mostrar texto centrado vertical y horizontalmente
+          // Sin firma
           doc
             .fontSize(9)
             .fillColor("#999999")

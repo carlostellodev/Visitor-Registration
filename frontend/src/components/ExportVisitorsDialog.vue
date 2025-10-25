@@ -160,20 +160,6 @@ const formattedEndDate = computed(() => {
     return formatDate(customEndDate.value);
 });
 
-// Obtener etiqueta del rango de fechas
-const getDateRangeLabel = computed(() => {
-    const option = dateRangeOptions.find(opt => opt.value === dateRangeOption.value);
-
-    if (dateRangeOption.value === 'custom') {
-        if (customStartDate.value && customEndDate.value) {
-            return `${formatDate(customStartDate.value)} - ${formatDate(customEndDate.value)}`;
-        }
-        return 'Selecciona fechas';
-    }
-
-    return option?.label || '';
-});
-
 // Información del rango seleccionado
 const selectedDateInfo = computed(() => {
     const { startDate, endDate } = getDateRange();
@@ -258,7 +244,6 @@ function getDateRange() {
 
 function handleDateRangeChange(value) {
     if (value === 'custom') {
-        // Inicializar fechas personalizadas con el mes actual
         const today = new Date();
         customStartDate.value = new Date(today.getFullYear(), today.getMonth(), 1);
         customEndDate.value = new Date(today);
@@ -281,7 +266,6 @@ async function handleExport() {
     loading.value = true;
 
     try {
-        // Emitir evento de exportación con los datos
         emit('export', {
             format: exportFormat.value,
             dateRange: dateRangeOption.value,
@@ -289,7 +273,6 @@ async function handleExport() {
             endDate
         });
 
-        // Cerrar el diálogo después de un breve delay
         setTimeout(() => {
             dialogModel.value = false;
             loading.value = false;
@@ -307,7 +290,6 @@ function handleCancel() {
 // Resetear formulario cuando se cierra el diálogo
 watch(dialogModel, (newValue) => {
     if (!newValue) {
-        // Resetear valores al cerrar
         setTimeout(() => {
             exportFormat.value = 'pdf';
             dateRangeOption.value = 'today';

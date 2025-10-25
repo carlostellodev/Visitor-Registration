@@ -213,7 +213,6 @@ export const exportVisitors = async (req, res) => {
       });
     }
 
-    // Validar formato
     if (!["pdf", "excel"].includes(format)) {
       return res.status(400).json({
         error: "Formato inválido",
@@ -221,7 +220,6 @@ export const exportVisitors = async (req, res) => {
       });
     }
 
-    // Verificar permisos de tenant
     if (
       !isSuperAdmin(req.user.role) &&
       tenantId !== req.user.tenantId?.toString()
@@ -232,7 +230,6 @@ export const exportVisitors = async (req, res) => {
       });
     }
 
-    // Obtener visitantes del rango de fechas usando el servicio
     const visitors = await visitorService.getVisitorsByDateRange(
       tenantId,
       startDate,
@@ -250,7 +247,7 @@ export const exportVisitors = async (req, res) => {
     const tenantName = visitors[0]?.tenantId?.name || "Tenant";
     const tenantLogo = visitors[0]?.tenantId?.theme?.logoUrl;
 
-    // Generar archivo según formato usando las utilidades
+    // Generar archivo según formato
     if (format === "excel") {
       const buffer = await generateExcel(visitors, tenantName);
 
