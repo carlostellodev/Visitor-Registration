@@ -21,25 +21,43 @@
                         </v-col>
                     </v-row>
                 </v-col>
-                <v-col>
+                <v-col v-if="!xs">
                     <v-img height="170" :src="tenant.theme.logoUrl" />
                 </v-col>
             </v-row>
 
-            <div class="d-flex justify-space-evenly ga-4 mt-1 mb-3">
+            <div class="d-flex justify-space-evenly ga-4 mt-1 mb-3" :class="xs ? 'flex-column mt-n1' : ''">
                 <!-- Motivos -->
                 <v-card flat>
                     <p class="font-weight-medium mb-1 text-h6">Motivo:</p>
-                    <v-checkbox v-for="purpose in purposeOptions" :key="purpose" v-model="form.purpose"
-                        :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable"
-                        class="mt-n1" />
+
+                    <!-- Select para pantallas xs -->
+                    <v-select v-if="xs" v-model="form.purpose" :items="purposeOptions"
+                        :item-title="item => capitalize(item)" :item-value="item => item" multiple chips closable-chips
+                        density="comfortable" variant="outlined" placeholder="Seleccione motivos" />
+
+                    <!-- Checkboxes para pantallas más grandes -->
+                    <template v-else>
+                        <v-checkbox v-for="purpose in purposeOptions" :key="purpose" v-model="form.purpose"
+                            :label="capitalize(purpose)" :value="purpose" hide-details density="comfortable"
+                            class="mt-n1" />
+                    </template>
                 </v-card>
 
                 <!-- Zonas de acceso-->
-                <v-card flat>
+                <v-card flat :class="xs ? 'mt-n4' : ''">
                     <p class="font-weight-medium mb-1 text-h6">Zona de acceso:</p>
-                    <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.accessZone"
-                        :label="capitalize(area)" :value="area" hide-details density="comfortable" class="mt-n1" />
+
+                    <!-- Select para pantallas xs -->
+                    <v-select v-if="xs" v-model="form.accessZone" :items="areaOptions"
+                        :item-title="item => capitalize(item)" :item-value="item => item" multiple chips closable-chips
+                        density="comfortable" variant="outlined" placeholder="Seleccione zonas" />
+
+                    <!-- Checkboxes para pantallas más grandes -->
+                    <template v-else>
+                        <v-checkbox v-for="area in areaOptions" :key="area" v-model="form.accessZone"
+                            :label="capitalize(area)" :value="area" hide-details density="comfortable" class="mt-n1" />
+                    </template>
                 </v-card>
             </div>
 
@@ -97,6 +115,8 @@ import { useWorkerStore } from '../stores/workerStore';
 import { useVisitStore } from '../stores/visitStore';
 import { useToastComposable } from '@/composables/useToast';
 import ViewCard from '@/components/ViewCard.vue';
+import { useDisplay } from 'vuetify'
+const { md, xs } = useDisplay()
 
 const { showToast } = useToastComposable();
 

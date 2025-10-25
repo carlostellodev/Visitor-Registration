@@ -17,12 +17,15 @@ export const generateVisitPDF = async (visitData, tenantData) => {
   const margin = 20
   let currentY = margin
 
-  // Logo del tenant (si existe)
+  const logoWidth = 40
+
+  // Logo del tenant
   if (tenantData.theme?.logoUrl) {
     try {
       const logoImg = await loadImage(tenantData.theme.logoUrl)
-      doc.addImage(logoImg, 'PNG', margin, currentY, 30, 30)
-      currentY += 35
+      doc.addImage(logoImg, 'PNG', (pageWidth - logoWidth) / 2, currentY, logoWidth, 30)
+
+      currentY += 40
     } catch (error) {
       console.warn('Error cargando logo:', error)
     }

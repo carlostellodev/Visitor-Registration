@@ -16,7 +16,7 @@
                 <v-img v-if="showLogo && tenant?.theme?.logoUrl" :src="tenant.theme.logoUrl" height="60" />
                 <div class="d-flex flex-column align-center">
                     <div v-if="tenant?.name">{{ tenant.name }}</div>
-                    <div v-if="subtitle" class="text-h6 mt-1">{{ subtitle }}</div>
+                    <div v-if="subtitle" class="text-h6 text-pre-wrap mt-1">{{ subtitle }}</div>
                 </div>
             </v-card-title>
 
