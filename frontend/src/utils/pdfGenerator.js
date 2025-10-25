@@ -36,7 +36,7 @@ export const generateVisitPDF = async (visitData, tenantData) => {
 
   doc.setFontSize(12)
   doc.setFont('helvetica', 'normal')
-  doc.text('Instrucciones generales de acceso a las instalaciones', pageWidth / 2, currentY, {
+  doc.text('Ficha de control de acceso a las instalaciones', pageWidth / 2, currentY, {
     align: 'center',
   })
   currentY += 15
@@ -45,21 +45,6 @@ export const generateVisitPDF = async (visitData, tenantData) => {
   doc.setDrawColor(200)
   doc.line(margin, currentY, pageWidth - margin, currentY)
   currentY += 10
-
-  // Normativas aceptadas
-  doc.setFontSize(14)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Normativa leída:', margin, currentY)
-  currentY += 7
-
-  doc.setFontSize(11)
-  doc.setFont('helvetica', 'normal')
-  const docs = visitData.documentTitles.filter((title) => capitalize(title))
-  docs.forEach((norm) => {
-    doc.text(`• ${norm}`, margin + 5, currentY)
-    currentY += 6
-  })
-  currentY += 5
 
   // Datos de la visita
   doc.setFontSize(14)
@@ -94,7 +79,22 @@ export const generateVisitPDF = async (visitData, tenantData) => {
   doc.setFont('helvetica', 'italic')
   const declaration = 'Manifiesto que he leído, comprendo y acepto las normativas mencionadas'
   doc.text(declaration, margin, currentY, { maxWidth: pageWidth - 2 * margin })
-  currentY += 15
+  currentY += 12
+
+  // Normativas aceptadas
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Normativa leída:', margin, currentY)
+  currentY += 7
+
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  const docs = visitData.documentTitles.filter((title) => capitalize(title))
+  docs.forEach((norm) => {
+    doc.text(`• ${norm}`, margin + 5, currentY)
+    currentY += 6
+  })
+  currentY += 5
 
   // Firma
   if (visitData.signature) {
