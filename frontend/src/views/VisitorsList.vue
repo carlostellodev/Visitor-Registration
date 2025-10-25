@@ -41,14 +41,14 @@
                             <v-icon v-if="visitors.length > 0" size="70" color="primary">mdi-account-multiple</v-icon>
                             <v-icon v-else size="70" color="primary">mdi-account-off</v-icon>
                         </v-card-text>
-                        <v-fade-transition>
+                        <!-- <v-fade-transition>
                             <v-card-text v-show="!isToday" class="w-100 mt-n5">
                                 <v-btn color="primary" variant="flat" @click="clearFilters" block
                                     prepend-icon="mdi-account-plus" class="return-pointer" :ripple="false">
                                     Crear nuevo registro
                                 </v-btn>
                             </v-card-text>
-                        </v-fade-transition>
+                        </v-fade-transition> -->
                     </v-card>
                 </v-col>
             </v-row>
@@ -103,12 +103,12 @@
                                         </template>
                                     </v-tooltip>
 
-                                    <v-tooltip text="Editar">
+                                    <!-- <v-tooltip text="Editar">
                                         <template v-slot:activator="{ props }">
                                             <v-btn v-bind="props" @click="handleEdit(item)" icon="mdi-pencil"
                                                 variant="text" color="info" />
                                         </template>
-                                    </v-tooltip>
+                                    </v-tooltip> -->
 
                                     <v-tooltip text="Eliminar">
                                         <template v-slot:activator="{ props }">
@@ -145,7 +145,7 @@
     </v-dialog>
 
     <!-- Diálogo para ver crear un nuevo visitante -->
-    <v-dialog v-model="addDialog" max-width="800">
+    <!-- <v-dialog v-model="addDialog" max-width="800">
         <v-card>
             <v-card-title class="text-h5 d-flex align-center">
                 <v-icon color="info" class="mr-2">mdi-eye</v-icon>
@@ -154,12 +154,10 @@
             <v-card-text>
                 <v-form v-if="selectedVisitor" ref="createFormRef">
                     <v-row>
-                        <!-- 
                         Espacio para la hora de visita
                         <v-col>
                             <v-select></v-select>
                         </v-col> 
-                        -->
                         <v-col cols="12" md="6" sm="6">
                             <v-text-field v-model="selectedVisitor.name" label="Nombre y apellidos" variant="outlined"
                                 density="comfortable" :rules="nameRules" prepend-inner-icon="mdi-account" />
@@ -186,10 +184,10 @@
                             <v-text-field v-model="selectedVisitor.plate" label="Matrícula" variant="outlined"
                                 density="comfortable" prepend-inner-icon="mdi-car" />
                         </v-col>
-                        <!-- Espacio para la firma
+                        Espacio para la firma
                         <v-col>
                             <v-img :src="selectedVisitor.signature"></v-img>
-                        </v-col> -->
+                        </v-col>
                     </v-row>
                 </v-form>
             </v-card-text>
@@ -200,7 +198,7 @@
                 </v-btn>
             </v-card-actions>
         </v-card>
-    </v-dialog>
+    </v-dialog> -->
 
     <!-- Diálogo para ver detalles de un visitante -->
     <v-dialog v-model="showDialog" max-width="800">
@@ -214,11 +212,11 @@
                     <v-col>
                         <v-row>
                             <v-col cols="12" md="6" sm="6">
-                                <v-text-field v-model="selectedVisitor.visitDate" label="Fecha" variant="outlined"
+                                <v-text-field v-model="selectedVisitorDate" label="Fecha" variant="outlined"
                                     density="comfortable" prepend-inner-icon="mdi-calendar" readonly />
                             </v-col>
-                            <v-col cols="12" md="6" sm="6">
-                                <v-text-field v-model="selectedVisitor.visitDate" label="Hora" variant="outlined"
+                            <v-col cols="12" md="6" sm="6" :class="xs ? 'mt-n6' : ''">
+                                <v-text-field v-model="selectedVisitorHour" label="Hora" variant="outlined"
                                     density="comfortable" prepend-inner-icon="mdi-clock-outline" readonly />
                             </v-col>
                         </v-row>
@@ -231,9 +229,18 @@
                                     density="comfortable" :rules="companyRules" prepend-inner-icon="mdi-domain"
                                     readonly />
                             </v-col>
-                            <v-col cols="12" md="6" sm="6">
+                            <v-col cols="12" md="6" sm="6" v-if="!xs">
                                 <v-card variant="outlined" class="border-opacity-25">
-                                    <v-card-text class="mb-n3 mt-n3 ">
+                                    <v-card-text class="mb-n3 mt-n3">
+                                        Firma
+                                    </v-card-text>
+                                    <v-divider class="border-opacity-25" />
+                                    <v-img :src="selectedVisitor.signature" />
+                                </v-card>
+                            </v-col>
+                            <v-col cols="12" md="6" sm="6" v-else class="mb-6 mt-n6">
+                                <v-card variant="outlined" class="border-opacity-25">
+                                    <v-card-text class="mt-n3">
                                         Firma
                                     </v-card-text>
                                     <v-divider class="border-opacity-25" />
@@ -248,7 +255,7 @@
                                     variant="outlined" density="comfortable" prepend-inner-icon="mdi-notebook"
                                     readonly />
                             </v-col>
-                            <v-col cols="12" md="6" sm="6">
+                            <v-col cols="12" md="6" sm="6" :class="xs ? 'mt-n6' : ''">
                                 <v-text-field v-model="selectedVisitor.accessZone"
                                     :label="selectedVisitor.accessZone.length > 1 ? 'Zonas de acceso' : 'Zona de acceso'"
                                     variant="outlined" density="comfortable" prepend-inner-icon="mdi-map-marker"
@@ -279,7 +286,7 @@
     </v-dialog>
 
     <!-- Diálogo para editar visitante -->
-    <v-dialog v-model="editDialog" max-width="800">
+    <!-- <v-dialog v-model="editDialog" max-width="800">
         <v-card>
             <v-card-title class="text-h5 d-flex align-center bg-primary">
                 <v-icon class="mr-2">mdi-pencil</v-icon>
@@ -379,7 +386,7 @@
                 </v-btn>
             </v-card-actions>
         </v-card>
-    </v-dialog>
+    </v-dialog> -->
 
     <!-- Diálogo de confirmación para eliminar -->
     <v-dialog v-model="deleteDialog" max-width="500">
@@ -428,6 +435,8 @@ import { useToastComposable } from '@/composables/useToast';
 import ViewCard from '@/components/ViewCard.vue';
 import ExportVisitorsDialog from '@/components/ExportVisitorsDialog.vue';
 import VueSignature from 'vue3-signature';
+import { useDisplay } from 'vuetify'
+const { xs } = useDisplay()
 
 const { showToast } = useToastComposable();
 const router = useRouter();
@@ -465,10 +474,10 @@ const hasSignature = ref(false);
 // Headers de la tabla 
 const headers = [
     { title: 'Hora y fecha', key: 'datetime', sortable: false },
-    { title: 'Nombre', key: 'name', sortable: false },
-    { title: 'Empresa', key: 'company', sortable: false },
+    { title: 'Nombre', key: 'name', sortable: false, width: '15%' },
+    { title: 'Empresa', key: 'company', sortable: false, width: '15%' },
     { title: 'Responsable', key: 'workerId.name', sortable: false },
-    { title: 'Acciones', key: 'actions', sortable: false, align: 'center' }
+    { title: 'Acciones', key: 'actions', sortable: false, align: 'center', width: '20%' }
 ];
 
 // Reglas de validación
@@ -500,6 +509,14 @@ const isToday = computed(() => {
         selected.getFullYear() === today.getFullYear()
     );
 });
+
+const selectedVisitorDate = computed(() => {
+    return formatDate(selectedVisitor.value.visitDate)
+})
+
+const selectedVisitorHour = computed(() => {
+    return formatTime(selectedVisitor.value.visitDate)
+})
 
 // Lifecycle
 onMounted(() => {
