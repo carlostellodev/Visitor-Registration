@@ -1,6 +1,6 @@
 <template>
     <ViewCard :tenant="tenant" subtitle="Registro histórico de visitantes a las instalaciones"
-        content-class="pa-10 mt-n5" actions-class="mt-n9" :show-back-button="true" @back="goBack">
+        content-class="pa-10 mt-n5" actions-class="mt-n10" :show-back-button="true" @back="goBack">
         <template #default>
             <v-row class="mt-n2 mb-n1">
                 <!-- Selector de fecha -->
@@ -126,14 +126,9 @@
 
         <!-- Botones de exportación -->
         <template #actions>
-            <v-col class="d-flex justify-end ga-4 mr-4">
-                <v-btn @click="handleExportExcel" variant="outlined" prepend-icon="mdi-microsoft-excel" color="success"
-                    :disabled="visitors.length === 0">
-                    Exportar a Excel
-                </v-btn>
-                <v-btn @click="handleExportPDF" variant="outlined" prepend-icon="mdi-file-pdf-box" color="error"
-                    :disabled="visitors.length === 0">
-                    Exportar a PDF
+            <v-col class="d-flex justify-end mr-4">
+                <v-btn @click="showExportDialog = true" variant="outlined" prepend-icon="mdi-download">
+                    Exportar
                 </v-btn>
             </v-col>
         </template>
@@ -419,6 +414,9 @@
         </v-card>
     </v-dialog>
 
+    <!-- Diálogo de exportación -->
+    <ExportVisitorsDialog v-model="showExportDialog" @export="handleExport" />
+
 </template>
 
 <script setup>
@@ -428,6 +426,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useVisitStore } from '@/stores/visitStore';
 import { useToastComposable } from '@/composables/useToast';
 import ViewCard from '@/components/ViewCard.vue';
+import ExportVisitorsDialog from '@/components/ExportVisitorsDialog.vue';
 import VueSignature from 'vue3-signature';
 
 const { showToast } = useToastComposable();
@@ -450,6 +449,8 @@ const addDialog = ref(false);
 const showDialog = ref(false);
 const editDialog = ref(false);
 const deleteDialog = ref(false);
+
+const showExportDialog = ref(false);
 
 const editForm = ref(null);
 const createFormRef = ref(null);
@@ -620,16 +621,36 @@ function handleDownload(visitor) {
     document.body.removeChild(link);
 }
 
-function handleExportExcel() {
-    console.log('Exportar a Excel');
-    // TODO: Implementar exportación a Excel
-    showToast('Exportando a Excel...', 'info');
+async function handleExport(exportData) {
+    console.log('Exportar con:', exportData);
+
+    const { format, dateRange, startDate, endDate } = exportData;
+
+    try {
+        if (format === 'pdf') {
+            // TODO: Llamar a la API para exportar PDF
+            await exportToPDF(startDate, endDate);
+            showToast('PDF exportado correctamente', 'success');
+        } else {
+            // TODO: Llamar a la API para exportar Excel
+            await exportToExcel(startDate, endDate);
+            showToast('Excel exportado correctamente', 'success');
+        }
+    } catch (error) {
+        console.error('Error exportando:', error);
+        showToast('Error al exportar', 'error');
+    }
 }
 
-function handleExportPDF() {
-    console.log('Exportar a PDF');
-    // TODO: Implementar exportación a PDF
-    showToast('Exportando a PDF...', 'info');
+// Funciones de exportación (implementar según tu API)
+async function exportToPDF(startDate, endDate) {
+    // TODO: Implementar llamada a la API
+    console.log('Exportando PDF desde', startDate, 'hasta', endDate);
+}
+
+async function exportToExcel(startDate, endDate) {
+    // TODO: Implementar llamada a la API
+    console.log('Exportando Excel desde', startDate, 'hasta', endDate);
 }
 
 function formatDate(date) {
