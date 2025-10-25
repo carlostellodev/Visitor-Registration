@@ -5,6 +5,7 @@ import {
   getVisitorById,
   getVisitorsByTenant,
   getVisitorsByTenantAndDate,
+  exportVisitors,
   deleteVisitor,
 } from "../controllers/visitorController.js";
 import { authenticate } from "../middleware/authenticate.js";
@@ -63,6 +64,17 @@ router.get(
   authenticate,
   authorize(PERMISSIONS.VISITOR_READ, { checkTenantOwnership: true }),
   getVisitorsByTenantAndDate
+);
+
+/**
+ * POST /api/visitors/export
+ * Exportar visitantes a PDF o Excel
+ */
+router.post(
+  "/export",
+  authenticate,
+  authorize(PERMISSIONS.VISITOR_READ),
+  exportVisitors
 );
 
 /**

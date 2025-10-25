@@ -1,4 +1,5 @@
 import visitorService from "../services/visitorService.js";
+import { generateExcel, generatePDF } from "../utils/exportFiles.js";
 import { uploadPDFToCloudinary } from "../utils/uploadPDF.js";
 import { isSuperAdmin } from "../config/permissions.js";
 
@@ -193,6 +194,84 @@ export const getVisitorsByTenantAndDate = async (req, res) => {
       visitors,
     });
   } catch (error) {
+    res.status(500).json({
+      error: "Error en el servidor",
+      message: error.message,
+    });
+  }
+};
+
+export const exportVisitors = async (req, res) => {
+  try {
+    const { tenantId, startDate, endDate, format } = req.body;
+
+    // Validar campos requeridos
+    if (!tenantId || !startDate || !endDate || !format) {
+      return res.status(400).json({
+        error: "Campos requeridos",
+        message: "Faltan campos",
+      });
+    }
+
+    if (!["pdf", "excel"].includes(format)) {
+      return res.status(400).json({
+        error: "Formato inválido",
+        message: "El formato debe ser 'pdf' o 'excel'",
+      });
+    }
+
+    if (
+      !isSuperAdmin(req.user.role) &&
+      tenantId !== req.user.tenantId?.toString()
+    ) {
+      return res.status(403).json({
+        error: "Sin autorización",
+        message: "No puedes exportar visitantes de otros tenants",
+      });
+    }
+
+    const visitors = await visitorService.getVisitorsByDateRange(
+      tenantId,
+      startDate,
+      endDate
+    );
+
+    if (visitors.length === 0) {
+      return res.status(404).json({
+        error: "Sin datos",
+        message: "No hay visitantes en el rango de fechas seleccionado",
+      });
+    }
+
+    // Obtener información del tenant
+    const tenantName = visitors[0]?.tenantId?.name || "Tenant";
+    const tenantLogo = visitors[0]?.tenantId?.theme?.logoUrl;
+
+    // Generar archivo según formato
+    if (format === "excel") {
+      const buffer = await generateExcel(visitors, tenantName);
+
+      const filename = `Visitantes_${tenantName}_${
+        new Date().toISOString().split("T")[0]
+      }.xlsx`;
+
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.send(buffer);
+    } else if (format === "pdf") {
+      const buffer = await generatePDF(visitors, tenantName, tenantLogo);
+
+      const filename = `Visitantes_${tenantName}_${
+        new Date().toISOString().split("T")[0]
+      }.pdf`;
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.send(buffer);
+    }
+  } catch (error) {
+    console.error("Error exportando visitantes:", error);
     res.status(500).json({
       error: "Error en el servidor",
       message: error.message,

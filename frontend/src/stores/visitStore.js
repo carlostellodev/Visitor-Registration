@@ -107,6 +107,54 @@ export const useVisitStore = defineStore('visit', {
       }
     },
 
+    async exportVisitors(tenantId, startDate, endDate, format) {
+      this.loading = true
+      this.error = null
+
+      try {
+        const response = await api.post(
+          '/visitors/export',
+          {
+            tenantId,
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            format,
+          },
+          {
+            responseType: 'blob',
+          },
+        )
+
+        const filename = `Visitantes_${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'pdf' : 'xlsx'}`
+
+        // Crear enlace de descarga
+        const blob = new Blob([response.data], {
+          type:
+            format === 'pdf'
+              ? 'application/pdf'
+              : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        })
+
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', filename)
+        document.body.appendChild(link)
+        link.click()
+
+        // Limpiar
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+
+        return true
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Error al exportar'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
     async deleteVisitor(id) {
       try {
         const res = await api.delete(`/visitors/${id}`)
