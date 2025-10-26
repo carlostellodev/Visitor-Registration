@@ -1,4 +1,5 @@
 import Visitor from "../models/visitor.js";
+import { deletePDFFromCloudinary } from "../utils/cloudinaryFiles.js";
 
 class VisitorService {
   async createVisitor(visitorData) {
@@ -117,11 +118,25 @@ class VisitorService {
   }
 
   async deleteVisitor(id) {
-    const visitor = await Visitor.findByIdAndDelete(id);
+    const visitor = await Visitor.findById(id);
 
     if (!visitor) {
       throw new Error("Visita no encontrada");
     }
+
+    if (visitor.pdfUrl) {
+      const deleteResult = await deletePDFFromCloudinary(visitor.pdfUrl);
+      if (!deleteResult.success) {
+        console.error(
+          `No se pudo eliminar el PDF de Cloudinary para el visitante ${id}:`,
+          deleteResult.error
+        );
+        // Decidir si continuar o lanzar error según tu lógica de negocio
+        // Por ahora, solo logueamos el error y continuamos
+      }
+    }
+
+    await visitor.deleteOne();
 
     return visitor.toObject();
   }
