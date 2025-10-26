@@ -79,10 +79,14 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useDocumentStore } from '../stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
+import { useToastComposable } from '@/composables/useToast';
+
 import ViewCard from '@/components/ViewCard.vue';
 
 import VuePdfApp from "vue3-pdf-app";
 import "vue3-pdf-app/dist/icons/main.css";
+
+const { showToast } = useToastComposable();
 
 const pdfConfig = {
     toolbar: {
@@ -122,6 +126,7 @@ const tenant = computed(() => authStore.tenant);
 onMounted(async () => {
     window.scrollTo(0, 0);
     if (!tenant.value?._id) {
+        showToast("Error al cargar vista. Por favor contacta con el administrador.", 'error');
         router.push('/login');
         return;
     }
@@ -130,6 +135,7 @@ onMounted(async () => {
         await documentStore.fetchDocumentsByTenant(tenant.value._id);
 
         if (documents.value.length === 0) {
+            showToast("Error al cargar documentos. Por favor contacta con el administrador.", 'error');
             router.push(`/home/${tenant.value.slug}`);
         }
     } catch (error) {
