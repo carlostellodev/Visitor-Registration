@@ -1,6 +1,6 @@
 import visitorService from "../services/visitorService.js";
 import { generateExcel, generatePDF } from "../utils/exportFiles.js";
-import { uploadPDFToCloudinary } from "../utils/uploadPDF.js";
+import { uploadPDFToCloudinary } from "../utils/cloudinaryFiles.js";
 import { isSuperAdmin } from "../config/permissions.js";
 
 export const createVisitor = async (req, res) => {
@@ -274,7 +274,7 @@ export const deleteVisitor = async (req, res) => {
     const visitor = await visitorService.deleteVisitor(req.params.id);
 
     res.status(200).json({
-      message: "Visita eliminada exitosamente",
+      message: "Visita y archivos asociados eliminados exitosamente",
       visitor,
     });
   } catch (error) {

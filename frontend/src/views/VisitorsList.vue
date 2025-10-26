@@ -580,12 +580,11 @@ async function confirmDelete() {
     deleting.value = true;
     try {
         const res = await visitStore.deleteVisitor(selectedVisitor.value._id);
-        console.log(res);
 
         // Eliminar del array local
         visitors.value = visitors.value.filter(v => v._id !== selectedVisitor.value._id);
 
-        showToast('Visitante eliminado correctamente', 'success');
+        showToast('Visita y archivos asociados eliminados exitosamente', 'success');
         deleteDialog.value = false;
     } catch (error) {
         console.error('Error eliminando visitante:', error);
