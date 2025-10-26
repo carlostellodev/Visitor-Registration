@@ -654,7 +654,12 @@ async function handleExport(exportData) {
         );
     } catch (error) {
         console.error('Error exportando:', error);
-        showToast(
+        if (error.status === 401) {
+            showToast('No tienes permisos para acceder a esta información', 'error');
+        }
+        else if (error.status === 404) {
+            showToast('No se han encontrado visitantes para ese periodo', 'error');
+        } else showToast(
             error.response?.data?.message || 'Error al exportar',
             'error'
         );

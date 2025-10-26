@@ -250,11 +250,6 @@ export const exportVisitors = async (req, res) => {
     // Generar archivo según formato
     if (format === "excel") {
       const buffer = await generateExcel(visitors, tenantName);
-
-      const filename = `Visitantes_${tenantName}_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`;
-
       res.setHeader(
         "Content-Type",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -262,11 +257,6 @@ export const exportVisitors = async (req, res) => {
       res.send(buffer);
     } else if (format === "pdf") {
       const buffer = await generatePDF(visitors, tenantName, tenantLogo);
-
-      const filename = `Visitantes_${tenantName}_${
-        new Date().toISOString().split("T")[0]
-      }.pdf`;
-
       res.setHeader("Content-Type", "application/pdf");
       res.send(buffer);
     }

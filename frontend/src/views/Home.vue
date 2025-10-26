@@ -268,8 +268,6 @@ onUnmounted(() => {
     };
 
     visitStore.saveFormData(sanitizedData);
-    console.log("Se ha guardado");
-
 });
 
 // ============ COMPUTED ============
