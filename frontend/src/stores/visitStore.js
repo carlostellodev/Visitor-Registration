@@ -116,8 +116,8 @@ export const useVisitStore = defineStore('visit', {
           '/visitors/export',
           {
             tenantId,
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString(),
+            startDate,
+            endDate,
             format,
           },
           {

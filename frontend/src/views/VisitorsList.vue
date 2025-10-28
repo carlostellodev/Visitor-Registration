@@ -548,33 +548,33 @@ async function loadVisitors() {
     }
 }
 
-async function confirmEdit() {
-    // Validar formulario
-    const { valid } = await editFormRef.value.validate();
-    if (!valid) return;
+// async function confirmEdit() {
+//     // Validar formulario
+//     const { valid } = await editFormRef.value.validate();
+//     if (!valid) return;
 
-    editing.value = true;
-    try {
-        // TODO: Aquí irá la llamada al backend
-        // await visitStore.updateVisitor(editForm.value);
+//     editing.value = true;
+//     try {
+//         // TODO: Aquí irá la llamada al backend
+//         // await visitStore.updateVisitor(editForm.value);
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+//         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Actualizar en el array local
-        const index = visitors.value.findIndex(v => v._id === editForm.value._id);
-        if (index !== -1) {
-            visitors.value[index] = { ...editForm.value };
-        }
+//         // Actualizar en el array local
+//         const index = visitors.value.findIndex(v => v._id === editForm.value._id);
+//         if (index !== -1) {
+//             visitors.value[index] = { ...editForm.value };
+//         }
 
-        showToast('Visitante actualizado correctamente', 'success');
-        editDialog.value = false;
-    } catch (error) {
-        console.error('Error actualizando visitante:', error);
-        showToast('Error al actualizar visitante', 'error');
-    } finally {
-        editing.value = false;
-    }
-}
+//         showToast('Visitante actualizado correctamente', 'success');
+//         editDialog.value = false;
+//     } catch (error) {
+//         console.error('Error actualizando visitante:', error);
+//         showToast('Error al actualizar visitante', 'error');
+//     } finally {
+//         editing.value = false;
+//     }
+// }
 
 async function confirmDelete() {
     deleting.value = true;
@@ -639,11 +639,17 @@ function handleDownload(visitor) {
 async function handleExport(exportData) {
     const { format, startDate, endDate } = exportData;
 
+    // Enviar las fechas en formato YYYY-MM-DD
+    const localStartDate = new Date(startDate);
+    const localEndDate = new Date(endDate);
+    const startDateString = `${localStartDate.getFullYear()}-${String(localStartDate.getMonth() + 1).padStart(2, '0')}-${String(localStartDate.getDate()).padStart(2, '0')}`;
+    const endDateString = `${localEndDate.getFullYear()}-${String(localEndDate.getMonth() + 1).padStart(2, '0')}-${String(localEndDate.getDate()).padStart(2, '0')}`;
+
     try {
         await visitStore.exportVisitors(
             tenant.value._id,
-            startDate,
-            endDate,
+            startDateString,
+            endDateString,
             format
         );
 

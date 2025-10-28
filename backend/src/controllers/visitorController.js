@@ -205,9 +205,6 @@ export const exportVisitors = async (req, res) => {
   try {
     const { tenantId, startDate, endDate, format } = req.body;
 
-    console.log("Fecha de inicio: ", startDate);
-    console.log("Fecha de fin: ", endDate);
-
     // Validar campos requeridos
     if (!tenantId || !startDate || !endDate || !format) {
       return res.status(400).json({
@@ -223,6 +220,17 @@ export const exportVisitors = async (req, res) => {
       });
     }
 
+    // Validar formato de fecha
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    if (isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime())) {
+      return res.status(400).json({
+        error: "Fecha inválida",
+        message:
+          "El formato de las fechas debe ser YYYY-MM-DD o un formato válido ISO",
+      });
+    }
+
     if (
       !isSuperAdmin(req.user.role) &&
       tenantId !== req.user.tenantId?.toString()
@@ -233,10 +241,16 @@ export const exportVisitors = async (req, res) => {
       });
     }
 
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
     const visitors = await visitorService.getVisitorsByDateRange(
       tenantId,
-      startDate,
-      endDate
+      start,
+      end
     );
 
     if (visitors.length === 0) {
