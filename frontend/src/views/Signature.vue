@@ -80,7 +80,7 @@
         <template #actions>
             <v-col cols="auto">
                 <v-btn @click="submitVisit" :disabled="!hasSignature" :loading="loading" color="primary" variant="flat"
-                    size="x-large" prepend-icon="mdi-check-circle" class="pa-3">
+                    :size="xs ? '' : 'x-large'" prepend-icon="mdi-check-circle" class="pa-3">
                     Confirmar y Finalizar
                 </v-btn>
             </v-col>
@@ -99,6 +99,8 @@ import VueSignature from 'vue3-signature';
 import { getVisitPDFBlob } from '../utils/pdfGenerator';
 import { useToastComposable } from '@/composables/useToast';
 import ViewCard from '@/components/ViewCard.vue';
+import { useDisplay } from 'vuetify'
+const { xs } = useDisplay()
 
 const { showToast } = useToastComposable();
 

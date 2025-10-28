@@ -61,7 +61,7 @@
                             <v-icon class="mr-2">mdi-clipboard-text</v-icon>
                             Lista de visitantes
                             <v-spacer></v-spacer>
-                            <v-text-field v-model="search" density="compact" placeholder="Buscar..."
+                            <v-text-field v-if="!xs" v-model="search" density="compact" placeholder="Buscar..."
                                 prepend-inner-icon="mdi-magnify" variant="outlined" hide-details single-line
                                 style="max-width: 300px;" clearable class="bg-white" />
                         </v-card-title>

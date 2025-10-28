@@ -1,5 +1,5 @@
 <template>
-    <ViewCard :tenant="tenant" content-class="pa-6" actions-class="mt-n9 ml-n3" @back="goBack">
+    <ViewCard :tenant="tenant" content-class="pa-6" actions-class="mt-n9" @back="goBack">
         <v-card variant="outlined" class="mb-3">
             <v-card-title class="bg-grey-lighten-3">
                 Datos de la empresa

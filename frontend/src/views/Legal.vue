@@ -58,7 +58,7 @@
 
         <!-- Acciones personalizadas -->
         <template #actions>
-            <v-col cols="auto" class="d-flex ga-4">
+            <v-col cols="auto" class="d-flex ga-4" :class="xs ? 'flex-wrap' : ''">
                 <v-btn v-if="currentStep > 0" @click="previousDocument" prepend-icon="mdi-chevron-left" size="large"
                     variant="outlined">
                     Anterior
@@ -80,6 +80,8 @@ import { useAuthStore } from '../stores/authStore';
 import { useDocumentStore } from '../stores/documentStore';
 import { useVisitStore } from '../stores/visitStore';
 import { useToastComposable } from '@/composables/useToast';
+import { useDisplay } from 'vuetify'
+const { xs } = useDisplay()
 
 import ViewCard from '@/components/ViewCard.vue';
 

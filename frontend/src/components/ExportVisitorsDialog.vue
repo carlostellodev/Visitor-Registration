@@ -64,7 +64,7 @@
                                             @update:model-value="showStartDatePicker = false"></v-date-picker>
                                     </v-menu>
                                 </v-col>
-                                <v-col cols="12" sm="6">
+                                <v-col cols="12" sm="6" :class="xs ? 'mt-n3' : ''">
                                     <v-menu v-model="showEndDatePicker" :close-on-content-click="false">
                                         <template v-slot:activator="{ props }">
                                             <v-text-field v-bind="props" :model-value="formattedEndDate"
@@ -108,6 +108,8 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { useDisplay } from 'vuetify'
+const { xs } = useDisplay()
 
 // Props
 const props = defineProps({
