@@ -7,6 +7,25 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+function formatDate(date) {
+  if (!date) return "";
+  const d = new Date(date);
+  return d.toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
+function formatTime(date) {
+  if (!date) return "";
+  const d = new Date(date);
+  return d.toLocaleTimeString("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export const generateExcel = async (visitors, tenantName) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Visitantes");
@@ -57,14 +76,10 @@ export const generateExcel = async (visitors, tenantName) => {
   // Añadir datos con firmas
   for (let i = 0; i < visitors.length; i++) {
     const visitor = visitors[i];
-    const date = new Date(visitor.createdAt);
 
     const row = worksheet.addRow([
-      date.toLocaleDateString("es-ES"),
-      date.toLocaleTimeString("es-ES", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      formatDate(visitor.visitDate),
+      formatTime(visitor.visitDate),
       visitor.name,
       visitor.company,
       visitor.plate || "-",
@@ -240,7 +255,7 @@ export const generatePDF = async (visitors, tenantName, tenantLogo) => {
 
       // Tabla de visitantes
       for (const [index, visitor] of visitors.entries()) {
-        const date = new Date(visitor.createdAt);
+        const date = new Date(visitor.visitDate);
 
         // Altura de cada tarjeta
         const cardHeight = 100;
@@ -279,12 +294,9 @@ export const generatePDF = async (visitors, tenantName, tenantLogo) => {
 
         // Fecha y hora
         doc.text(
-          `Fecha: ${date.toLocaleDateString(
-            "es-ES"
-          )} - ${date.toLocaleTimeString("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}`,
+          `Fecha y hora: ${formatDate(visitor.visitDate)} - ${formatTime(
+            visitor.visitDate
+          )}`,
           60,
           currentY + 38,
           { width: 220 }
