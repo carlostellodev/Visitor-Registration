@@ -235,7 +235,7 @@
                                         Firma
                                     </v-card-text>
                                     <v-divider class="border-opacity-25" />
-                                    <v-img style="max-height: 100px;" :src="selectedVisitor.signature" />
+                                    <v-img style="max-height: 80px;" :src="selectedVisitor.signature" />
                                 </v-card>
                             </v-col>
                             <v-col cols="12" md="6" sm="6" v-else class="mb-6 mt-n6">
