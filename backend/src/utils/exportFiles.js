@@ -11,95 +11,159 @@ export const generateExcel = async (visitors, tenantName) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Visitantes");
 
-  // Columnas
-  worksheet.columns = [
-    { header: "Fecha", key: "date", width: 12 },
-    { header: "Hora", key: "time", width: 10 },
-    { header: "Nombre", key: "name", width: 25 },
-    { header: "Empresa", key: "company", width: 25 },
-    { header: "Matrícula", key: "plate", width: 12 },
-    { header: "Motivo", key: "purpose", width: 20 },
-    { header: "Zona de acceso", key: "accessZone", width: 20 },
-    { header: "Responsable", key: "worker", width: 25 },
-  ];
-
-  // Estilos del header
-  worksheet.getRow(1).font = { bold: true, size: 12 };
-  worksheet.getRow(1).fill = {
-    type: "pattern",
-    pattern: "solid",
-    fgColor: { argb: "FF4472C4" },
-  };
-  worksheet.getRow(1).font = { color: { argb: "FFFFFFFF" }, bold: true };
-  worksheet.getRow(1).alignment = { vertical: "middle", horizontal: "center" };
-  worksheet.getRow(1).height = 25;
-
-  // Añadir datos
-  visitors.forEach((visitor) => {
-    const date = new Date(visitor.createdAt);
-
-    worksheet.addRow({
-      date: date.toLocaleDateString("es-ES"),
-      time: date.toLocaleTimeString("es-ES", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      name: visitor.name,
-      company: visitor.company,
-      plate: visitor.plate || "-",
-      purpose: Array.isArray(visitor.purpose)
-        ? visitor.purpose.map((p) => capitalize(p)).join(", ")
-        : capitalize(visitor.purpose),
-      accessZone: Array.isArray(visitor.accessZone)
-        ? visitor.accessZone.map((z) => capitalize(z)).join(", ")
-        : capitalize(visitor.accessZone),
-      worker: visitor.workerId?.name || "-",
-    });
-  });
-
-  // Aplicar bordes y estilos a todas las celdas
-  worksheet.eachRow((row, rowNumber) => {
-    row.eachCell((cell) => {
-      cell.border = {
-        top: { style: "thin" },
-        left: { style: "thin" },
-        bottom: { style: "thin" },
-        right: { style: "thin" },
-      };
-
-      if (rowNumber > 1) {
-        cell.alignment = { vertical: "middle", horizontal: "left" };
-      }
-    });
-  });
-
-  // Añadir filtros
-  worksheet.autoFilter = {
-    from: "A1",
-    to: "H1",
-  };
-
   // Añadir título
-  worksheet.insertRow(1, [`Reporte de Visitantes - ${tenantName}`]);
-  worksheet.mergeCells("A1:H1");
+  worksheet.addRow([`Reporte de Visitantes - ${tenantName}`]);
+  worksheet.mergeCells("A1:I1");
   worksheet.getCell("A1").font = { size: 16, bold: true };
   worksheet.getCell("A1").alignment = {
     vertical: "middle",
     horizontal: "center",
   };
-  worksheet.getRow(1).height = 30;
+  worksheet.getRow(1).height = 40;
 
-  // Añadir información de exportación
-  const totalRow = worksheet.addRow([]);
-  totalRow.getCell(1).value = `Total de visitantes: ${visitors.length}`;
+  const headerRow = worksheet.addRow([
+    "Fecha",
+    "Hora",
+    "Nombre",
+    "Empresa",
+    "Matrícula",
+    "Motivo",
+    "Zona de acceso",
+    "Responsable",
+    "Firma",
+  ]);
+
+  // Definir anchos de columna
+  worksheet.getColumn(1).width = 12; // Fecha
+  worksheet.getColumn(2).width = 10; // Hora
+  worksheet.getColumn(3).width = 25; // Nombre
+  worksheet.getColumn(4).width = 25; // Empresa
+  worksheet.getColumn(5).width = 12; // Matrícula
+  worksheet.getColumn(6).width = 20; // Motivo
+  worksheet.getColumn(7).width = 20; // Zona de acceso
+  worksheet.getColumn(8).width = 25; // Responsable
+  worksheet.getColumn(9).width = 24; // Firma
+
+  // Estilos del header
+  headerRow.font = { bold: true, size: 12, color: { argb: "FFFFFFFF" } };
+  headerRow.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF4472C4" },
+  };
+  headerRow.alignment = { vertical: "middle", horizontal: "center" };
+  headerRow.height = 25;
+
+  // Añadir datos con firmas
+  for (let i = 0; i < visitors.length; i++) {
+    const visitor = visitors[i];
+    const date = new Date(visitor.createdAt);
+
+    const row = worksheet.addRow([
+      date.toLocaleDateString("es-ES"),
+      date.toLocaleTimeString("es-ES", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      visitor.name,
+      visitor.company,
+      visitor.plate || "-",
+      Array.isArray(visitor.purpose)
+        ? visitor.purpose.map((p) => capitalize(p)).join(", ")
+        : capitalize(visitor.purpose),
+      Array.isArray(visitor.accessZone)
+        ? visitor.accessZone.map((z) => capitalize(z)).join(", ")
+        : capitalize(visitor.accessZone),
+      visitor.workerId?.name || "-",
+      "", // Columna de firma
+    ]);
+
+    row.height = 55;
+
+    // Aplicar alineación a todas las celdas de datos
+    row.alignment = { vertical: "middle", horizontal: "left" };
+
+    // Añadir la firma como imagen
+    if (visitor.signature) {
+      try {
+        // Convertir base64 a buffer
+        const base64Data = visitor.signature.replace(
+          /^data:image\/\w+;base64,/,
+          ""
+        );
+        const imageBuffer = Buffer.from(base64Data, "base64");
+
+        const imageId = workbook.addImage({
+          buffer: imageBuffer,
+          extension: "png",
+        });
+
+        const imageRow = row.number - 1;
+
+        worksheet.addImage(imageId, {
+          tl: { col: 8.15, row: imageRow + 0.15 },
+          ext: { width: 150, height: 60 },
+          editAs: "oneCell",
+        });
+      } catch (error) {
+        console.error(`Error añadiendo firma para ${visitor.name}:`, error);
+        row.getCell(9).value = "Error al cargar";
+        row.getCell(9).alignment = {
+          vertical: "middle",
+          horizontal: "center",
+        };
+      }
+    } else {
+      row.getCell(9).value = "Sin firma";
+      row.getCell(9).alignment = {
+        vertical: "middle",
+        horizontal: "center",
+      };
+    }
+  }
+
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber >= 3) {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+    }
+  });
+
+  // Añadir filtros
+  worksheet.autoFilter = {
+    from: { row: 2, column: 1 },
+    to: { row: 2, column: 9 },
+  };
+
+  // Añadir información de resumen al final
+  worksheet.addRow([]);
+  const totalRow = worksheet.addRow([
+    `Total de visitantes: ${visitors.length}`,
+  ]);
   totalRow.getCell(1).font = { bold: true };
   totalRow.height = 25;
 
-  const dateRow = worksheet.addRow([]);
-  dateRow.getCell(1).value = `Fecha de exportación: ${new Date().toLocaleString(
-    "es-ES"
-  )}`;
+  const dateRow = worksheet.addRow([
+    `Fecha de exportación: ${new Date().toLocaleString("es-ES")}`,
+  ]);
   dateRow.height = 20;
+
+  // Congelar paneles para mantener el header visible al hacer scroll
+  worksheet.views = [
+    {
+      state: "frozen",
+      xSplit: 0,
+      ySplit: 2,
+      topLeftCell: "A4",
+      activeCell: "A4",
+    },
+  ];
 
   return await workbook.xlsx.writeBuffer();
 };
