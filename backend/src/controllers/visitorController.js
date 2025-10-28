@@ -264,8 +264,6 @@ export const exportVisitors = async (req, res) => {
     const tenantName = visitors[0]?.tenantId?.name || "Tenant";
     const tenantLogo = visitors[0]?.tenantId?.theme?.logoUrl;
 
-    console.log("Visitantes de las fechas seleccionadas: ", visitors);
-
     // Generar archivo según formato
     if (format === "excel") {
       const buffer = await generateExcel(visitors, tenantName);
