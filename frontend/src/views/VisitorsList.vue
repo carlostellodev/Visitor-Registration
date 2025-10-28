@@ -235,7 +235,7 @@
                                         Firma
                                     </v-card-text>
                                     <v-divider class="border-opacity-25" />
-                                    <v-img :src="selectedVisitor.signature" />
+                                    <v-img style="max-height: 90px;" :src="selectedVisitor.signature" />
                                 </v-card>
                             </v-col>
                             <v-col cols="12" md="6" sm="6" v-else class="mb-6 mt-n6">
@@ -686,7 +686,8 @@ function formatTime(date) {
     const d = new Date(date);
     return d.toLocaleTimeString('es-ES', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        timeZone: "Europe/Madrid",
     });
 }
 
