@@ -20,11 +20,10 @@ function formatDate(date) {
 function formatTime(date) {
   if (!date) return "";
   const d = new Date(date);
-  console.log(d);
-  console.log(d.toLocaleTimeString("es-ES"));
   return d.toLocaleTimeString("es-ES", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/Madrid",
   });
 }
 
