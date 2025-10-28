@@ -205,6 +205,9 @@ export const exportVisitors = async (req, res) => {
   try {
     const { tenantId, startDate, endDate, format } = req.body;
 
+    console.log("Fecha de inicio: ", startDate);
+    console.log("Fecha de fin: ", endDate);
+
     // Validar campos requeridos
     if (!tenantId || !startDate || !endDate || !format) {
       return res.status(400).json({
@@ -246,6 +249,8 @@ export const exportVisitors = async (req, res) => {
     // Obtener información del tenant
     const tenantName = visitors[0]?.tenantId?.name || "Tenant";
     const tenantLogo = visitors[0]?.tenantId?.theme?.logoUrl;
+
+    console.log("Visitantes de las fechas seleccionadas: ", visitors);
 
     // Generar archivo según formato
     if (format === "excel") {
