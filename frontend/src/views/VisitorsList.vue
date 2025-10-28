@@ -231,7 +231,7 @@
                             </v-col>
                             <v-col cols="12" md="6" sm="6" v-if="!xs">
                                 <v-card variant="outlined" class="border-opacity-25">
-                                    <v-card-text class="mb-n3 mt-n3">
+                                    <v-card-text class="">
                                         Firma
                                     </v-card-text>
                                     <v-divider class="border-opacity-25" />
@@ -686,7 +686,8 @@ function formatTime(date) {
     const d = new Date(date);
     return d.toLocaleTimeString('es-ES', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        timeZone: "Europe/Madrid",
     });
 }
 
