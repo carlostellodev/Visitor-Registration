@@ -154,17 +154,6 @@ export const generateExcel = async (visitors, tenantName) => {
   ]);
   dateRow.height = 20;
 
-  // Congelar paneles para mantener el header visible al hacer scroll
-  worksheet.views = [
-    {
-      state: "frozen",
-      xSplit: 0,
-      ySplit: 2,
-      topLeftCell: "A4",
-      activeCell: "A4",
-    },
-  ];
-
   return await workbook.xlsx.writeBuffer();
 };
 
