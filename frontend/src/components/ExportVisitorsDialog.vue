@@ -60,8 +60,8 @@
                                                 :rules="[v => !!v || 'Fecha inicio requerida']"></v-text-field>
                                         </template>
                                         <v-date-picker v-model="customStartDate" color="primary"
-                                            :max="customEndDate || new Date()"
-                                            @update:model-value="showStartDatePicker = false"></v-date-picker>
+                                            :max="customEndDate || new Date()" :first-day-of-week="1"
+                                            @update:model-value="showStartDatePicker = false" />
                                     </v-menu>
                                 </v-col>
                                 <v-col cols="12" sm="6" :class="xs ? 'mt-n3' : ''">
@@ -73,8 +73,8 @@
                                                 :rules="[v => !!v || 'Fecha fin requerida']"></v-text-field>
                                         </template>
                                         <v-date-picker v-model="customEndDate" color="primary" :min="customStartDate"
-                                            :max="new Date()"
-                                            @update:model-value="showEndDatePicker = false"></v-date-picker>
+                                            :max="new Date()" :first-day-of-week="1"
+                                            @update:model-value="showEndDatePicker = false" />
                                     </v-menu>
                                 </v-col>
                             </v-row>

@@ -139,7 +139,7 @@
         <v-card>
             <v-card-text class="pa-0">
                 <v-date-picker v-model="selectedDate" color="primary" show-adjacent-months width="100%"
-                    @update:model-value="handleDateChange" />
+                    @update:model-value="handleDateChange" :first-day-of-week="1" />
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -479,6 +479,8 @@ const headers = [
     { title: 'Responsable', key: 'workerId.name', sortable: false },
     { title: 'Acciones', key: 'actions', sortable: false, align: 'center', width: '20%' }
 ];
+
+const weekday = [1, 2, 3, 4, 5, 6, 0];
 
 // Reglas de validación
 const nameRules = [
