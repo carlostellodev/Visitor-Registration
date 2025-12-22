@@ -46,7 +46,7 @@
 
                     <!-- Alerta de Error General -->
                     <v-alert v-else-if="authStore.error" type="error" variant="tonal" density="compact"
-                        class="mb-4 mt-n5">
+                        class="mb-4 mt-n4">
                         {{ authStore.error }}
                     </v-alert>
 
